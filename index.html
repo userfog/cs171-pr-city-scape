@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/string_format.js"></script>
+  <script src="js/SocrataModel.js"></script>
+  <style type="text/css">
+    body {
+      font-family: 'PT Sans', sans-serif;
+    }
+
+    svg {
+      font: 10px sans-serif;
+      width: 100%;
+    }
+
+    .bar {
+      cursor: pointer;
+    }
+
+    .bar rect {
+      fill: steelblue;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .line {
+      fill: none;
+      stroke: steelblue;
+      stroke-width: 0.5px;
+    }
+
+    .area {
+      fill: steelblue;
+      clip-path: url(#clip);
+    }
+
+    .brush .extent {
+      stroke: #fff;
+      fill-opacity: .125;
+      shape-rendering: crispEdges;
+    }
+  </style>
+</head>
+<body>
+<script type="text/javascript">
+  var MySocrataModel = new SocrataModel("https://data.chattlibrary.org", "5na4-ggsr", "DylLLVyY2RqAMdaOKMSE0k2Bg");
+  MySocrataModel.get("codedescription=EMBEZZLEMENT");
+</script>
+</body>
+</html>
