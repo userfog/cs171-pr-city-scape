@@ -89,12 +89,6 @@ MapVis.prototype.initVis = function() {
       .attr("class", "g-district-outer-boundary")
       .attr("d", this.path);
 
-  this.svg.append("path")
-      .datum({type: "GeometryCollection", geometries: communityAreas.geometries.filter(function(d) { return d.properties.name in that.specials; })})
-      .attr("class", "g-district-special")
-      .attr("d", this.path);
-
-
   this.districtLabel = this.svg.selectAll(".g-district-label")
       .data(communityAreas.geometries.filter(function(d) {
         var l = that.customLabels[d.properties.name] || {};
@@ -109,6 +103,9 @@ MapVis.prototype.initVis = function() {
       .attr("transform", function(d) {
         var c = that.path.centroid(d);
         return "translate(" + [c[0] + d.properties.dx, c[1] + d.properties.dy] + ")";
+      })
+      .on("mouseover", function(d,i){
+        console.log(d);
       });
 
   this.districtLabel.selectAll("text")
