@@ -1,6 +1,6 @@
 
 
-SocrataModel = function(_baseUrl, _resource, _apiKey, _responseType){
+var SocrataModel = function(_baseUrl, _resource, _apiKey, _responseType){
   this.baseUrl = _baseUrl;
   this.resource = _resource;
   this.apiKey = _apiKey;
