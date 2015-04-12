@@ -11,7 +11,9 @@
   <script type="text/javascript" src="js/string_format.js"></script>
   <script src="js/SocrataModel.js"></script>
   <script src="js/MapVis.js"></script>
+  
   <style type="text/css">
+
 #interactiveFooter {
   border-top: 1px solid #ddd;
   margin-top: 10px;
@@ -196,6 +198,15 @@
   text-align: right;
 }
 
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
 
   </style>
 </head>
@@ -204,7 +215,7 @@
 <div id="mapvis" class=".col-md-6"></div>
 <div class=".col-md-3"></div>
 <script type="text/javascript">
-  var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg");
+
   
 
   queue().defer(d3.json, "map/chicago.json")
@@ -213,8 +224,16 @@
 
   function ready(error, chicago){
         var MyEventHandler = new Object();
-        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MyEventHandler);
-        MySocrataModel.get("community_area=10");
+
+        var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
+
+        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
+
+        $(MyEventHandler).bind("selectionChanged", function(event, event_args){
+          MyMapVis.choropleth();
+        });
+
+        MySocrataModel.get("$select=community_area,COUNT(primary_type)&$group=community_area");
   }
 
 
