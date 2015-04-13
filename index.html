@@ -11,6 +11,7 @@
   <script type="text/javascript" src="js/string_format.js"></script>
   <script src="js/SocrataModel.js"></script>
   <script src="js/MapVis.js"></script>
+  <script src="js/sunburst.js"></script>
   
   <style type="text/css">
 
@@ -211,12 +212,15 @@
   </style>
 </head>
 <body>
-<div class=".col-md-3"></div>
-<div id="mapvis" class=".col-md-6"></div>
-<div class=".col-md-3"></div>
+<div class="row">
+  <div class="col-md-7" id="mapvis">
+  </div>
+  <div class="col-md-5">
+  <div id="sunburst"></div>
+  <div id="scattervis"> scatter here </div>
+  </div>
+</div>
 <script type="text/javascript">
-
-  
 
   queue().defer(d3.json, "map/chicago.json")
         .defer(d3.tsv, "map/block-groups.tsv")
@@ -228,6 +232,7 @@
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
 
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
+        var MySunburst = new Sunburst(d3.select("#sunburst"), chicago, MySocrataModel, MyEventHandler);
 
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MyMapVis.choropleth();
