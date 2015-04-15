@@ -6,7 +6,7 @@
   <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
-  <script src="http://d3js.org/topojson.v0.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/string_format.js"></script>
   <script src="js/SocrataModel.js"></script>
@@ -231,8 +231,8 @@
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
 
-        //var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
-        var MySunburst = new Sunburst(d3.select("#sunburst"), MySocrataModel, MyEventHandler);
+        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
+        // var MySunburst = new Sunburst(d3.select("#sunburst"), MySocrataModel, MyEventHandler);
 
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MyMapVis.choropleth();
@@ -240,7 +240,7 @@
 
         //MySocrataModel.get("$select=community_area,COUNT(primary_type)&$group=community_area", SocrataModel.wran);
 
-        MySocrataModel.get("$where=community_area=%2777%27&$select=year,primary_type,description,location_description,%20COUNT(primary_type)&$group=year,primary_type,description,location_description&$limit=50000&$offset=1000", SocrataModel.sunburstWrangle());
+        // MySocrataModel.get("$where=community_area=%2777%27&$select=year,primary_type,description,location_description,%20COUNT(primary_type)&$group=year,primary_type,description,location_description&$limit=50000&$offset=1000", SocrataModel.sunburstWrangle());
 
   }
 
