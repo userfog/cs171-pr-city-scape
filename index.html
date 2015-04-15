@@ -34,6 +34,9 @@
   stroke-width:2.5px;
 }
 
+.legend{
+  margin-left: 20px;
+}
 
 .q0-9 { fill:rgb(247,251,255); }
 .q1-9 { fill:rgb(222,235,247); }
@@ -68,7 +71,7 @@
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
 
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
-        // var MySunburst = new Sunburst(d3.select("#sunburst"), MySocrataModel, MyEventHandler);
+        var MySunburst = new Sunburst(d3.select("#sunburst"), MySocrataModel, MyEventHandler);
 
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MyMapVis.choropleth();
