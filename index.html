@@ -6,7 +6,7 @@
   <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
-  <script src="http://d3js.org/topojson.v0.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/string_format.js"></script>
   <script src="js/SocrataModel.js"></script>
@@ -15,189 +15,25 @@
   
   <style type="text/css">
 
-#interactiveFooter {
-  border-top: 1px solid #ddd;
-  margin-top: 10px;
-  padding-top: 12px;
-}
-
-.storyHeader h1,
-.g-graphic {
-  font-family: "nyt-franklin-1", sans-serif;
-}
-
-.storyHeader h1 {
-  font-weight: 300;
-  font-size: 32px !important;
-}
-
-.g-graphic {
-  margin: 0 10px;
-}
-
-.g-title {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.g-summary {
-  margin-top: 10px;
-  margin-bottom: 40px;
-  max-width: 480px;
-  font-size: 15px;
-  line-height: 1.4em;
-}
-
-.g-chart,
-.g-table {
-  float: left;
-}
-
-.g-chart {
-  width: 700px;
-  margin-right: 0px;
-  position: relative;
-}
-
-.g-table {
-  width: 230px;
-  margin-right: 20px;
-}
-
-.g-chart path {
-  stroke-linejoin: round;
-}
-
-.g-district {
+.communityarea {
   fill: #eee;
-}
-
-.g-district-special {
-  fill: none;
-  stroke: #333;
-  stroke-width: 1.5px;
-}
-
-.g-district-outer-boundary {
-  fill: none;
   stroke: #aaa;
 }
 
-.g-district-inner-boundary {
-  fill: none;
-  stroke: #fff;
-}
-
-.g-block {
-  fill-opacity: .35;
-}
-
-.g-block-boundary {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: .5px;
-}
-
-.g-district-label {
+.communityareas-label {
   font-size: 9px;
   text-anchor: middle;
   text-transform: uppercase;
 }
 
-.g-district-id {
+.communityareas-dropshadow {
   font-size: 9px;
-  font-weight: 700;
-}
-
-.g-district-leader {
-  fill: none;
-  stroke: #000;
-  stroke-width: 1px;
-  stroke-opacity: 0.6;
-  shape-rendering: crispEdges;
-}
-
-.g-homicide {
-  fill: #E89B00;
-  fill-opacity: 1;
-  stroke: .5px;
-  stroke-width: 1px;
-}
-
-.g-legend {
-  font-size: 13px;
-}
-
-.g-annoc {
-  position: absolute;
-}
-
-.g-annotation-container-austin {
-  left: 65px;
-  top: 255px;
-  width: 150px;
-}
-
-.g-annotation-container-lincoln-park {
-  top: 165px;
-  right: 10px;
-  width: 140px;
-}
-
-.g-annotation-container-grand-c {
-  left: 65px;
-  top: 540px;
-  width: 190px;
-}
-
-.g-annotation-container-hyde {
-  top: 323px;
-  right: 10px;
-  width: 140px;
-}
-
-.g-annotation {
-  font-size: 13px;
-  margin-top: 15px;
-  line-height: 1.3em;
-}
-
-.g-annotation strong {
-  padding-right: 5px;
-}
-
-.g-table table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.g-table thead th {
-  color: #555;
-  font-size: 10px;
-  font-weight: normal;
-  line-height: 1.2em;
-  text-align: center !important;
+  text-anchor: middle;
   text-transform: uppercase;
-  width: 30%;
+  stroke: #fff;
+  stroke-width:2.5px;
 }
 
-.g-table tbody th {
-  font-size: 13px;
-  text-align: left;
-  white-space: nowrap;
-  width: 40%;
-}
-
-.g-table tbody th,
-.g-table tbody td {
-  border-bottom: 1px solid #ccc;
-  padding: 10px 0;
-}
-
-.g-table tbody td {
-  font-size: 16px;
-  text-align: right;
-}
 
 .q0-9 { fill:rgb(247,251,255); }
 .q1-9 { fill:rgb(222,235,247); }
@@ -232,7 +68,7 @@
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
 
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
-       
+
 
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MyMapVis.choropleth();

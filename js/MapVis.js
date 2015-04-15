@@ -81,6 +81,7 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
 "washington heights": 73,
 "mount greenwood": 74,
 "morgan park": 75,
+"ohare": 76,
 "o'hare": 76,
 "edgewater": 77}
 
@@ -146,34 +147,20 @@ MapVis.prototype.initVis = function() {
     .attr("transform", "translate(-25,-30)");
 
   var blocksById = {},
-      blockGroups = topojson.object(this.data, this.data.objects.blockGroups),
-      communityAreas = topojson.object(this.data, this.data.objects.communityAreas);
+      blockGroups = topojson.feature(this.data, this.data.objects.blockGroups),
+      communityAreas = topojson.feature(this.data, this.data.objects.communityAreas);
 
-  this.svg.insert("defs", "*").append("clipPath")
-    .datum(communityAreas)
-    .attr("id", "g-clip-district")
-  .append("path")
-    .attr("d", this.path);
+  this.communityAreas = this.svg.selectAll("path")
+    .data(topojson.feature(this.data, this.data.objects.communityAreas).features)
+    .enter().append("path")
+    .attr("class", "communityareas")
+    .attr("id", function(d,i){
+      return that.areasMap[d.properties.name.toLowerCase()];})
+    .attr("d", this.path)    
+    .on("click", function(d){console.log(d);})
 
-  this.svg.append("path")
-    .datum(communityAreas)
-    .attr("class", "g-district")
-    .attr("d", this.path);
-
-  this.svg.append("path")
-      .datum(topojson.mesh(this.data, this.data.objects
-        .communityAreas, function(a, b) { return a !== b; }))
-      .attr("class", "g-district-inner-boundary")
-      .attr("d", this.path);
-
-  this.svg.append("path")
-      .datum(topojson.mesh(this.data, this.data.objects
-        .communityAreas, function(a, b) { return a === b; }))
-      .attr("class", "g-district-outer-boundary")
-      .attr("d", this.path);
-
-  this.districtLabel = this.svg.selectAll(".g-district-label")
-      .data(communityAreas.geometries.filter(function(d) {
+  this.communityLabels = this.svg.selectAll(".communityareas-label")
+      .data(communityAreas.features.filter(function(d) {
         var l = that.customLabels[d.properties.name] || {};
         d.properties.hide = l.hide || false;
         d.properties.dx = l.offset ? l.offset[0] : 0;
@@ -182,38 +169,70 @@ MapVis.prototype.initVis = function() {
         return !d.properties.hide;
       }))
     .enter().append("g")
-      .attr("class", "g-district-label")
+      .attr("class", "communityareas-label")
       .attr("transform", function(d) {
         var c = that.path.centroid(d);
         return "translate(" + [c[0] + d.properties.dx, c[1] + d.properties.dy] + ")";
-      })
-      .on("mouseover", function(d,i){
-        console.log(d);
       });
 
-  this.districtLabel.selectAll("text")
+  this.communityLabels.selectAll("text")
+    .data(function(d) {
+          var words = d.properties.name.split(" ");
+          return words.map(function(d) { return {word: d, count: words.length}; });
+        })
+    .enter().append("text") 
+      .attr("class", "communityareas-dropshadow")
+      .attr("dy", function(d, i) { return (i - d.count / 2 + .7) + "em"; })
+      .text(function(d){ return d.word; })
+
+  this.communityLabels.selectAll(".communityareas-name")
       .data(function(d) {
         var words = d.properties.name.split(" ");
         return words.map(function(d) { return {word: d, count: words.length}; });
       })
     .enter().append("text")
-      .attr("class", "g-district-name")
+      .attr("class", "communityareas-name")
       .attr("dy", function(d, i) { return (i - d.count / 2 + .7) + "em"; })
       .text(function(d) { return d.word; });
-
 };
 
 MapVis.prototype.choropleth = function(){
   var that = this;
-
   that.quantize.domain(d3.extent(d3.range(78).map(function(d){return that.socrataModel.map.get(d)})));
-
-  this.svg.selectAll(".communityAreas")
-  .data(topojson.object(this.data, this.data.objects.communityAreas).geometries)
-  .enter()
-  .append("path")
+  this.svg.selectAll(".communityareas")
   .attr("class", function(d){
-    return that.quantize(that.socrataModel.map.get(that.areasMap[d.properties.name.toLowerCase()]));
+    return "communityarea " + that.quantize(that.socrataModel.map.get(that.areasMap[d.properties.name.toLowerCase()]));
   }).attr("d", that.path);
+
+  //Adding legend for our Choropleth
+  var legend = this.svg.append("g")
+  .classed("legend", true)
+  .attr("transform", "translate(" + 20 + "," + 0 + ")")
+  .selectAll("g.legend_el")
+  .data(that.quantize.range())
+  .enter().append("g")
+  .attr("class", "legend_el");
+
+  var ls_w = 20, ls_h = 20;
+
+  legend.append("rect")
+  .attr("x", 20)
+  .attr("y", function(d, i){ return that.height/2 - (i*ls_h) - 2*ls_h;})
+  .attr("width", ls_w)
+  .attr("height", ls_h)
+  .attr("class", function(d, i){return "q"+i+"-9";})
+
+  legend.append("text")
+  .attr("x", 50)
+  .attr("y", function(d, i){ return that.height/2 - (i*ls_h) - ls_h - 4;})
+  .text(function(d, i){ 
+    var q = that.quantize.invertExtent("q"+i+"-9"); 
+    return q[0].toFixed() + " - " + q[1].toFixed();
+  });
+
+  this.svg.select(".legend").append("text")
+  .attr("x", 20)
+  .attr("y", that.height/2 - (that.quantize.range().length*ls_h) - ls_h - 4)
+  .text("Quantity Of Crimes");
 }
 
