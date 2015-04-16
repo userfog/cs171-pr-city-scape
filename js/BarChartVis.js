@@ -117,7 +117,9 @@ BarChartVis.prototype.updateVis = function(){
 
     // Add attributes (position) to all bars
     bar
-      .attr("class", "bar")
+      .attr("class", function(d){
+        return "bar " + d[0];
+      })
       .transition()
       .attr("transform", function(d, i) { 
         return "translate("+ that.x(d[0]) + "," + 0 + ")"; })

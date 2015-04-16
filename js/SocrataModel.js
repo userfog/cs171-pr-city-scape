@@ -46,7 +46,7 @@ SocrataModel.prototype.sunburstWrangle = function(data, that){
       })}
     }
   }
-
+  
   var nested = d3.nest()
     .key(function(d){return d.primary_type;})
     .key(function(d){return d.description;})

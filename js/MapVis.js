@@ -48,6 +48,16 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
 }
 
 MapVis.prototype.initVis = function() {
+
+
+  function mouseovered (d){
+    debugger;
+  }
+
+  function mouseouted (d){
+    debugger;
+  }
+
   var that = this;
 
   this.projection = d3.geo.albers()
@@ -73,11 +83,15 @@ MapVis.prototype.initVis = function() {
   this.communityAreas = this.svg.selectAll("path")
     .data(topojson.feature(this.data, this.data.objects.communityAreas).features)
     .enter().append("path")
-    .attr("class", "communityareas")
-    .attr("id", function(d,i){
-      return areasMap[d.properties.name.toLowerCase()];})
+    .attr("class", function(d){
+      return "communityareas " + areasMap[d.properties.name.toLowerCase()];
+    })
     .attr("d", this.path)    
     .on("click", function(d){console.log(d);})
+    .on("mouseenter", mouseovered)
+    .on("mouseover", mouseovered)
+    .on("mouseout", mouseouted)
+    .on("mouseleave", mouseouted);
 
   this.communityLabels = this.svg.selectAll(".communityareas-label")
       .data(communityAreas.features.filter(function(d) {
@@ -122,7 +136,7 @@ MapVis.prototype.choropleth = function(mapping){
   that.quantize.domain(d3.extent(d3.range(78).map(function(d){return mapping.get(d)})));
   this.svg.selectAll(".communityareas")
   .attr("class", function(d){
-    return "communityarea " + that.quantize(mapping.get(areasMap[d.properties.name.toLowerCase()]));
+    return "communityarea " + areasMap[d.properties.name.toLowerCase()] + " " + that.quantize(mapping.get(areasMap[d.properties.name.toLowerCase()]));
   }).attr("d", that.path);
 
   //Adding legend for our Choropleth
