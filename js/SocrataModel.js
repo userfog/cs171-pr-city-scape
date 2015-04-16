@@ -53,7 +53,7 @@ SocrataModel.prototype.sunburstWrangle = function(data, that){
     if(key == null){
 
       if(!merge){
-        if (obj.count_primary_type > 5){
+        if (obj.count_primary_type > 10){
           parent.children.push({"name":obj.location_description,"size":obj.count_primary_type});
         }
         return;
@@ -66,10 +66,10 @@ SocrataModel.prototype.sunburstWrangle = function(data, that){
       }
       else{
         entry = {"name":obj.location_description,"size":obj.count_primary_type};
-        if(obj.count_primary_type > 5){
+        if(obj.count_primary_type > 10){
           parent.children.push(entry);
           parent.childrenDict[entry.name] = entry;
-        }
+          }
       }
 
       return;
