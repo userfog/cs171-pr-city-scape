@@ -15,9 +15,9 @@ Sunburst = function(_parentElement, _eventHandler, _data){
 
 }
 
-Sunburst.prototype.initData = function (_data, _mergedData){
-  this.allData = _data;
-  this.data = _mergedData;
+Sunburst.prototype.initData = function (_data){
+  this.data = _data;
+  // this.data = _mergedData;
   this.initVis();
 }
 
