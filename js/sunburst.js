@@ -32,6 +32,16 @@ Sunburst.prototype.initVis = function() {
     .append("g")
     .attr("transform", "translate(150,200)");
 
+  //http://bl.ocks.org/Caged/6476579
+  var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([0,0])
+  .html(function(d) {
+    return d.name;
+  })
+
+  this.svg.call(tip);
+
   radius = Math.min(this.width/1.25, this.height/1.25) / 2;
 
   this.x = d3.scale.linear()
@@ -57,8 +67,11 @@ Sunburst.prototype.initVis = function() {
       .enter().append("path")
       .attr("class", "sun-path")
       .attr("d", that.arc)
-      .style("fill", function(d) { return that.color((d.children ? d : d.parent).name); })
-      .on("click", click);
+      //.style("fill", function(d) { return that.color((d.children ? d : d.parent).name); })
+      .style("fill", function(d){return that.color(d.name)})
+      .on("click", click)
+      .on("mouseover", tip.show)
+      .on("mouseout", tip.hide)
 
     function click(d){
       that.path.transition()

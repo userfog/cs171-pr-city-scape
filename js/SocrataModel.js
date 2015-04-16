@@ -64,7 +64,7 @@ SocrataModel.prototype.sunburstWrangle = function(data){
         if(obj.count_primary_type > 5){
           parent.children.push(entry);
           parent.childrenDict[entry.name] = entry;
-        }
+          }
       }
 
       return;
