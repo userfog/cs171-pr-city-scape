@@ -1,18 +1,23 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
-Sunburst = function(_parentElement, _data, _eventHandler){
+Sunburst = function(_parentElement, _eventHandler, _data){
   this.parentElement = _parentElement;
   
   this.allData = _data;
 
-  this.data = _data.merged;
+  this.data = (_data) ? _data.merged : null;
 
   this.eventHandler = _eventHandler;
 
-    // defines constants
+  // defines constants
   this.margin = {top: 20, right: 20, bottom: 30, left: 0},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 500 - this.margin.top - this.margin.bottom;
 
+}
+
+Sunburst.prototype.initData = function (_data, _mergedData){
+  this.allData = _data;
+  this.data = _mergedData;
   this.initVis();
 }
 

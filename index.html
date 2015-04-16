@@ -13,8 +13,23 @@
   <script src="js/SocrataModel.js"></script>
   <script src="js/MapVis.js"></script>
   <script src="js/sunburst.js"></script>
+  <script src="js/BarChartVis.js"></script>
   
   <style type="text/css">
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
 
 .d3-tip {
   line-height: 1;
@@ -63,11 +78,11 @@
 </head>
 <body>
 <div class="row">
+  <div class="col-md-5" id="sunburst">
+  </div>
   <div class="col-md-7" id="mapvis">
   </div>
-  <div class="col-md-5">
-  <div id="sunburst"></div>
-  <div id="scattervis"> scatter here </div>
+  <div class="col-md-7" id="barchartvis">
   </div>
 </div>
 <script type="text/javascript">
@@ -83,17 +98,28 @@
 
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
 
+        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler);
+
+        var MyBarChart = new BarChartVis(d3.select("#barchartvis"), MyEventHandler)
+
+
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
-          MyMapVis.choropleth();
+          MyMapVis.choropleth(event_args);
         });
 
-        //MySocrataModel.get("$select=community_area,COUNT(primary_type)&$group=community_area", SocrataModel.wran);
+        $(MyEventHandler).bind("sunburstDataReady", function(event, event_args){
+          MySunburst.initData(event_args[0], event_args[1]);
+        });
 
-        MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=50000", 
+        $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
+          MyBarChart.initData(event_args);
+        });
 
-        function(data){
-           var MySunburst = new Sunburst(d3.select("#sunburst"), data, MyEventHandler);
-        }, MySocrataModel.sunburstWrangle); //, SocrataModel.sunburstWrangle());
+
+
+        MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=50000", MySocrataModel.wrangleRequest);
+
+        MySocrataModel.get("$where=year=%272004%27&$select=community_area,arrest", MySocrataModel.barChartWrangler);
 
   }
 
