@@ -14,3 +14,11 @@ incorporation of season data?
 
 looking at secondary /location over whole city without filtering down - pass this variable?
 
+
+
+mo:
+
+why chose sunburst over other treemap options
+colors and iterations
+
+future 

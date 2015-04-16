@@ -77,6 +77,7 @@ Sunburst.prototype.initVis = function() {
       .on("click", click)
       .on("mouseover", tip.show)
       .on("mouseout", tip.hide)
+    //this.path.style("fill", function(d){return that.color(d.depth)})
 
     function click(d){
       that.path.transition()
