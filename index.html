@@ -78,7 +78,7 @@
 
         //MySocrataModel.get("$select=community_area,COUNT(primary_type)&$group=community_area", SocrataModel.wran);
 
-        MySocrataModel.get("$where=community_area=%2777%27&$select=year,primary_type,description,location_description,%20COUNT(primary_type)&$group=year,primary_type,description,location_description&$limit=50000", 
+        MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=50000", 
 
         function(data){
            var MySunburst = new Sunburst(d3.select("#sunburst"), data, MyEventHandler);
