@@ -30,14 +30,14 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(150,200)");
+    .attr("transform", "translate(180,200)");
 
   //http://bl.ocks.org/Caged/6476579
   var tip = d3.tip()
   .attr('class', 'd3-tip')
   .offset([0,0])
   .html(function(d) {
-    return d.name;
+    return d.name + ": " + d.value;
   })
 
   this.svg.call(tip);
