@@ -34,82 +34,30 @@ SocrataModel.prototype.wrangleRequest = function (data, that){
   that.mapWrangle(data, that);
 }
 
+
 SocrataModel.prototype.sunburstWrangle = function(data, that){
-  // instantiate top level
-  var sun_merged_data = {name:"sun_data", children: [], childrenDict:{}};
-  var sun_data = {name:"sun_data", children: [], childrenDict:{}};
 
-  function nameInChildren(childrenDict, name){
-    if(name in childrenDict){
-      return childrenDict[name];
+  function convert_nested (o) {
+    if (typeof o.values == "number"){
+      return {"name": o.key,"size":o.values}
+    } else if (typeof o.values == "object") {
+      return {"name": o.key, "children": o.values.map(function(d, i){
+        return convert_nested(d);
+      })}
     }
-
-    return null;
   }
 
+  var nested = d3.nest()
+    .key(function(d){return d.primary_type;})
+    .key(function(d){return d.description;})
+    .key(function(d){return d.location_description;})
+    .rollup(function(leaves){
+      return d3.sum(leaves, function(d){ return +d.count_primary_type; })
+    }).entries(data);
 
-  function createObjects(obj, parent, key, merge){
-    // base case
-    if(key == null){
+  nested = convert_nested({"key": "sun_data", "values": nested});
 
-      if(!merge){
-        if (obj.count_primary_type > 10){
-          parent.children.push({"name":obj.location_description,"size":obj.count_primary_type});
-        }
-        return;
-      }
-
-      var entry = nameInChildren(parent.childrenDict, obj.location_description);
-
-      if(entry){
-        entry.size += parseInt(obj.count_primary_type);
-      }
-      else{
-        entry = {"name":obj.location_description,"size":obj.count_primary_type};
-        if(obj.count_primary_type > 10){
-          parent.children.push(entry);
-          parent.childrenDict[entry.name] = entry;
-          }
-      }
-
-      return;
-    }
-
-    var nextParent = nameInChildren(parent.childrenDict, obj[key]);
-
-    // create a new object
-    if(nextParent == null){
-      nextParent = {name:obj[key], children:[], childrenDict:{}};
-      parent.childrenDict[nextParent.name] = nextParent;
-      parent.children.push(nextParent);
-    }
-
-    var nextKey;
-
-    switch(key){
-      case "year":
-        nextKey = "primary_type";
-        break;
-      case "primary_type":
-        nextKey = "description";
-        break;
-      case "description":
-        nextKey = null;
-        break;
-    }
-
-    createObjects(obj, nextParent, nextKey);
-  }
-
-  data.forEach(function(d){
-    createObjects(d, sun_data, "year");
-  });
-
-   data.forEach(function(d){
-    createObjects(d, sun_merged_data, "primary_type", true);
-  });
-
-  $(that.eventHandler).trigger("sunburstDataReady", [[sun_data, sun_merged_data]]);
+  $(that.eventHandler).trigger("sunburstDataReady", [nested]);
 }
 
 SocrataModel.prototype.mapWrangle = function(data, that){
