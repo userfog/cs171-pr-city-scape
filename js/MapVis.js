@@ -41,8 +41,8 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   this.margin = {top: 20, right: 20, bottom: 0, left: 0},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 900 - this.margin.top - this.margin.bottom;
-  this.quantize = d3.scale.quantize()
-    .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
+  this.color = d3.scale.linear()
+    .range(["white", "blue"]);
 
   this.initVis();
 }
@@ -51,11 +51,9 @@ MapVis.prototype.initVis = function() {
 
 
   function mouseovered (d){
-    debugger;
   }
 
   function mouseouted (d){
-    debugger;
   }
 
   var that = this;
@@ -133,42 +131,73 @@ MapVis.prototype.initVis = function() {
 MapVis.prototype.choropleth = function(mapping){
 
   var that = this;
-  that.quantize.domain(d3.extent(d3.range(78).map(function(d){return mapping.get(d)})));
+  var values = d3.range(78).map(function(d){return mapping.get(d)});
+  that.color.domain(d3.extent(values));
   this.svg.selectAll(".communityareas")
   .attr("class", function(d){
-    return "communityarea " + areasMap[d.properties.name.toLowerCase()] + " " + that.quantize(mapping.get(areasMap[d.properties.name.toLowerCase()]));
-  }).attr("d", that.path);
+    return "communityarea " + areasMap[d.properties.name.toLowerCase()];
+  }).attr("d", that.path)
+  .style("fill", function(d){
+    return that.color(mapping.get(areasMap[d.properties.name.toLowerCase()]))
+  });
 
   //Adding legend for our Choropleth
   var legend = this.svg.append("g")
   .classed("legend", true)
-  .attr("transform", "translate(" + 20 + "," + 0 + ")")
-  .selectAll("g.legend_el")
-  .data(that.quantize.range())
-  .enter().append("g")
-  .attr("class", "legend_el");
+  .attr("transform", "translate(" + 20 + "," + 0 + ")");
 
-  var ls_w = 20, ls_h = 20;
+  var ls_w = 20, ls_h = 200;
+
+  legend.append("text")
+  .attr("x", 20)
+  .attr("y", that.height/2 - (ls_h+10))
+  .text("Quantity Of Crimes");
+
+  var gradient = legend.append("svg:linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "0%")
+    .attr("y2", "100%")
+    .attr("spreadMethod", "pad");
+
+  gradient.append("svg:stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "rgb(0,0,255)")
+    .attr("stop-opacity", 1);
+
+  gradient.append("svg:stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "rgb(255,255,255)")
+    .attr("stop-opacity", 1);
+
 
   legend.append("rect")
   .attr("x", 20)
-  .attr("y", function(d, i){ return that.height/2 - (i*ls_h) - 2*ls_h;})
+  .attr("y", that.height/2-ls_h)
   .attr("width", ls_w)
   .attr("height", ls_h)
-  .attr("class", function(d, i){return "q"+i+"-9";})
+  .style("fill", "url(#gradient)")
 
-  legend.append("text")
+  legend.append("g")
+  .selectAll("legend_el")
+  .data(values.sort(d3.ascending).filter(function(d,i){
+    if(i==0){
+      return true;
+    }
+    if(i==values.length-1){
+      return true;
+    }
+    return i%10==0;
+  })).enter()
+  .append("text")
   .attr("x", 50)
-  .attr("y", function(d, i){ return that.height/2 - (i*ls_h) - ls_h - 4;})
-  .text(function(d, i){ 
-    var q = that.quantize.invertExtent("q"+i+"-9"); 
-    return q[0].toFixed() + " - " + q[1].toFixed();
+  .attr("y", function(d, i){ 
+    return that.height/2 - (i*ls_h/10) - ls_h/10 - 4;})
+  .text(function(d, i){  
+    return d;
   });
 
-  this.svg.select(".legend").append("text")
-  .attr("x", 20)
-  .attr("y", that.height/2 - (that.quantize.range().length*ls_h) - ls_h - 4)
-  .text("Quantity Of Crimes");
 
 }
 

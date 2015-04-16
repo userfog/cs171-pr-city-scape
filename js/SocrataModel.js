@@ -46,7 +46,7 @@ SocrataModel.prototype.sunburstWrangle = function(data, that){
       })}
     }
   }
-  
+
   var nested = d3.nest()
     .key(function(d){return d.primary_type;})
     .key(function(d){return d.description;})
@@ -62,7 +62,9 @@ SocrataModel.prototype.sunburstWrangle = function(data, that){
 
 SocrataModel.prototype.mapWrangle = function(data, that){
   var mapping = d3.map();
-  data.forEach(function(d){mapping.set(+d.community_area, +d.count_primary_type)})
+  data.forEach(function(d){
+    var val = mapping.get(+d.community_area) || 0;
+    mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
   $(that.eventHandler).trigger("selectionChanged", [mapping]);
 }
 

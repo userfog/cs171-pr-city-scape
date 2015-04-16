@@ -9,9 +9,9 @@ Sunburst = function(_parentElement, _eventHandler, _data){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 20, right: 20, bottom: 30, left: 0},
+  this.margin = {top: 20, right: 5, bottom: 5, left: 10},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 500 - this.margin.top - this.margin.bottom;
+  this.height = 600 - this.margin.top - this.margin.bottom;
 
 }
 
@@ -35,7 +35,7 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(180,200)");
+    .attr("transform", "translate(300,300)");
 
   //http://bl.ocks.org/Caged/6476579
   var tip = d3.tip()
