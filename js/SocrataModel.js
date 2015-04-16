@@ -7,29 +7,34 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.responseType = _responseType || "json";
   this.fullUrl = "{0}/resource/{1}.{2}?".format(this.baseUrl, this.resource, this.responseType);
   this.eventHandler = _eventHandler;
+  this.previousRequests = [];
 }
 
-SocrataModel.prototype.get = function (str, callback, method){
+SocrataModel.prototype.get = function (str, callback){
     var that = this;
+    this.previousRequests.push(str);
     $.getJSON(this.fullUrl
         + str 
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
-                  that.map = d3.map();
-                  data.forEach(function(d){that.map.set(+d.community_area, +d.count_primary_type)})
-                  //that.mapWrangle(data)
-                  callback(method(data));
-                  $(that.eventHandler).trigger("selectionChanged", []);
-                }
+        if(callback){
+          callback(data, that);
+        }else{
+          console.log(data);
+        }
+      }
     ).fail(function() {
       console.log("Something went wrong!");
     });
 }
 
-SocrataModel.prototype.sunburstWrangle = function(data){
 
-  var that=this;
+SocrataModel.prototype.wrangleRequest = function (data, that){
+  that.sunburstWrangle(data, that);
+  that.mapWrangle(data, that);
+}
 
+SocrataModel.prototype.sunburstWrangle = function(data, that){
   // instantiate top level
   var sun_merged_data = {name:"sun_data", children: [], childrenDict:{}};
   var sun_data = {name:"sun_data", children: [], childrenDict:{}};
@@ -104,12 +109,23 @@ SocrataModel.prototype.sunburstWrangle = function(data){
     createObjects(d, sun_merged_data, "primary_type", true);
   });
 
-  return {unmerged:sun_data, merged:sun_merged_data};
+  $(that.eventHandler).trigger("sunburstDataReady", [[sun_data, sun_merged_data]]);
 }
 
-SocrataModel.prototype.mapWrangle = function(data){
+SocrataModel.prototype.mapWrangle = function(data, that){
+  var mapping = d3.map();
+  data.forEach(function(d){mapping.set(+d.community_area, +d.count_primary_type)})
+  $(that.eventHandler).trigger("selectionChanged", [mapping]);
+}
 
-  var that=this;
+SocrataModel.prototype.barChartWrangler = function(data, that){
 
+  var arrestRatios = d3.nest()
+    .key(function(d){return d.community_area})
+    .rollup(function(values){
+      if(values)
+        return {"arrest_ratio" : d3.sum(values, function(d){return (d.arrest) ? 1 : 0}) / values.length};
+    }).map(data)
 
+  $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }

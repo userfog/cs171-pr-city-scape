@@ -5,86 +5,6 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   this.socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
 
-  this.areasMap = {
-"rogers park": 1,
-"west ridge": 2,
-"uptown": 3,
-"lincoln square": 4,
-"north center": 5,
-"lake view": 6,
-"lake view": 7,
-"near north side": 8,
-"edison park": 9,
-"norwood park": 10,
-"jefferson park": 11,
-"forest glen": 12,
-"north park": 13,
-"albany park": 14,
-"portage park": 15,
-"irving park": 16,
-"dunning": 17,
-"montclare": 18,
-"belmont cragin": 19,
-"hermosa": 20,
-"avondale": 21,
-"logan square": 22,
-"humboldt park": 23,
-"west town": 24,
-"austin": 25,
-"west garfield park": 26,
-"east garfield park": 27,
-"near west side": 28,
-"north lawndale": 29,
-"south lawndale": 30,
-"lower west side": 31,
-"loop": 32,
-"near south side": 33,
-"armour square": 34,
-"douglas": 35,
-"oakland": 36,
-"fuller park": 37,
-"grand boulevard": 38,
-"kenwood": 39,
-"washington park": 40,
-"hyde park": 41,
-"woodlawn": 42,
-"south shore": 43,
-"chatham": 44,
-"avalon park": 45,
-"south chicago": 46,
-"burnside": 47,
-"calumet heights": 48,
-"roseland": 49,
-"pullman": 50,
-"south deering": 51,
-"east side": 52,
-"west pullman": 53,
-"riverdale": 54,
-"hegewisch": 55,
-"garfield ridge": 56,
-"archer heights": 57,
-"brighton park": 58,
-"mckinley park": 59,
-"bridgeport": 60,
-"new city": 61,
-"west elsdon": 62,
-"gage park": 63,
-"clearing": 64,
-"west lawn": 65,
-"chicago lawn": 66,
-"west englewood": 67,
-"englewood": 68,
-"greater grand crossing": 69,
-"ashburn": 70,
-"auburn gresham": 71,
-"beverly": 72,
-"washington heights": 73,
-"mount greenwood": 74,
-"morgan park": 75,
-"ohare": 76,
-"o'hare": 76,
-"edgewater": 77}
-
   this.customLabels = {
   "ARMOUR SQUARE": {offset: [0,-10]},
   "AUSTIN": {offset: [8,0]},
@@ -118,9 +38,9 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   {label: "hyde park", d:"M 583 525 L 623 525 L 623 490"}
 ];
     // defines constants
-  this.margin = {top: 20, right: 20, bottom: 30, left: 0},
+  this.margin = {top: 20, right: 20, bottom: 0, left: 0},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 1000 - this.margin.top - this.margin.bottom;
+  this.height = 900 - this.margin.top - this.margin.bottom;
   this.quantize = d3.scale.quantize()
     .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
 
@@ -155,7 +75,7 @@ MapVis.prototype.initVis = function() {
     .enter().append("path")
     .attr("class", "communityareas")
     .attr("id", function(d,i){
-      return that.areasMap[d.properties.name.toLowerCase()];})
+      return areasMap[d.properties.name.toLowerCase()];})
     .attr("d", this.path)    
     .on("click", function(d){console.log(d);})
 
@@ -196,12 +116,13 @@ MapVis.prototype.initVis = function() {
       .text(function(d) { return d.word; });
 };
 
-MapVis.prototype.choropleth = function(){
+MapVis.prototype.choropleth = function(mapping){
+
   var that = this;
-  that.quantize.domain(d3.extent(d3.range(78).map(function(d){return that.socrataModel.map.get(d)})));
+  that.quantize.domain(d3.extent(d3.range(78).map(function(d){return mapping.get(d)})));
   this.svg.selectAll(".communityareas")
   .attr("class", function(d){
-    return "communityarea " + that.quantize(that.socrataModel.map.get(that.areasMap[d.properties.name.toLowerCase()]));
+    return "communityarea " + that.quantize(mapping.get(areasMap[d.properties.name.toLowerCase()]));
   }).attr("d", that.path);
 
   //Adding legend for our Choropleth
@@ -234,5 +155,6 @@ MapVis.prototype.choropleth = function(){
   .attr("x", 20)
   .attr("y", that.height/2 - (that.quantize.range().length*ls_h) - ls_h - 4)
   .text("Quantity Of Crimes");
+
 }
 
