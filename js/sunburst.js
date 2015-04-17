@@ -61,7 +61,8 @@ Sunburst.prototype.initVis = function() {
   this.y = d3.scale.sqrt()
       .range([0, radius]);
 
-  this.color = d3.scale.category20c();
+  //this.color = d3.scale.category20c();
+  this.color = ["white", "#5BC85B", "rgb(66,146,198)", "#9E32CD"];
 
   this.partition = d3.layout.partition()
       .value(function(d) { return d.size; });
@@ -73,17 +74,28 @@ Sunburst.prototype.initVis = function() {
       .outerRadius(function(d) { return Math.max(0, that.y(d.y + d.dy)); });
 
   console.log(this.data);
+
   this.path = that.svg.selectAll("path")
       .data(that.partition.nodes(this.data))
       .enter().append("path")
       .attr("class", "sun-path")
       .attr("d", that.arc)
       //.style("fill", function(d) { return that.color((d.children ? d : d.parent).name); })
-      .style("fill", function(d){return that.color(d.name)})
+      //.style("fill", function(d){return that.color(d.name)})
       .on("click", click)
       .on("mouseover", tip.show)
       .on("mouseout", tip.hide)
-    //this.path.style("fill", function(d){return that.color(d.depth)})
+
+    this.border = that.svg.selectAll(".sun-border")
+      .data(that.partition.nodes(this.data))
+      .enter().append("path")
+      .attr("class", "sun-border")
+      .attr("d", that.arc)
+      .style("fill", "none")
+      .style("stroke", "white")
+      .style("stroke-width", .2)
+
+    this.path.style("fill", function(d){return that.color[d.depth]})
 
     function click(d){
       function getFilters(d, prev){
