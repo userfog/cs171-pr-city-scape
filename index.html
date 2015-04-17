@@ -42,7 +42,7 @@
 }
 
 .communityarea {
-  fill: #eee;
+  fill: #fff;
   stroke: #aaa;
 }
 
@@ -78,11 +78,13 @@
 </head>
 <body>
 <div class="row">
-  <div class="col-md-5" id="sunburst">
+  <div id="sunburst">
   </div>
-  <div class="col-md-7" id="mapvis">
+  <div id="mapvis">
   </div>
-  <div class="col-md-7" id="barchartvis">
+</div>
+<div class="row">
+  <div id="barchartvis">
   </div>
 </div>
 <script type="text/javascript">
@@ -98,13 +100,16 @@
 
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
 
-        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler);
+        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler, MySocrataModel);
 
         var MyBarChart = new BarChartVis(d3.select("#barchartvis"), MyEventHandler)
 
-
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
-          MyMapVis.choropleth(event_args);
+          MySocrataModel.mapWrangle(event_args)
+        })
+
+        $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
+          MyMapVis.choropleth(event_args[0], event_args[1]);
         });
 
         $(MyEventHandler).bind("sunburstDataReady", function(event, event_args){
@@ -114,8 +119,6 @@
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
           MyBarChart.initData(event_args);
         });
-
-
 
         MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=50000", MySocrataModel.wrangleRequest);
 

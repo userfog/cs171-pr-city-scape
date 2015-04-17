@@ -31,6 +31,13 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   "LINCOLN PARK": 1
 };
 
+this.depth_to_color = {
+  0: ["#eee", "blue"],
+  1: ["#eee", "green"],
+  2: ["#eee", "red"],
+  3: ["#eee", "purple"]
+}
+
  this.leaderLines = [
   {label: "austin", d:"M 248 314 L 280 314"},
   {label: "lincoln", d:"M 504 254 L 554 254"},
@@ -41,8 +48,8 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   this.margin = {top: 20, right: 20, bottom: 0, left: 0},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 900 - this.margin.top - this.margin.bottom;
-  this.quantize = d3.scale.quantize()
-    .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
+  this.color = d3.scale.linear()
+    .range(["#eee", "blue"]);
 
   this.initVis();
 }
@@ -51,11 +58,9 @@ MapVis.prototype.initVis = function() {
 
 
   function mouseovered (d){
-    debugger;
   }
 
   function mouseouted (d){
-    debugger;
   }
 
   var that = this;
@@ -130,45 +135,81 @@ MapVis.prototype.initVis = function() {
       .text(function(d) { return d.word; });
 };
 
-MapVis.prototype.choropleth = function(mapping){
-
+MapVis.prototype.choropleth = function(mapping, filter_by){
+  debugger;
   var that = this;
-  that.quantize.domain(d3.extent(d3.range(78).map(function(d){return mapping.get(d)})));
+  var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
+      return typeof d == "number" && d != NaN;
+  });
+  var quantiles = [];
+  var quants = [0, .4, .8, 1]
+  for(var i = 0; i < quants.length; i++){
+    quantiles.push(+d3.quantile(values, quants[i]).toFixed());
+  }
+
+  var depth = filter_by.length;
+  that.color.domain(d3.extent(values)).range(that.depth_to_color[depth]);
+
   this.svg.selectAll(".communityareas")
-  .attr("class", function(d){
-    return "communityarea " + areasMap[d.properties.name.toLowerCase()] + " " + that.quantize(mapping.get(areasMap[d.properties.name.toLowerCase()]));
-  }).attr("d", that.path);
+  .style("fill", function(d){
+    var valid = mapping.get(areasMap[d.properties.name.toLowerCase()]);
+    if(valid != undefined)
+      return that.color(valid)
+    else
+      return "black"
+  });
 
   //Adding legend for our Choropleth
+  d3.selectAll(".legend").remove();
+
   var legend = this.svg.append("g")
   .classed("legend", true)
-  .attr("transform", "translate(" + 20 + "," + 0 + ")")
-  .selectAll("g.legend_el")
-  .data(that.quantize.range())
-  .enter().append("g")
-  .attr("class", "legend_el");
+  .attr("transform", "translate(" + 20 + "," + 0 + ")");
 
-  var ls_w = 20, ls_h = 20;
+  var ls_w = 20, ls_h = 200;
+
+  legend.append("text")
+  .attr("x", 20)
+  .attr("y", that.height/2 - (ls_h+10))
+  .text("Quantity Of Crimes");
+
+  var gradient = legend.append("svg:linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "0%")
+    .attr("y2", "100%")
+    .attr("spreadMethod", "pad");
+
+  gradient.append("svg:stop")
+    .attr("offset", "0%")
+    .attr("stop-color", that.depth_to_color[depth][1])
+    .attr("stop-opacity", 1);
+
+  gradient.append("svg:stop")
+    .attr("offset", "100%")
+    .attr("stop-color", that.depth_to_color[depth][0])
+    .attr("stop-opacity", 1);
+
 
   legend.append("rect")
   .attr("x", 20)
-  .attr("y", function(d, i){ return that.height/2 - (i*ls_h) - 2*ls_h;})
+  .attr("y", that.height/2-ls_h)
   .attr("width", ls_w)
   .attr("height", ls_h)
-  .attr("class", function(d, i){return "q"+i+"-9";})
+  .style("fill", "url(#gradient)")
 
-  legend.append("text")
+  legend.append("g")
+  .selectAll("legend_el")
+  .data(quantiles.sort(d3.ascending)).enter()
+  .append("text")
   .attr("x", 50)
-  .attr("y", function(d, i){ return that.height/2 - (i*ls_h) - ls_h - 4;})
-  .text(function(d, i){ 
-    var q = that.quantize.invertExtent("q"+i+"-9"); 
-    return q[0].toFixed() + " - " + q[1].toFixed();
+  .attr("y", function(d, i){ 
+    return that.height/2 - (i*ls_h/(quants.length+.5)) - ls_h/(quants.length+.5) - 4;})
+  .text(function(d, i){  
+    return d;
   });
 
-  this.svg.select(".legend").append("text")
-  .attr("x", 20)
-  .attr("y", that.height/2 - (that.quantize.range().length*ls_h) - ls_h - 4)
-  .text("Quantity Of Crimes");
 
 }
 

@@ -1,7 +1,7 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
-Sunburst = function(_parentElement, _eventHandler, _data){
+Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
-  
+  this._socrataModel = _socrataModel;
   this.allData = _data;
 
   this.data = (_data) ? _data.merged : null;
@@ -9,9 +9,16 @@ Sunburst = function(_parentElement, _eventHandler, _data){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 20, right: 20, bottom: 30, left: 0},
+  this.margin = {top: 20, right: 5, bottom: 5, left: 10},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 500 - this.margin.top - this.margin.bottom;
+  this.height = 600 - this.margin.top - this.margin.bottom;
+
+  this.depth_to_field = {
+    0: "none",
+    1: "primary_type",
+    2: "description",
+    3: "location_description"
+  };
 
 }
 
@@ -35,7 +42,7 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(180,200)");
+    .attr("transform", "translate(300,300)");
 
   //http://bl.ocks.org/Caged/6476579
   var tip = d3.tip()
@@ -92,9 +99,19 @@ Sunburst.prototype.initVis = function() {
     this.path.style("fill", function(d){return that.color[d.depth]})
 
     function click(d){
+      function getFilters(d, prev){
+        if(d.depth == 0){
+          return prev;
+        } else {
+          prev.push({"key":that.depth_to_field[d.depth], "value":d.name});
+          return getFilters(d.parent, prev);
+        }
+      }
       that.path.transition()
       .duration(750)
       .attrTween("d", that.arcTween(d));
+      var filters = getFilters(d, []);
+      $(that.eventHandler).trigger("selectionChanged", [filters])
     }
 
     d3.select(self.frameElement).style("height", this.height + "px");
