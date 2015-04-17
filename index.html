@@ -100,12 +100,15 @@
 
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
 
-        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler);
+        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler, MySocrataModel);
 
         var MyBarChart = new BarChartVis(d3.select("#barchartvis"), MyEventHandler)
 
-
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
+          MySocrataModel.mapWrangle(event_args)
+        })
+
+        $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
           MyMapVis.choropleth(event_args);
         });
 
@@ -116,8 +119,6 @@
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
           MyBarChart.initData(event_args);
         });
-
-
 
         MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=50000", MySocrataModel.wrangleRequest);
 

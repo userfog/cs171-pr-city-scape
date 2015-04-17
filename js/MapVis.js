@@ -42,7 +42,7 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 900 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
-    .range(["white", "blue"]);
+    .range(["#eee", "blue"]);
 
   this.initVis();
 }
@@ -131,17 +131,30 @@ MapVis.prototype.initVis = function() {
 MapVis.prototype.choropleth = function(mapping){
 
   var that = this;
-  var values = d3.range(78).map(function(d){return mapping.get(d)});
+  var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
+      return typeof d == "number" && d != NaN;
+  });
+  var quantiles = [];
+  var quants = [0, .4, .8, 1]
+  for(var i = 0; i < quants.length; i++){
+    quantiles.push(+d3.quantile(values, quants[i]).toFixed());
+  }
+
+
   that.color.domain(d3.extent(values));
+
   this.svg.selectAll(".communityareas")
-  .attr("class", function(d){
-    return "communityarea " + areasMap[d.properties.name.toLowerCase()];
-  }).attr("d", that.path)
   .style("fill", function(d){
-    return that.color(mapping.get(areasMap[d.properties.name.toLowerCase()]))
+    var valid = mapping.get(areasMap[d.properties.name.toLowerCase()]);
+    if(valid != undefined)
+      return that.color(valid)
+    else
+      return "black"
   });
 
   //Adding legend for our Choropleth
+  d3.selectAll(".legend").remove();
+
   var legend = this.svg.append("g")
   .classed("legend", true)
   .attr("transform", "translate(" + 20 + "," + 0 + ")");
@@ -181,19 +194,11 @@ MapVis.prototype.choropleth = function(mapping){
 
   legend.append("g")
   .selectAll("legend_el")
-  .data(values.sort(d3.ascending).filter(function(d,i){
-    if(i==0){
-      return true;
-    }
-    if(i==values.length-1){
-      return true;
-    }
-    return i%10==0;
-  })).enter()
+  .data(quantiles.sort(d3.ascending)).enter()
   .append("text")
   .attr("x", 50)
   .attr("y", function(d, i){ 
-    return that.height/2 - (i*ls_h/10) - ls_h/10 - 4;})
+    return that.height/2 - (i*ls_h/(quants.length+1)) - ls_h/(quants.length+1) - 4;})
   .text(function(d, i){  
     return d;
   });
