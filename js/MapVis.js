@@ -183,12 +183,12 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
 
   gradient.append("svg:stop")
     .attr("offset", "0%")
-    .attr("stop-color", "rgb(0,0,255)")
+    .attr("stop-color", that.depth_to_color[depth][1])
     .attr("stop-opacity", 1);
 
   gradient.append("svg:stop")
     .attr("offset", "100%")
-    .attr("stop-color", "rgb(255,255,255)")
+    .attr("stop-color", that.depth_to_color[depth][0])
     .attr("stop-opacity", 1);
 
 
