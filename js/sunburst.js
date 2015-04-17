@@ -86,14 +86,14 @@ Sunburst.prototype.initVis = function() {
       .on("mouseover", tip.show)
       .on("mouseout", tip.hide)
 
-    this.border = that.svg.selectAll(".sun-border")
+    /* this.border = that.svg.selectAll(".sun-border")
       .data(that.partition.nodes(this.data))
       .enter().append("path")
       .attr("class", "sun-border")
       .attr("d", that.arc)
       .style("fill", "none")
       .style("stroke", "white")
-      .style("stroke-width", .2)
+      .style("stroke-width", .2) */
 
     this.path.style("fill", function(d){return that.color[d.depth]})
 

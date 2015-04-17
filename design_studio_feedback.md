@@ -1,24 +1,18 @@
-comparison between two neighborhoods - multiple clicks
+CS171 Design Studio
+Apr 14, 2015
 
-type of crime over time - petty/violent
+Our partners were: Dillon Tiner, Adam Gracia and Yinka Ogunbiyi.
 
-radio buttons above the wheel
+They brought up some very good points/issues during their critique:
 
-arrests percentage overlaid on map, or compared btween two neighborhoods
+	- Could you compare crime statistics between two neighborhoods?
 
-and incorporate with other demographic data
+	- Can you track crime statistics through time?
 
-color corresponding to levels of hierarchy, or coded by some  other categorical variable
+	- Could you use radio buttons above the sunburst to modify the displayed data?
 
-incorporation of season data?
+	- In the sunburst, does color corresponding to levels of hierarchy, or is it coded by some  other categorical variable?
 
-looking at secondary /location over whole city without filtering down - pass this variable?
+We will try to address some of these points in our final implementation - we are considering the possibility of comparing two neighborhoods, although we are wary of information/feature overload. We do plan to implement a timeline to allow tracking of statistics through time. We will be using a user input to modify the year data in the sunburst, although probably in the form of a brushable timeline.
 
-
-
-mo:
-
-why chose sunburst over other treemap options
-colors and iterations
-
-future 
+Their points on color in the sunburst were particulary useful - they helped us to realize that our initial iterations were confusing a bit misleading. Giving a large number of categories their own color is visually overwhelming and also not informative - the more important attribute is their depth in the hierarchy. Based on their input, we decided to use color to represent primary, secondary, and tertiary attributes instead of individual categories. 
