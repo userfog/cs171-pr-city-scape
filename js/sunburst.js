@@ -10,7 +10,7 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
 
   // defines constants
   this.margin = {top: 20, right: 5, bottom: 5, left: 10},
-  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+  this.width = 600 - this.margin.left - this.margin.right,
   this.height = 600 - this.margin.top - this.margin.bottom;
 
   this.depth_to_field = {
@@ -24,7 +24,6 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
 
 Sunburst.prototype.initData = function (_data){
   this.data = _data;
-  // this.data = _mergedData;
   this.initVis();
 }
 

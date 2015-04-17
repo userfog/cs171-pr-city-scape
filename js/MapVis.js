@@ -45,8 +45,8 @@ this.depth_to_color = {
   {label: "hyde park", d:"M 583 525 L 623 525 L 623 490"}
 ];
     // defines constants
-  this.margin = {top: 20, right: 20, bottom: 0, left: 0},
-  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+  this.margin = {top: 20, right: 0, bottom: 0, left: 50},
+  this.width = 800 - this.margin.left - this.margin.right,
   this.height = 900 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
@@ -162,11 +162,12 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
   //Adding legend for our Choropleth
   d3.selectAll(".legend").remove();
 
-  var legend = this.svg.append("g")
-  .classed("legend", true)
-  .attr("transform", "translate(" + 20 + "," + 0 + ")");
-
   var ls_w = 20, ls_h = 200;
+  var legend = this.svg.append("g")
+    .classed("legend", true)
+    .attr("transform", "translate(" + 20 + "," + 0 + ")");
+
+
 
   legend.append("text")
   .attr("x", 20)
@@ -191,7 +192,6 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
     .attr("stop-color", that.depth_to_color[depth][0])
     .attr("stop-opacity", 1);
 
-
   legend.append("rect")
   .attr("x", 20)
   .attr("y", that.height/2-ls_h)
@@ -209,7 +209,5 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
   .text(function(d, i){  
     return d;
   });
-
-
 }
 
