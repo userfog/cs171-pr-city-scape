@@ -109,7 +109,7 @@
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
-          MyMapVis.choropleth(event_args);
+          MyMapVis.choropleth(event_args[0], event_args[1]);
         });
 
         $(MyEventHandler).bind("sunburstDataReady", function(event, event_args){

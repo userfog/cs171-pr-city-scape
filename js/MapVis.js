@@ -31,6 +31,13 @@ MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
   "LINCOLN PARK": 1
 };
 
+this.depth_to_color = {
+  0: ["#eee", "blue"],
+  1: ["#eee", "green"],
+  2: ["#eee", "red"],
+  3: ["#eee", "purple"]
+}
+
  this.leaderLines = [
   {label: "austin", d:"M 248 314 L 280 314"},
   {label: "lincoln", d:"M 504 254 L 554 254"},
@@ -128,8 +135,8 @@ MapVis.prototype.initVis = function() {
       .text(function(d) { return d.word; });
 };
 
-MapVis.prototype.choropleth = function(mapping){
-
+MapVis.prototype.choropleth = function(mapping, filter_by){
+  debugger;
   var that = this;
   var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
       return typeof d == "number" && d != NaN;
@@ -140,8 +147,8 @@ MapVis.prototype.choropleth = function(mapping){
     quantiles.push(+d3.quantile(values, quants[i]).toFixed());
   }
 
-
-  that.color.domain(d3.extent(values));
+  var depth = filter_by.length;
+  that.color.domain(d3.extent(values)).range(that.depth_to_color[depth]);
 
   this.svg.selectAll(".communityareas")
   .style("fill", function(d){
@@ -198,7 +205,7 @@ MapVis.prototype.choropleth = function(mapping){
   .append("text")
   .attr("x", 50)
   .attr("y", function(d, i){ 
-    return that.height/2 - (i*ls_h/(quants.length+1)) - ls_h/(quants.length+1) - 4;})
+    return that.height/2 - (i*ls_h/(quants.length+.5)) - ls_h/(quants.length+.5) - 4;})
   .text(function(d, i){  
     return d;
   });

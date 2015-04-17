@@ -32,7 +32,7 @@ SocrataModel.prototype.get = function (str, callback){
 
 
 SocrataModel.prototype.wrangleRequest = function (that){
-  that.sunburstWrangle();
+  that.sunburstWrangle(that);
   that.mapWrangle([]);
 }
 
@@ -55,11 +55,11 @@ SocrataModel.prototype.sunburstWrangle = function(that){
     .key(function(d){return d.location_description;})
     .rollup(function(leaves){
       return d3.sum(leaves, function(d){ return +d.count_primary_type; })
-    }).entries(this.data);
+    }).entries(that.data);
 
   nested = convert_nested({"key": "sun_data", "values": nested});
 
-  $(this.eventHandler).trigger("sunburstDataReady", [nested]);
+  $(that.eventHandler).trigger("sunburstDataReady", [nested]);
 }
 
 SocrataModel.prototype.filterQuery = function(filter_by){
@@ -82,7 +82,7 @@ SocrataModel.prototype.mapWrangle = function(filter_by){
   mapData.forEach(function(d){
     var val = mapping.get(+d.community_area) || 0;
     mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
-  $(that.eventHandler).trigger("mapVisDataReady", [mapping]);
+  $(that.eventHandler).trigger("mapVisDataReady", [[mapping, filter_by]]);
 }
 
 SocrataModel.prototype.barChartWrangler = function(that){
