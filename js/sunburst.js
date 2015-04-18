@@ -9,9 +9,9 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 20, right: 5, bottom: 5, left: 10},
-  this.width = 600 - this.margin.left - this.margin.right,
-  this.height = 600 - this.margin.top - this.margin.bottom;
+  this.margin = {top: 20, right: 5, bottom: 5, left: 50},
+  this.width = 700 - this.margin.left - this.margin.right,
+  this.height = 800 - this.margin.top - this.margin.bottom;
 
   this.depth_to_field = {
     0: "none",
@@ -53,7 +53,7 @@ Sunburst.prototype.initVis = function() {
 
   this.svg.call(tip);
 
-  radius = Math.min(this.width/1.25, this.height/1.25) / 2;
+  radius = Math.min(this.width/1.1, this.height/1.1) / 2;
 
   this.x = d3.scale.linear()
       .range([0, 2 * Math.PI]);
@@ -62,7 +62,7 @@ Sunburst.prototype.initVis = function() {
       .range([0, radius]);
 
   //this.color = d3.scale.category20c();
-  this.color = ["white", "#5BC85B", "rgb(66,146,198)", "#9E32CD"];
+  this.color = ["#2D2DFB", "#329732", "#FC3333", "#932B93"];
 
   this.partition = d3.layout.partition()
       .value(function(d) { return d.size; });
@@ -70,8 +70,20 @@ Sunburst.prototype.initVis = function() {
   this.arc = d3.svg.arc()
       .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x))); })
       .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x + d.dx))); })
-      .innerRadius(function(d) { return Math.max(0, that.y(d.y)); })
-      .outerRadius(function(d) { return Math.max(0, that.y(d.y + d.dy)); });
+      .innerRadius(function(d) { 
+          return Math.max(0, that.y(d.y)); 
+        })
+      .outerRadius(function(d) { 
+          // if(d.depth==0)
+          //   return 50;
+          // if(d.depth==1)
+          //   return 75;
+          // if(d.depth==2)
+          //   return 100;
+          // if(d.depth==3)
+          //   return 125;
+          return Math.max(0, that.y(d.y + d.dy)); 
+      });
 
   console.log(this.data);
 
@@ -80,6 +92,8 @@ Sunburst.prototype.initVis = function() {
       .enter().append("path")
       .attr("class", "sun-path")
       .attr("d", that.arc)
+      .style("stroke", "#eee")
+      .style("stroke-width", ".5")
       //.style("fill", function(d) { return that.color((d.children ? d : d.parent).name); })
       //.style("fill", function(d){return that.color(d.name)})
       .on("click", click)

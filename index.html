@@ -122,9 +122,9 @@
           MyBarChart.initData(event_args);
         });
 
-        MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=50000", MySocrataModel.wrangleRequest);
+        MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=5000", MySocrataModel.wrangleRequest);
 
-        MySocrataModel.get("$where=year=%272004%27&$select=community_area,arrest", MySocrataModel.barChartWrangler);
+        // MySocrataModel.get("$where=year=%272004%27&$select=community_area,arrest", MySocrataModel.barChartWrangler);
 
   }
 
