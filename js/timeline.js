@@ -5,9 +5,9 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 20, right: 5, bottom: 5, left: 50},
-  this.width = 500 - this.margin.left - this.margin.right,
-  this.height = 500 - this.margin.top - this.margin.bottom;
+  this.margin = {top: 20, right: 0, bottom: 5, left: 50},
+  this.width = 500- this.margin.left - this.margin.right,
+  this.height = 600 - this.margin.top - this.margin.bottom;
 
 }
 
@@ -23,13 +23,13 @@ Timeline.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(300,0)");
+    .attr("transform", "translate(50,0)");
 
-    this.x = d3.scale.linear()
-      .range([0,this.width]);
+    this.x = d3.scale.ordinal()
+      .rangeRoundBands([0, this.width]);
 
     this.y = d3.scale.linear()
-      .range([this.height,0]);
+      .range([this.height/2,0]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -37,8 +37,7 @@ Timeline.prototype.initVis = function() {
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
-      .ticks(0)
-      .orient("bottom")
+      
 
     // Add axes visual elements
     this.svg.append("g")
@@ -57,13 +56,18 @@ Timeline.prototype.initVis = function() {
         .attr("class", "x axis")
         .attr("transform", "translate(0," + this.height/2 + ")")
 
-    /*this.area = d3.svg.area()
+  this.line = d3.svg.line()
+    .interpolate("linear")
+    .x(function(d) { return that.x(d.year); })
+    .y(function(d) { return that.y(d.count); });
+
+/*this.area = d3.svg.area()
       .interpolate("monotone")
       .x(function(d) { return that.x(d.year);})
       .y0(this.height)
       .y1(function(d) { return that.y(d.count);}); */
 
-    /*this.brush = d3.svg.brush()
+    this.brush = d3.svg.brush()
       .on("brush", function(){
         // initialize pass to send to other functions
         pass = {}
@@ -72,20 +76,23 @@ Timeline.prototype.initVis = function() {
         else {
         }
 
+        console.log(that.brush.extent()[0])
         // trigger event
         //$(that.eventHandler).trigger("selectionChanged", pass)
       });
 
-      this.svg.append("g")
-        .attr("class", "brush"); */
+    this.svg.append("g")
+        .attr("class", "brush")
 
-      this.updateVis();
+    this.updateVis();
 };
 
 Timeline.prototype.updateVis = function() {
   var that = this;
 
-  this.x.domain(d3.extent(this.data, function(d) { return d.year; }));
+  console.log(this.data)
+  this.x.domain(this.data.map(function(d){return d.year}))
+  //this.x.domain(d3.extent(this.data, function(d) { return d.year; }));
   this.y.domain(d3.extent(this.data, function(d) { return d.count; }));
 
   // updates axis
@@ -95,7 +102,12 @@ Timeline.prototype.updateVis = function() {
   this.svg.select(".y.axis")
       .call(this.yAxis)
 
-  /* // updates graph
+  this.svg.append("path")
+      .data([this.data])
+      .attr("class", "line")
+      .attr("d", that.line);
+
+    /* // updates graph
     var path = this.svg.selectAll(".area")
       .data([this.displayData])
 
@@ -108,13 +120,14 @@ Timeline.prototype.updateVis = function() {
       .attr("d", this.area);
 
     path.exit()
-      .remove();
+      .remove(); */
 
     this.brush.x(this.x);
     this.svg.select(".brush")
         .call(this.brush)
       .selectAll("rect")
-        .attr("height", this.height); */
+        .attr("height", this.height/2)
+        .style("fill", "lightgrey");
 
   this.svg.selectAll(".dot")
       .data(this.data)

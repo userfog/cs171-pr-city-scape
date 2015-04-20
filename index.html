@@ -29,7 +29,6 @@
 }
 
 .x.axis path {
-  display: none;
 }
 
 .bar {
@@ -69,6 +68,12 @@
   stroke-width:2.5px;
 }
 
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
 .legend{
   margin-left: 20px;
 }
@@ -87,10 +92,10 @@
 </head>
 <body>
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-7">
     <span class="pull-left" id="mapvis"></span>
 </div>
-  <div class="col-md-4">
+  <div class="col-md-">
     <span id="sunburst">
     </span>
     <span id="timeline">

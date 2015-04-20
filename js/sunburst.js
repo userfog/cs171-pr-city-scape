@@ -31,7 +31,7 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(300,300)");
+    .attr("transform", "translate(200,250)");
 
   //http://bl.ocks.org/Caged/6476579
   var tip = d3.tip()
