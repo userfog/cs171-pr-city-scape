@@ -14,6 +14,7 @@
   <script src="js/MapVis.js"></script>
   <script src="js/sunburst.js"></script>
   <script src="js/BarChartVis.js"></script>
+  <script src="js/timeline.js"></script>
   
   <style type="text/css">
 .axis {
@@ -92,6 +93,8 @@
   <div class="col-md-4">
     <span id="sunburst">
     </span>
+    <span id="timeline">
+    </span>
   </div>
 <div class="row">
   <div class="col-md-8" id="barVis">
@@ -114,9 +117,12 @@
 
         var MyBarChart = new BarChartVis(d3.select("#barVis"), MyEventHandler)
 
+         var MyTimeline = new Timeline(d3.select("#timeline"), MyEventHandler)
+
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
           MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
+       
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MySocrataModel.mapWrangle(event_args)
         })
@@ -134,7 +140,11 @@
         });
 
 
-        MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=5000", MySocrataModel.wrangleRequest);
+        $(MyEventHandler).bind("timeDataReady", function(event, event_args){
+          MyTimeline.initData(event_args);
+        });
+
+        MySocrataModel.get("$where=community_area=%2777%27&$select=year,primary_type,description,location_description,%20COUNT(primary_type)&$group=year,primary_type,description,location_description&$limit=5000%22", MySocrataModel.wrangleRequest);
 
         MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 
