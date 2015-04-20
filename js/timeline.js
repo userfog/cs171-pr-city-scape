@@ -5,8 +5,8 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 20, right: 0, bottom: 5, left: 50},
-  this.width = 500- this.margin.left - this.margin.right,
+  this.margin = {top: 20, right: 0, bottom: 5, left: 0},
+  this.width = 600- this.margin.left - this.margin.right,
   this.height = 600 - this.margin.top - this.margin.bottom;
 
 }
@@ -26,10 +26,10 @@ Timeline.prototype.initVis = function() {
     .attr("transform", "translate(50,0)");
 
     this.x = d3.scale.ordinal()
-      .rangeRoundBands([0, this.width]);
+      .rangeRoundBands([0, this.width/1.25],1);
 
     this.y = d3.scale.linear()
-      .range([this.height/2,0]);
+      .range([this.height/2,this.margin.top]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -45,7 +45,7 @@ Timeline.prototype.initVis = function() {
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
-        .attr("x", -6)
+        .attr("x", -20)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
         .text(function(){
@@ -126,8 +126,10 @@ Timeline.prototype.updateVis = function() {
     this.svg.select(".brush")
         .call(this.brush)
       .selectAll("rect")
-        .attr("height", this.height/2)
-        .style("fill", "lightgrey");
+        .attr("height", this.height/2-this.margin.top)
+        .attr("y", this.margin.top)
+        .style("fill", "lightgrey")
+        .attr("opacity", .75)
 
   this.svg.selectAll(".dot")
       .data(this.data)
