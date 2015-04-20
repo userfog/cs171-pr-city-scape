@@ -151,12 +151,14 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
   that.color.domain(d3.extent(values)).range(that.depth_to_color[depth]);
 
   this.svg.selectAll(".communityareas")
+  .style("stroke", "black")
+  .style("stroke-width", 0.1)
   .style("fill", function(d){
     var valid = mapping.get(areasMap[d.properties.name.toLowerCase()]);
     if(valid != undefined)
       return that.color(valid)
     else
-      return "black"
+      return "white"
   });
 
   //Adding legend for our Choropleth
