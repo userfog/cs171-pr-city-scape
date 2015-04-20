@@ -2,9 +2,6 @@
 Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
   this._socrataModel = _socrataModel;
-  this.allData = _data;
-
-  this.data = (_data) ? _data.merged : null;
 
   this.eventHandler = _eventHandler;
 
@@ -26,13 +23,6 @@ Sunburst.prototype.initData = function (_data){
   this.data = _data;
   this.initVis();
 }
-
-Sunburst.prototype.filter = function(year){
-  this.data = this.allData.unmerged.childrenDict[year];
-
-  this.initVis();
-}
-
 
 Sunburst.prototype.initVis = function() {
   var that = this;
@@ -124,6 +114,7 @@ Sunburst.prototype.initVis = function() {
       .duration(750)
       .attrTween("d", that.arcTween(d));
       var filters = getFilters(d, []);
+      console.log(filters);
       $(that.eventHandler).trigger("selectionChanged", [filters])
     }
 
