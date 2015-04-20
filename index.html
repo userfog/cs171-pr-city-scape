@@ -115,7 +115,6 @@
         var MyBarChart = new BarChartVis(d3.select("#barVis"), MyEventHandler)
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          debugger;
           MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
