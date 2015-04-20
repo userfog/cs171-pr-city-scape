@@ -57,24 +57,12 @@ BarChartVis.prototype.initVis = function (){
       .style("text-anchor", "end")
       .text("Arrests / Crime");
 
+    this.valueline = d3.svg.line()
+    .x(function(d) { return that.x(d.key)*1.07 + 1.5; })
+    .y(function(d) { return that.y(that.avg); });
+
     // call the update method
     this.updateVis();
-}
-
-
-/**
- * Method to wrangle the data. In this case it takes an options object
- * @param _filterFunction - a function that filters data or "null" if none
- */
-BarChartVis.prototype.wrangleData= function(_filterFunction){
-
-    // displayData should hold the data whiche is visualized
-    this.displayData = this.filterAndAggregate(_filterFunction);
-
-    //// you might be able to pass some options,
-    //// if you don't pass options -- set the default options
-    //// the default is: var options = {filter: function(){return true;} }
-    //var options = _options || {filter: function(){return true;}};
 }
 
 
@@ -84,6 +72,13 @@ BarChartVis.prototype.wrangleData= function(_filterFunction){
 BarChartVis.prototype.updateVis = function(){
 
     var that = this;
+
+    that.displayData = that.data.filter(function(d){return d.values.arrest_ratio != -1});
+
+    that.avg = d3.mean(that.displayData, function(d){
+      return d.values.arrest_ratio;
+    });
+
     var tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])
@@ -96,8 +91,8 @@ BarChartVis.prototype.updateVis = function(){
 
 
     // updates scales
-    this.x.domain(Object.keys(that.data));
-    this.y.domain(d3.extent(Object.keys(that.data).map(function(d){
+    this.x.domain(Object.keys(that.displayData));
+    this.y.domain(d3.extent(Object.keys(that.displayData).map(function(d){
       return that.data[d].values.arrest_ratio;}
     )));
 
@@ -117,7 +112,7 @@ BarChartVis.prototype.updateVis = function(){
     .attr("x", -4)
     // Data join
     var bar = this.svg.selectAll(".bar")
-      .data(this.data);
+      .data(this.displayData);
 
     // Append new bar groups, if required
     var bar_enter = bar.enter().append("g");
@@ -155,65 +150,10 @@ BarChartVis.prototype.updateVis = function(){
       })
       .transition();
 
-    // bar.selectAll("text")
-    //   .transition()
-    //   .attr("y", function(d,i) { return that.y(d[1]) + (that.doesLabelFit(d[1], that.metaData["priorities"][""+d[0]]["item-title"]) ? -3 : 5); })
-    //   .attr("x", function(d,i) { return that.x.rangeBand() / 2; })
-    //   .text(function(d, i) { return that.metaData["priorities"][""+d[0]]["item-title"]; })
-    //   .attr("class", "type-label")
-    //   .attr("dy", ".35em");
-}
-
-
-/**
- * Gets called by event handler and should create new aggregated data
- * aggregation is done by the function "aggregate(filter)". Filter has to
- * be defined here.
- * @param selection
- */
-BarChartVis.prototype.onSelectionChange = function (selectionStart, selectionEnd){
-
-    // TODO: call wrangle function
-
-    this.updateVis();
-}
-
-
-/**
- * Helper function that figures if there is sufficient space
- * to fit a label inside its bar in a bar chart
- */
-BarChartVis.prototype.doesLabelFit = function(count, datum, label) {
-  var pixel_per_character = 6;  // obviously a (rough) approximation
-
-  return datum.length * pixel_per_character < this.y(count);
-}
-
-/**
- * The aggregate function that creates the counts for each age for a given filter.
- * @param _filter - A filter can be, e.g.,  a function that is only true for data of a given time range
- * @returns {Array|*}
- */
-BarChartVis.prototype.filterAndAggregate = function(_filter){
-
-
-    //Dear JS hipster, a more hip variant of this construct would be:
-    var filter = _filter || function(){return true;}
-
-    var that = this;
-
-    // create an array of values for age 0-100
-    var res = d3.range(16).map(function () {
-        return 0;
-    });
-
-    this.data.filter(filter)
-        .forEach(function(d){
-            d.prios.forEach(function(j,i){
-                res[i] += j;
-            });
-        });    
-    return res;
+    // Add the valueline path.
+    that.svg.append("path")
+        .attr("class", "avg_line")
+        .attr("d", that.valueline(that.displayData));
 }
 
 

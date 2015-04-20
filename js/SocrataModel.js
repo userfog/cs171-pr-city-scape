@@ -98,6 +98,8 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
         .rollup(function(leaves){
           if(leaves)
             return {"arrest_ratio" : d3.sum(leaves, function(d){return (d.arrest) ? 1 : 0}) / leaves.length};
+          else
+            return {"arrest_ratio": -1};
         })
         .entries(that.data);
         
