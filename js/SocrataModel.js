@@ -8,6 +8,10 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.fullUrl = "{0}/resource/{1}.{2}?".format(this.baseUrl, this.resource, this.responseType);
   this.eventHandler = _eventHandler;
   this.previousRequests = [];
+  this.filters = [];
+  this.years = [2004];
+  this.community_area = 77;
+  this.grouping = "getMonth"
   this.data = null;
 }
 
@@ -75,7 +79,7 @@ SocrataModel.prototype.filterQuery = function(filter_by){
   return filtered;
 }
 
-SocrataModel.prototype.mapWrangle = function(filter_by){
+SocrataModel.prototype.mapWrangle = function(filter_by, years){
   var that = this;
   var mapData = that.filterQuery(filter_by);
   var mapping = d3.map();
@@ -85,14 +89,16 @@ SocrataModel.prototype.mapWrangle = function(filter_by){
   $(that.eventHandler).trigger("mapVisDataReady", [[mapping, filter_by]]);
 }
 
-SocrataModel.prototype.barChartWrangler = function(that){
-
+SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){
+  var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var arrestRatios = d3.nest()
-    .key(function(d){return d.community_area})
-    .rollup(function(values){
-      if(values)
-        return {"arrest_ratio" : d3.sum(values, function(d){return (d.arrest) ? 1 : 0}) / values.length};
-    }).map(that.data)
-
+        .key(function(d){
+            return dateFormatter.parse(d.date)[that.grouping]();})
+        .rollup(function(leaves){
+          if(leaves)
+            return {"arrest_ratio" : d3.sum(leaves, function(d){return (d.arrest) ? 1 : 0}) / leaves.length};
+        })
+        .entries(that.data);
+        
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }

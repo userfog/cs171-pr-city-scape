@@ -90,3 +90,8 @@ if (!String.prototype.format) {
     });
   };
 }
+
+
+function getId(d){
+    return areasMap[d.properties.name.toLowerCase()]
+}

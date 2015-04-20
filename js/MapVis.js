@@ -56,13 +56,6 @@ this.depth_to_color = {
 
 MapVis.prototype.initVis = function() {
 
-
-  function mouseovered (d){
-  }
-
-  function mouseouted (d){
-  }
-
   var that = this;
 
   this.projection = d3.geo.albers()
@@ -92,11 +85,9 @@ MapVis.prototype.initVis = function() {
       return "communityareas " + areasMap[d.properties.name.toLowerCase()];
     })
     .attr("d", this.path)    
-    .on("click", function(d){console.log(d);})
-    .on("mouseenter", mouseovered)
-    .on("mouseover", mouseovered)
-    .on("mouseout", mouseouted)
-    .on("mouseleave", mouseouted);
+    .on("click", function(d){
+        $(that.eventHandler).trigger("communityAreaChanged", [getId(d)]);
+    });
 
   this.communityLabels = this.svg.selectAll(".communityareas-label")
       .data(communityAreas.features.filter(function(d) {
@@ -136,7 +127,6 @@ MapVis.prototype.initVis = function() {
 };
 
 MapVis.prototype.choropleth = function(mapping, filter_by){
-  debugger;
   var that = this;
   var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
       return typeof d == "number" && d != NaN;

@@ -31,6 +31,14 @@
   display: none;
 }
 
+.bar {
+  fill: orange;
+}
+
+.bar:hover {
+  fill: orangered ;
+}
+
 .d3-tip {
   line-height: 1;
   font-weight: bold;
@@ -86,7 +94,7 @@
     </span>
   </div>
 <div class="row">
-  <div id="barchartvis">
+  <div class="col-md-8" id="barVis">
   </div>
 </div>
 <script type="text/javascript">
@@ -104,8 +112,12 @@
 
         var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler, MySocrataModel);
 
-        var MyBarChart = new BarChartVis(d3.select("#barchartvis"), MyEventHandler)
+        var MyBarChart = new BarChartVis(d3.select("#barVis"), MyEventHandler)
 
+        $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
+          debugger;
+          MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
+        })
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MySocrataModel.mapWrangle(event_args)
         })
@@ -122,9 +134,10 @@
           MyBarChart.initData(event_args);
         });
 
+
         MySocrataModel.get("$where=year='2004'&$select=community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=community_area,primary_type,description,location_description&$limit=5000", MySocrataModel.wrangleRequest);
 
-        // MySocrataModel.get("$where=year=%272004%27&$select=community_area,arrest", MySocrataModel.barChartWrangler);
+        MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 
   }
 
