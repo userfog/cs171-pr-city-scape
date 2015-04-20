@@ -153,6 +153,7 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
   this.svg.selectAll(".communityareas")
   .style("stroke", "black")
   .style("stroke-width", 0.1)
+  .transition().duration(500)
   .style("fill", function(d){
     var valid = mapping.get(areasMap[d.properties.name.toLowerCase()]);
     if(valid != undefined)
