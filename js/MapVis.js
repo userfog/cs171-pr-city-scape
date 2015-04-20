@@ -136,7 +136,6 @@ MapVis.prototype.initVis = function() {
 };
 
 MapVis.prototype.choropleth = function(mapping, filter_by){
-  debugger;
   var that = this;
   var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
       return typeof d == "number" && d != NaN;
@@ -153,7 +152,7 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
   this.svg.selectAll(".communityareas")
   .style("stroke", "black")
   .style("stroke-width", 0.1)
-  .transition().duration(500)
+  .transition().duration(750)
   .style("fill", function(d){
     var valid = mapping.get(areasMap[d.properties.name.toLowerCase()]);
     if(valid != undefined)

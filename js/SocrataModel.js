@@ -34,6 +34,7 @@ SocrataModel.prototype.get = function (str, callback){
 SocrataModel.prototype.wrangleRequest = function (that){
   that.sunburstWrangle(that);
   that.mapWrangle([]);
+  that.timeWrangle([]);
 }
 
 
@@ -95,4 +96,22 @@ SocrataModel.prototype.barChartWrangler = function(that){
     }).map(that.data)
 
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
+}
+
+SocrataModel.prototype.timeWrangle = function(filter_by){
+  var that=this;
+  var timeData = that.filterQuery(filter_by);
+
+  var time_ags = d3.nest()
+    .key(function(d){return d.year})
+    .rollup(function(values){
+      if(values)
+        return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
+    }).map(that.data)
+
+  // change to better format
+  time_final = []
+  Object.keys(time_ags).map(function(d){time_final.push({"year":d, "count":time_ags[d].count})})
+
+  $(that.eventHandler).trigger("timeDataReady", [time_final]);
 }
