@@ -135,7 +135,8 @@
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
-          MySocrataModel.mapWrangle(event_args)
+          MySocrataModel.mapWrangle(event_args);
+
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
@@ -155,7 +156,7 @@
           MyTimeline.initData(event_args);
         });
 
-        MySocrataModel.get("$where=community_area=%2777%27&$select=year,primary_type,description,location_description,%20COUNT(primary_type)&$group=year,primary_type,description,location_description&$limit=5000%22", MySocrataModel.wrangleRequest);
+        MySocrataModel.get("$where=community_area=%2777%27&$select=date,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,primary_type,description,location_description&$limit=50000%22", MySocrataModel.wrangleRequest);
 
         MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 

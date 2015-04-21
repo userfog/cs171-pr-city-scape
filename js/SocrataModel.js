@@ -110,8 +110,15 @@ SocrataModel.prototype.timeWrangle = function(filter_by){
   var that=this;
   var timeData = that.filterQuery(filter_by);
 
+  var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
+  timeData.map(function(d){
+    var month = dateFormatter.parse(d.date).getMonth()
+    var year = dateFormatter.parse(d.date).getFullYear()
+    d["new_date"] = dateFormatter(new Date(year, month, 1))
+  })
+
   var time_ags = d3.nest()
-    .key(function(d){return d.year})
+    .key(function(d){return d.new_date})
     .rollup(function(values){
       if(values)
         return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
@@ -119,7 +126,7 @@ SocrataModel.prototype.timeWrangle = function(filter_by){
 
   // change to better format
   time_final = []
-  Object.keys(time_ags).map(function(d){time_final.push({"year":d, "count":time_ags[d].count})})
+  Object.keys(time_ags).map(function(d){time_final.push({"date":dateFormatter.parse(d), "count":time_ags[d].count})})
 
   $(that.eventHandler).trigger("timeDataReady", [time_final]);
 }
