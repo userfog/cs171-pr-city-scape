@@ -59,16 +59,16 @@ Timeline.prototype.initVis = function() {
         .attr("class", "x axis")
         .attr("transform", "translate(0," + this.height/2 + ")")
 
-  /* this.line = d3.svg.line()
+  this.line = d3.svg.line()
     .interpolate("linear")
     .x(function(d) { return that.x(d.date); })
-    .y(function(d) { return that.y(d.count); }); */
+    .y(function(d) { return that.y(d.count); });
 
-  this.area = d3.svg.area()
+  /*this.area = d3.svg.area()
       .interpolate("monotone")
       .x(function(d) { return that.x(d.date);})
       .y0(this.height/2)
-      .y1(function(d) { return that.y(d.count);});
+      .y1(function(d) { return that.y(d.count);}); */
 
     this.brush = d3.svg.brush()
       .on("brush", function(){
@@ -110,7 +110,7 @@ Timeline.prototype.updateVis = function() {
       .call(this.yAxis)
 
   //data join
-  /* var trendline = this.svg.selectAll(".line")
+  var trendline = this.svg.selectAll(".line")
       .data([this.data])
 
   // enter
@@ -122,7 +122,21 @@ Timeline.prototype.updateVis = function() {
       .attr("d", that.line);
 
   // exit
-  trendline.exit().remove() */
+  trendline.exit().remove()
+   
+  /* // updates graph
+  var path = this.svg.selectAll(".area")
+      .data([that.data])
+
+    path.enter()
+      .append("path")
+      .attr("class", "area");
+
+    path
+      .attr("d", that.area);
+
+    path.exit()
+      .remove(); */
 
   this.brush.x(this.x);
     this.svg.select(".brush")
@@ -132,37 +146,25 @@ Timeline.prototype.updateVis = function() {
         .attr("y", this.margin.top)
         .style("fill", "lightgrey")
         .attr("opacity", .75)
-   
-   // updates graph
-    var path = this.svg.selectAll(".area")
-      .data([that.data])
 
-    path.enter()
-      .append("path")
-      .attr("class", "area");
-
-    path
-      .transition()
-      .attr("d", that.area);
-
-    path.exit()
-      .remove();
-
-  /*var points = this.svg.selectAll(".dot")
+  var points = this.svg.selectAll(".dot")
       .data(this.data)
 
   points.enter().append("circle")
       .attr("class", "dot")
-      .attr("r", 3.5)
+      .attr("r", 2)
   points.transition().duration(750)
       .attr("cx", function(d){return that.x(d.date)})
       .attr("cy", function(d){return that.y(d.count)})
-  points.exit().remove() */
+  points.exit().remove()
 
 
 }
 
+Timeline.prototype.onSelectionChange = function(_data) {
 
-
+  this.data = _data;
+  this.updateVis();
+}
 
 

@@ -136,7 +136,7 @@
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MySocrataModel.mapWrangle(event_args);
-
+          MySocrataModel.timeWrangle(event_args, true);
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
@@ -151,9 +151,12 @@
           MyBarChart.initData(event_args);
         });
 
-
         $(MyEventHandler).bind("timeDataReady", function(event, event_args){
           MyTimeline.initData(event_args);
+        });
+
+        $(MyEventHandler).bind("timeUpdate", function(event, event_args){
+          MyTimeline.onSelectionChange(event_args);
         });
 
         MySocrataModel.get("$where=community_area=%2777%27&$select=date,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,primary_type,description,location_description&$limit=50000%22", MySocrataModel.wrangleRequest);

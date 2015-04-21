@@ -38,7 +38,7 @@ SocrataModel.prototype.get = function (str, callback){
 SocrataModel.prototype.wrangleRequest = function (that){
   that.sunburstWrangle(that);
   that.mapWrangle([]);
-  that.timeWrangle([]);
+  that.timeWrangle([], false);
 }
 
 
@@ -106,11 +106,10 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
 
-SocrataModel.prototype.timeWrangle = function(filter_by){
+SocrataModel.prototype.timeWrangle = function(filter_by, update){
   var that=this;
   var timeData = that.filterQuery(filter_by);
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
-  
   timeData.map(function(d){
     var month = dateFormatter.parse(d.date).getMonth()
     var year = dateFormatter.parse(d.date).getFullYear()
@@ -122,7 +121,7 @@ SocrataModel.prototype.timeWrangle = function(filter_by){
     .rollup(function(values){
       if(values)
         return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
-    }).map(that.data)
+    }).map(timeData)
 
   // change to better format
   time_final = []
@@ -130,5 +129,8 @@ SocrataModel.prototype.timeWrangle = function(filter_by){
   // sort by time (if not sorted, path code won't work)
   time_final.sort(function (a,b) {return d3.ascending(a.date, b.date) })
 
-  $(that.eventHandler).trigger("timeDataReady", [time_final]);
+  console.log(time_final)
+  var pass = update;
+  if (pass){console.log("update!"); $(that.eventHandler).trigger("timeUpdate", [time_final])}
+    else {console.log("no update!"); $(that.eventHandler).trigger("timeDataReady", [time_final])}
 }
