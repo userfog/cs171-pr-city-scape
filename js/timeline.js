@@ -13,7 +13,6 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
 
 Timeline.prototype.initData = function (_data){
   this.data = _data;
-  this.data.sort(function (a,b) {return d3.ascending(a.date, b.date) })
   this.initVis();
 }
 

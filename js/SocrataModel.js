@@ -109,8 +109,8 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
 SocrataModel.prototype.timeWrangle = function(filter_by){
   var that=this;
   var timeData = that.filterQuery(filter_by);
-
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
+  
   timeData.map(function(d){
     var month = dateFormatter.parse(d.date).getMonth()
     var year = dateFormatter.parse(d.date).getFullYear()
@@ -127,6 +127,8 @@ SocrataModel.prototype.timeWrangle = function(filter_by){
   // change to better format
   time_final = []
   Object.keys(time_ags).map(function(d){time_final.push({"date":dateFormatter.parse(d), "count":time_ags[d].count})})
+  // sort by time (if not sorted, path code won't work)
+  time_final.sort(function (a,b) {return d3.ascending(a.date, b.date) })
 
   $(that.eventHandler).trigger("timeDataReady", [time_final]);
 }
