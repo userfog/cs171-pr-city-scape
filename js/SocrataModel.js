@@ -109,17 +109,22 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
 
 SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   var that=this;
-  
   var timeData = that.filterQuery(filter_by);
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
-  timeData.map(function(d){
+  
+  var getParsed = function(d){
     var month = dateFormatter.parse(d.date).getMonth()
     var year = dateFormatter.parse(d.date).getFullYear()
     var day = dateFormatter.parse(d.date).getDate()
-    
-    if (resolution == "day"){d["new_date"] = dateFormatter(new Date(year, month, day))}
-      else if (resolution == "month"){d["new_date"] = dateFormatter(new Date(year, month, 1))}
-        else {{d["new_date"] = dateFormatter(new Date(year, 0, 1))}}
+
+    return {"d":day, "m": month, "yr":year}
+  }
+
+  timeData.map(function(d){
+    var info = getParsed(d);
+    if (resolution == "day"){d["new_date"] = dateFormatter(new Date(info.yr, info.m, info.d))}
+      else if (resolution == "month"){d["new_date"] = dateFormatter(new Date(info.yr, info.m, 1))}
+        else {{d["new_date"] = dateFormatter(new Date(info.yr, 0, 1))}}
   })
 
   var time_ags = d3.nest()
@@ -135,7 +140,30 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   // sort by time (if not sorted, path code won't work)
   time_final.sort(function (a,b) {return d3.ascending(a.date, b.date) })
 
+  // generate empty date array to fill in blanks
+  var extent = d3.extent(time_final.map(function(d){return d.date}))
+  var dates;
+  if (resolution == "day"){dates = d3.time.day.range(extent[0], extent[1])}
+  else if (resolution == "month"){dates = d3.time.month.range(extent[0], extent[1])}
+  else {dates = d3.time.year.range(extent[0], extent[1])}
+
+  var zeroed_data = []
+  dates.map(function(d){
+    zeroed_data.push({"date":d, "count":0})
+  })
+
+  // populate zeroed data
+  time_final.map(function(d){
+    zeroed_data.forEach(function(k){
+      //date1 = String(d.date).slice(0,15)
+      //date2 = String(k.date).slice(0,15)
+      if(String(k.date) == String(d.date)){
+        k.count = d.count;
+      }
+    })
+  })
+
   var pass = update;
-  if (pass){console.log("update!"); $(that.eventHandler).trigger("timeUpdate", [time_final])}
-    else {console.log("no update!"); $(that.eventHandler).trigger("timeDataReady", [time_final])}
+  if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
+    else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}
 }
