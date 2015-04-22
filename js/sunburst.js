@@ -24,6 +24,9 @@ Sunburst.prototype.initData = function (_data){
   this.initVis();
 }
 
+//global last clicked
+var lastFilter;
+
 Sunburst.prototype.initVis = function() {
   var that = this;
 
@@ -114,11 +117,20 @@ Sunburst.prototype.initVis = function() {
       .duration(750)
       .attrTween("d", that.arcTween(d));
       var filters = getFilters(d, []);
-      console.log(filters);
+      lastFilter = filters;
       $(that.eventHandler).trigger("selectionChanged", [filters])
     }
 
     d3.select(self.frameElement).style("height", this.height + "px");
+
+       // ranking changes
+    console.log(this.parentElement)
+    this.parentElement.select("#resolution").select("select").on("change", function(){
+          var res = d3.select("#resolution").selectAll("select").property("value");
+          pass = {"res": res, "filter": lastFilter}
+          console.log("hi")
+          $(that.eventHandler).trigger("resolutionChange", pass)
+    })
 };
 
 // Interpolate the scales!

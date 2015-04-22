@@ -60,15 +60,15 @@ Timeline.prototype.initVis = function() {
         .attr("transform", "translate(0," + this.height/2 + ")")
 
   this.line = d3.svg.line()
-    .interpolate("linear")
+    .interpolate("monotone")
     .x(function(d) { return that.x(d.date); })
     .y(function(d) { return that.y(d.count); });
 
-  /*this.area = d3.svg.area()
+  this.area = d3.svg.area()
       .interpolate("monotone")
       .x(function(d) { return that.x(d.date);})
       .y0(this.height/2)
-      .y1(function(d) { return that.y(d.count);}); */
+      .y1(function(d) { return that.y(d.count);});
 
     this.brush = d3.svg.brush()
       .on("brush", function(){
@@ -93,6 +93,7 @@ Timeline.prototype.initVis = function() {
 Timeline.prototype.updateVis = function() {
   var that = this;
 
+  console.log(this.data)
   /*var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   this.data.map(function(d){
 
@@ -100,13 +101,15 @@ Timeline.prototype.updateVis = function() {
 
   //this.x.domain(this.data.map(function(d){return d.year}))
   this.x.domain(d3.extent(this.data, function(d) { return d.date; }));
-  this.y.domain(d3.extent(this.data, function(d) { return d.count; }));
+  this.y.domain([0,d3.max(this.data, function(d) { return d.count; })]);
 
   // updates axis
   this.svg.select(".x.axis")
+      .transition().duration(750)
       .call(this.xAxis);
 
   this.svg.select(".y.axis")
+      .transition().duration(750)
       .call(this.yAxis)
 
   //data join
@@ -133,6 +136,7 @@ Timeline.prototype.updateVis = function() {
       .attr("class", "area");
 
     path
+      .transition().duration(750)
       .attr("d", that.area);
 
     path.exit()

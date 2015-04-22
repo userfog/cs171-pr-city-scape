@@ -101,9 +101,17 @@
   <div class="col-md-6">
     <span class="pull-left" id="mapvis"></span>
 </div>
-  <div class="col-md-">
+  <div class="col-md-6">
     <span id="sunburst">
-    </span>
+    <form id = "resolution">
+  Resolution:
+    <select>
+      <option value="day" selected>Day</option>
+      <option value="month">Month</option>
+      <option value="year">Year</option>
+    </select>
+  </form>
+</span>
     <span id="timeline">
     </span>
   </div>
@@ -136,7 +144,7 @@
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MySocrataModel.mapWrangle(event_args);
-          MySocrataModel.timeWrangle(event_args, true);
+          MySocrataModel.timeWrangle(event_args, true, "month");
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
@@ -159,7 +167,12 @@
           MyTimeline.onSelectionChange(event_args);
         });
 
-        MySocrataModel.get("$where=community_area=%2777%27&$select=date,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,primary_type,description,location_description&$limit=50000%22", MySocrataModel.wrangleRequest);
+        $(MyEventHandler).bind("resolutionChange", function(event, event_args){
+          console.log(event_args)
+          MySocrataModel.timeWrangle(event_args.filter, true, event_args.res);
+        });
+
+        MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$limit=1000", MySocrataModel.wrangleRequest);
 
         MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 
