@@ -144,7 +144,8 @@
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           MySocrataModel.mapWrangle(event_args);
-          MySocrataModel.timeWrangle(event_args, true, "month");
+          var res = d3.select("#resolution").selectAll("select").property("value");
+          MySocrataModel.timeWrangle(event_args, true, res);
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
