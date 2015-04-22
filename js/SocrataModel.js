@@ -71,6 +71,7 @@ SocrataModel.prototype.filterQuery = function(filter_by){
   if(typeof filter_by == "undefined" || filter_by.length == 0)
     return this.data;
 
+  console.log(filter_by)
   var filtered = this.data;
   filter_by.map(function(d,i){
     filtered = filtered.filter(function(e,j){

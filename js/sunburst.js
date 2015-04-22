@@ -124,7 +124,6 @@ Sunburst.prototype.initVis = function() {
     d3.select(self.frameElement).style("height", this.height + "px");
 
        // ranking changes
-    console.log(this.parentElement)
     this.parentElement.select("#resolution").select("select").on("change", function(){
           var res = d3.select("#resolution").selectAll("select").property("value");
           pass = {"res": res, "filter": lastFilter}
