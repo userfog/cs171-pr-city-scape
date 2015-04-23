@@ -124,6 +124,24 @@ MapVis.prototype.initVis = function() {
       .attr("class", "communityareas-name")
       .attr("dy", function(d, i) { return (i - d.count / 2 + .7) + "em"; })
       .text(function(d) { return d.word; });
+
+    // Adding a tool tip
+    var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([25,100])
+    .html(function(d) {
+      return "Hello";
+    })
+
+    this.svg.call(tip);
+
+    this.communityAreas
+    .on("mouseover", tip.show)
+    .on("mouseout", tip.hide);
+
+    this.communityLabels
+    .on("mouseover", tip.show)
+    .on("mouseout", tip.hide);
 };
 
 MapVis.prototype.choropleth = function(mapping, filter_by){

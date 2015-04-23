@@ -38,7 +38,7 @@ SocrataModel.prototype.get = function (str, callback){
 SocrataModel.prototype.wrangleRequest = function (that){
   that.sunburstWrangle(that);
   that.mapWrangle([]);
-  that.timeWrangle([], false, "day");
+  that.timeWrangle([], false, "getDay");
 }
 
 
@@ -111,40 +111,34 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   var that=this;
   var timeData = that.filterQuery(filter_by);
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
+
   
-  var getParsed = function(d){
-    var month = dateFormatter.parse(d.date).getMonth()
-    var year = dateFormatter.parse(d.date).getFullYear()
-    var day = dateFormatter.parse(d.date).getDate()
 
-    return {"d":day, "m": month, "yr":year}
-  }
-
-  timeData.map(function(d){
-    var info = getParsed(d);
-    if (resolution == "day"){d["new_date"] = dateFormatter(new Date(info.yr, info.m, info.d))}
-      else if (resolution == "month"){d["new_date"] = dateFormatter(new Date(info.yr, info.m, 1))}
-        else {{d["new_date"] = dateFormatter(new Date(info.yr, 0, 1))}}
-  })
-
-  var time_ags = d3.nest()
-    .key(function(d){return d.new_date})
+  var time_final = d3.nest()
+    .key(function(d){
+      var date = dateFormatter.parse(d.date);
+      if(resolution=="getDay"){
+        return date.getYear() + "/" + date.getMonth() + "/" + date.getDay();
+      } else if (resolution=="getMonth"){
+        return date.getYear() + "/" + date.getMonth();
+      } else if (resolution=="getYear"){
+        return date.getYear();
+      }
+    })
     .rollup(function(values){
-      if(values)
-        return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
+      if(values){
+        return {"date": dateFormatter.parse(values[0].date), "count" : d3.sum(values, function(d){return d.count_primary_type})}
+      }
     }).map(timeData)
 
-  // change to better format
-  time_final = []
-  Object.keys(time_ags).map(function(d){time_final.push({"date":dateFormatter.parse(d), "count":time_ags[d].count})})
   // sort by time (if not sorted, path code won't work)
   time_final.sort(function (a,b) {return d3.ascending(a.date, b.date) })
 
   // generate empty date array to fill in blanks
   var extent = d3.extent(time_final.map(function(d){return d.date}))
   var dates;
-  if (resolution == "day"){dates = d3.time.day.range(extent[0], extent[1])}
-  else if (resolution == "month"){dates = d3.time.month.range(extent[0], extent[1])}
+  if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1])}
+  else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1])}
   else {dates = d3.time.year.range(extent[0], extent[1])}
 
   var zeroed_data = []
@@ -154,15 +148,17 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
 
   // populate zeroed data
   time_final.map(function(d){
-    zeroed_data.forEach(function(k){
-      //date1 = String(d.date).slice(0,15)
-      //date2 = String(k.date).slice(0,15)
-      if(String(k.date) == String(d.date)){
-        k.count = d.count;
+    zeroed_data.forEach(function(k, i, arr){
+      if(i == 0 && (d.date <= k.date)){
+        k.count += d.count;
+      } else if(i == arr.length-1 && (d.date >= k.date)){
+        k.count += d.count;
+      } else if(d.date > arr[i-1].date && d.date < arr[i+1].date){
+        k.count += d.count;
       }
     })
   })
-
+ d
   var pass = update;
   if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
     else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}
