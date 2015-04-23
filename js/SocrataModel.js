@@ -112,30 +112,24 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   var timeData = that.filterQuery(filter_by);
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
 
-  
+  var getParsed = function (d){
+    var re = ((resolution == "getDay") ? /T(.*?)$/gi : ((resolution == "getMonth") ? /-\d+T(.*?)$/gi : /-\d+-\d+T(.*?)$/gi));
+    return d.date.replace(re, "")
+  }
 
   var time_final = d3.nest()
     .key(function(d){
-      var date = dateFormatter.parse(d.date);
-      if(resolution=="getDay"){
-        return date.getYear() + "/" + date.getMonth() + "/" + date.getDay();
-      } else if (resolution=="getMonth"){
-        return date.getYear() + "/" + date.getMonth();
-      } else if (resolution=="getYear"){
-        return date.getYear();
-      }
+      return getParsed(d);
     })
     .rollup(function(values){
       if(values){
-        return {"date": dateFormatter.parse(values[0].date), "count" : d3.sum(values, function(d){return d.count_primary_type})}
+        return {"date": getParsed(values[0]), "count" : d3.sum(values, function(d){return d.count_primary_type})}
       }
     }).map(timeData)
 
-  // sort by time (if not sorted, path code won't work)
-  time_final.sort(function (a,b) {return d3.ascending(a.date, b.date) })
-
   // generate empty date array to fill in blanks
-  var extent = d3.extent(time_final.map(function(d){return d.date}))
+  var extent = d3.extent(Object.keys(time_final).map(function(d){}));
+
   var dates;
   if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1])}
   else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1])}
@@ -147,18 +141,12 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   })
 
   // populate zeroed data
-  time_final.map(function(d){
-    zeroed_data.forEach(function(k, i, arr){
-      if(i == 0 && (d.date <= k.date)){
-        k.count += d.count;
-      } else if(i == arr.length-1 && (d.date >= k.date)){
-        k.count += d.count;
-      } else if(d.date > arr[i-1].date && d.date < arr[i+1].date){
-        k.count += d.count;
-      }
-    })
-  })
- d
+  zeroed_data.forEach(function (k){
+    if(k.date in time_final){
+      k.count += time_final[k.date].count;
+    }
+  });
+
   var pass = update;
   if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
     else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}
