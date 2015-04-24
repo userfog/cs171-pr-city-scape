@@ -173,6 +173,11 @@
           MySocrataModel.timeWrangle(event_args.filter, true, event_args.res);
         });
 
+        /* $(MyEventHandler).bind("timeChange", function(event, event_args){
+          MySocrataModel.mapWrangle(event_args);
+          MySocrataModel.sunburstWrangle(event_args);
+        }); */
+
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$limit=1000", MySocrataModel.wrangleRequest);
 
         MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
