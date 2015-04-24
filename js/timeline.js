@@ -6,7 +6,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
 
   // defines constants
   this.margin = {top: 20, right: 0, bottom: 5, left: 0},
-  this.width = 600- this.margin.left - this.margin.right,
+  this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
   this.height = 600 - this.margin.top - this.margin.bottom;
 
 }

@@ -1,7 +1,8 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
-MapVis = function(_parentElement, _data, _socrataModel, _eventHandler){
+MapVis = function(_parentElement, _data, _demographicData, _socrataModel, _eventHandler){
   this.parentElement = _parentElement;
   this.data = _data;
+  this.demographicData = _demographicData;
   this.socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
 
@@ -45,8 +46,8 @@ this.depth_to_color = {
   {label: "hyde park", d:"M 583 525 L 623 525 L 623 490"}
 ];
     // defines constants
-  this.margin = {top: 20, right: 0, bottom: 0, left: 50},
-  this.width = 800 - this.margin.left - this.margin.right,
+  this.margin = {top: 50, right: 0, bottom: 0, left: 0},
+  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 900 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
@@ -124,7 +125,23 @@ MapVis.prototype.initVis = function() {
       .attr("class", "communityareas-name")
       .attr("dy", function(d, i) { return (i - d.count / 2 + .7) + "em"; })
       .text(function(d) { return d.word; });
-};
+
+    this.communityAreas
+    .on("mouseover", function(d){
+        var table_demographics = that.demographicData.filter(function(e){
+          return getId(d) == e.community_area;
+        });
+        that.table(d.properties.name, table_demographics);
+    })
+
+    this.communityLabels
+    .on("mouseover", function(d){
+        var table_demographics = that.demographicData.filter(function(e){
+          return getId(d) == e.community_area;
+        });
+        that.table(d.properties.name, table_demographics);
+    });
+}
 
 MapVis.prototype.choropleth = function(mapping, filter_by){
   var that = this;
@@ -204,3 +221,41 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
   });
 }
 
+MapVis.prototype.table = function (name, table_demographics){
+  d3.select("#table").selectAll("*").remove()
+  var table = d3.select("#table").append("table"),
+  thead = table.append("thead")
+    .attr("class", "thead"),
+  tbody = table.append("tbody");
+
+  table.append("caption")
+    .html(name);
+
+  thead.append("tr").selectAll("th")
+  .data(["Demographics", "2000","2010"]).enter()
+  .append("th")
+  .text(function(d){return d});
+
+  var rows = tbody.selectAll("tr.table_row")
+  .data(Object.keys(table_demographics[0]).filter(function(d){
+      return d != "year" && d != "community_area";
+  }))
+  .enter()
+  .append("tr").attr("class", "table_row");
+
+  var cells = rows.selectAll("td")
+  .data(function(row) {
+      return d3.range(3).map(function(column, i) {
+          if(i==0){
+            return row;
+          }
+          if(row != "Total")
+            return d3.format("%.02")(table_demographics[i-1][row]/table_demographics[i-1]["Total"]);
+          else
+            return table_demographics[i-1][row];
+      });
+  })
+  .enter()
+  .append("td")
+  .text(function(d) { return d; });
+}
