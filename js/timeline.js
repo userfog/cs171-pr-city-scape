@@ -71,18 +71,23 @@ Timeline.prototype.initVis = function() {
       .y1(function(d) { return that.y(d.count);});
 
     this.brush = d3.svg.brush()
-      .on("brush", function(){
+      /*.on("brush", function(){
         // initialize pass to send to other functions
         pass = {}
+        pass["type"] = "time";
         if (that.brush.empty()){
+          pass["start"] = d3.extent(that.data, function(d){return d.time})[0];
+          pass["end"] = d3.extent(that.data, function(d){return d.time})[1];
         }
         else {
+          pass["start"] = that.brush.extent()[0];
+          pass["end"] = that.brush.extent()[1];
         }
 
-        console.log(that.brush.extent()[0])
-        // trigger event
-        //$(that.eventHandler).trigger("selectionChanged", pass)
-      });
+        console.log(pass);
+
+        $(that.eventHandler).trigger("timeChange", pass)
+      }); */
 
     this.svg.append("g")
         .attr("class", "brush")

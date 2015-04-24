@@ -36,13 +36,16 @@ SocrataModel.prototype.get = function (str, callback){
 
 
 SocrataModel.prototype.wrangleRequest = function (that){
-  that.sunburstWrangle(that);
+  that.sunburstWrangle([]);
   that.mapWrangle([]);
   that.timeWrangle([], false, "getDay");
 }
 
 
-SocrataModel.prototype.sunburstWrangle = function(that){
+SocrataModel.prototype.sunburstWrangle = function(filter_by){
+
+  var that = this;
+  //var sunData = that.filterQuery(filter_by);
 
   function convert_nested (o) {
     if (typeof o.values == "number"){
@@ -71,7 +74,6 @@ SocrataModel.prototype.filterQuery = function(filter_by){
   if(typeof filter_by == "undefined" || filter_by.length == 0)
     return this.data;
 
-  console.log(filter_by)
   var filtered = this.data;
   filter_by.map(function(d,i){
     filtered = filtered.filter(function(e,j){
@@ -151,4 +153,20 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   var pass = update;
   if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
     else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}
+}
+
+SocrataModel.prototype.timeFilter = function (data, pass){
+
+    // unpack passed object
+    start = pass["start"];
+    end = pass["end"];
+
+    // generate custom filter from extent
+    var time_filter = function(d){
+        return (d.time <= end && d.time >= start)
+    }
+
+    this.wrangleData(time_filter);
+
+    this.updateVis();
 }
