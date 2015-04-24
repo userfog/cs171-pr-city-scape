@@ -5,7 +5,7 @@ var areasMap = {
 "lincoln square": 4,
 "north center": 5,
 "lake view": 6,
-"lake view": 7,
+"lincoln park": 7,
 "near north side": 8,
 "edison park": 9,
 "norwood park": 10,

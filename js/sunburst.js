@@ -6,8 +6,8 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 20, right: 5, bottom: 5, left: 50},
-  this.width = 500 - this.margin.left - this.margin.right,
+  this.margin = {top: 20, right: 50, bottom: 5, left: 50},
+  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 500 - this.margin.top - this.margin.bottom;
 
   this.depth_to_field = {
@@ -34,7 +34,7 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(200,250)");
+    .attr("transform", "translate(250,250)");
 
   //http://bl.ocks.org/Caged/6476579
   var tip = d3.tip()

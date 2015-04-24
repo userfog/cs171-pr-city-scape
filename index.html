@@ -102,27 +102,35 @@ div.map_tooltip {
 </head>
 <body>
 <div class="row">
-  <div class="col-md-6">
-    <span class="pull-left" id="mapvis"></span>
-</div>
-  <div class="col-md-6">
-    <span id="sunburst">
-  <div id = "resolution">
-    Resolution:
-    <select>
-      <option value="getDay" selected>Day</option>
-      <option value="getMonth">Month</option>
-      <option value="getYear">Year</option>
-    </select>
+  <div class="col-md-4" id="mapvis">
   </div>
-</span>
-    <span id="timeline">
-    </span>
+  <div class="col-md-3" id="maphover">
+    <div class="row">
+      <div id="table">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6" id="barVis">
+      </div>
+      <div class="col-md-6" id="barLegend">
+        <p>Legend</p>
+      </div>
+    </div>
   </div>
-<div class="row">
-  <div class="col-md-6" id="barVis">
+  <div class="col-md-4">
+    <div id="sunburst">
+    </div>
+    <div id = "resolution">
+      Resolution:
+      <select>
+        <option value="getDay" selected>Day</option>
+        <option value="getMonth">Month</option>
+        <option value="getYear">Year</option>
+      </select>
+    </div>
+    <div id="timeline">
+    </div>
   </div>
-</div>
 <script type="text/javascript">
 
   var state = {
@@ -131,15 +139,16 @@ div.map_tooltip {
   }
 
   queue().defer(d3.json, "map/chicago.json")
-        .defer(d3.tsv, "map/block-groups.tsv")
+        .defer(d3.json, "data/2000_2010.json")
         .await(ready);
 
-  function ready(error, chicago){
+  function ready(error, chicago, _2000_2010){
+
         var MyEventHandler = new Object();
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
-
-        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, MySocrataModel, MyEventHandler);
+        
+        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, _2000_2010, MySocrataModel, MyEventHandler);
 
         var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler, MySocrataModel);
 
@@ -148,11 +157,11 @@ div.map_tooltip {
         var MyTimeline = new Timeline(d3.select("#timeline"), MyEventHandler)
 
         var res = d3.select("#resolution").select("select").on("change", function(){
-          MySocrataModel.timeWrangle(event_args.filter, true, this.value);
+          MySocrataModel.timeWrangle(true, this.value);
         })
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          // MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
+          MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
@@ -183,7 +192,7 @@ div.map_tooltip {
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$limit=1000", MySocrataModel.wrangleRequest);
 
-        // MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
+        MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 
   }
 
