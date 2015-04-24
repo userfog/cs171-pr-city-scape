@@ -110,7 +110,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
 SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
   var that=this;
   var timeData = that.filterQuery(filter_by);
-  var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
+  var dateFormatter = d3.time.format.utc("%Y-%m-%d");
 
   var getParsed = function (d){
     var re = ((resolution == "getDay") ? /T(.*?)$/gi : ((resolution == "getMonth") ? /-\d+T(.*?)$/gi : /-\d+-\d+T(.*?)$/gi));
@@ -123,12 +123,12 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
     })
     .rollup(function(values){
       if(values){
-        return {"date": getParsed(values[0]), "count" : d3.sum(values, function(d){return d.count_primary_type})}
+        return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
       }
     }).map(timeData)
 
   // generate empty date array to fill in blanks
-  var extent = d3.extent(Object.keys(time_final).map(function(d){}));
+  var extent = d3.extent(Object.keys(time_final).map(function(d){return dateFormatter.parse(d)}));
 
   var dates;
   if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1])}
@@ -142,8 +142,9 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
 
   // populate zeroed data
   zeroed_data.forEach(function (k){
-    if(k.date in time_final){
-      k.count += time_final[k.date].count;
+    var str = dateFormatter(k.date);
+    if(str in time_final){
+      k.count += time_final[str].count;
     }
   });
 
