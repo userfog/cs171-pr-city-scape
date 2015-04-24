@@ -132,7 +132,9 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
-    })
+    }).on("mouseout", function(){
+      that.table("Total", that.demographicData);
+    });
 
     this.communityLabels
     .on("mouseover", function(d){
@@ -140,7 +142,11 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
+    }).on("mouseout", function(){
+      that.table("Total", that.demographicData);
     });
+
+    that.table("Total", that.demographicData);
 }
 
 MapVis.prototype.choropleth = function(mapping, filter_by){
@@ -222,7 +228,31 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
 }
 
 MapVis.prototype.table = function (name, table_demographics){
+  function aggregate(){
+    return d3.nest()
+    .key(function (d) { return d.year })
+    .rollup(function (values){
+      var total = {};
+      values.map(function(d){
+        for(var property in d){
+          if(property != "year" && property != "community_area")
+            total[property] = total[property] + parseInt(d[property]) || parseInt(d[property])
+        }  
+      });
+      return total;
+    }).entries(table_demographics)
+  }
+
+
   d3.select("#table").selectAll("*").remove()
+
+  if(name == "Total"){
+    table_demographics = aggregate().map(function(d){
+      d.values.year = d.key;
+      return d.values;
+    });
+  }
+
   var table = d3.select("#table").append("table"),
   thead = table.append("thead")
     .attr("class", "thead"),
