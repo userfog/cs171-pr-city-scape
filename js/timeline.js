@@ -148,7 +148,7 @@ Timeline.prototype.updateVis = function() {
       .remove(); */
 
   this.brush.x(this.x);
-    this.svg.select(".brush")
+  this.svg.select(".brush")
         .call(this.brush)
       .selectAll("rect")
         .attr("height", this.height/2-this.margin.top)
@@ -173,6 +173,8 @@ Timeline.prototype.updateVis = function() {
 Timeline.prototype.onSelectionChange = function(_data) {
 
   this.data = _data;
+  this.brush.clear()
+
   this.updateVis();
 }
 
