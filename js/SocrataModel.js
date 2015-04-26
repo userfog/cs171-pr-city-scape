@@ -12,7 +12,6 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.years = [2004];
   this.community_area = 77;
   this.grouping = "getMonth"
-  this.data = null;
 }
 
 SocrataModel.prototype.get = function (str, callback){
@@ -22,9 +21,8 @@ SocrataModel.prototype.get = function (str, callback){
         + str 
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
-        that.data = data;
         if(callback){
-          callback(that);
+          callback(that, data);
         }else{
           console.log(data);
         }
@@ -35,16 +33,15 @@ SocrataModel.prototype.get = function (str, callback){
 }
 
 
-SocrataModel.prototype.wrangleRequest = function (that){
-  that.sunburstWrangle([]);
-  that.mapWrangle([]);
-  that.timeWrangle([], false, "getDay");
+SocrataModel.prototype.wrangleRequest = function (that, data){
+  that.sunburstWrangle(that, data, []);
+  that.mapWrangle(that, data, []);
+  that.timeWrangle(that, data, [], false, "getDay");
 }
 
 
-SocrataModel.prototype.sunburstWrangle = function(filter_by){
+SocrataModel.prototype.sunburstWrangle = function(that, data, filter_by){
 
-  var that = this;
   //var sunData = that.filterQuery(filter_by);
 
   function convert_nested (o) {
@@ -63,18 +60,18 @@ SocrataModel.prototype.sunburstWrangle = function(filter_by){
     .key(function(d){return d.location_description;})
     .rollup(function(leaves){
       return d3.sum(leaves, function(d){ return +d.count_primary_type; })
-    }).entries(that.data);
+    }).entries(data);
 
   nested = convert_nested({"key": "sun_data", "values": nested});
 
   $(that.eventHandler).trigger("sunburstDataReady", [nested]);
 }
 
-SocrataModel.prototype.filterQuery = function(filter_by){
+SocrataModel.prototype.filterQuery = function(data, filter_by){
   if(typeof filter_by == "undefined" || filter_by.length == 0)
-    return this.data;
+    return data;
 
-  var filtered = this.data;
+  var filtered = data;
   filter_by.map(function(d,i){
     filtered = filtered.filter(function(e,j){
       return e[d.key] == d.value;
@@ -83,9 +80,8 @@ SocrataModel.prototype.filterQuery = function(filter_by){
   return filtered;
 }
 
-SocrataModel.prototype.mapWrangle = function(filter_by, years){
-  var that = this;
-  var mapData = that.filterQuery(filter_by);
+SocrataModel.prototype.mapWrangle = function(that, data, filter_by, years){
+  var mapData = that.filterQuery(data, filter_by);
   var mapping = d3.map();
   mapData.forEach(function(d){
     var val = mapping.get(+d.community_area) || 0;
@@ -93,7 +89,7 @@ SocrataModel.prototype.mapWrangle = function(filter_by, years){
   $(that.eventHandler).trigger("mapVisDataReady", [[mapping, filter_by]]);
 }
 
-SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){
+SocrataModel.prototype.barChartWrangler = function(that, data, community_area, filter_by, years){
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var arrestRatios = d3.nest()
         .key(function(d){
@@ -104,13 +100,12 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
           else
             return {"arrest_ratio": -1};
         })
-        .entries(that.data);
+        .entries(data);
         
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
 
-SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
-  var that=this;
+SocrataModel.prototype.timeWrangle = function(that, filter_by, update, resolution){
   var timeData = that.filterQuery(filter_by);
   var dateFormatter = d3.time.format.utc("%Y-%m-%d");
 
@@ -150,9 +145,7 @@ SocrataModel.prototype.timeWrangle = function(filter_by, update, resolution){
     }
   });
 
-  var pass = update;
-  if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
-    else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}
+  $(that.eventHandler).trigger("timeDataReady", [zeroed_data])
 }
 
 SocrataModel.prototype.timeFilter = function (data, pass){

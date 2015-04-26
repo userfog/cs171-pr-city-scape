@@ -17,17 +17,21 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
     3: "location_description"
   };
 
-}
+  this.initVis(_data);
 
-Sunburst.prototype.initData = function (_data){
-  this.data = _data;
-  this.initVis();
 }
 
 //global last clicked
 var lastFilter;
 
-Sunburst.prototype.initVis = function() {
+Sunburst.prototype.initVis = function(_data) {
+  if(!_data){
+      return;
+    }
+  else{
+      this.data = _data;
+    }
+
   var that = this;
 
   this.svg = this.parentElement.append("svg")

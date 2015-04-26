@@ -9,14 +9,16 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.height = 400 - this.margin.top - this.margin.bottom;
 }
 
-BarChartVis.prototype.initData = function (_data){
-  delete _data["undefined"];
-  this.data = _data;
-  this.displayData = this.data;
-  this.initVis();
-}
+BarChartVis.prototype.initVis = function (_data){
+    if(!_data){
+      return;
+    }
+    else{
+      delete _data["undefined"];
+      this.data = _data;
+      this.displayData = _data;
+    }
 
-BarChartVis.prototype.initVis = function (){
     this.parentElement.selectAll("*").remove();
     var that = this;
     // constructs SVG layout

@@ -1,22 +1,16 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
 Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
-  this._socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
-
   // defines constants
   this.margin = {top: 20, right: 0, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
   this.height = 600 - this.margin.top - this.margin.bottom;
+  this.initVis(_data);
 
 }
 
-Timeline.prototype.initData = function (_data){
-  this.data = _data;
-  this.initVis();
-}
-
-Timeline.prototype.initVis = function() {
+Timeline.prototype.initVis = function(_data) {
   var that = this;
 
   this.svg = this.parentElement.append("svg")
@@ -95,10 +89,14 @@ Timeline.prototype.initVis = function() {
     this.updateVis();
 };
 
-Timeline.prototype.updateVis = function() {
+Timeline.prototype.updateVis = function(_data) {
+  if(!_data){
+    return;
+  } else {
+    this.data = _data;
+  }
+  
   var that = this;
-
-  console.log(this.data)
   /*var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   this.data.map(function(d){
 
