@@ -132,8 +132,10 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
+        d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
     }).on("mouseout", function(){
       that.table("Total", that.demographicData);
+      d3.select(this).style("stroke-width", 0.1)
     });
 
     this.communityLabels
