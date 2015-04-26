@@ -148,9 +148,9 @@ div.map_tooltip {
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
         
-        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, _2000_2010, MySocrataModel, MyEventHandler);
+        var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, _2000_2010, MyEventHandler);
 
-        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler, MySocrataModel);
+        var MySunburst = new Sunburst(d3.select("#sunburst"), MyEventHandler);
 
         var MyBarChart = new BarChartVis(d3.select("#barVis"), MyEventHandler)
 

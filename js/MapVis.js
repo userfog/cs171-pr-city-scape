@@ -1,9 +1,8 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
-MapVis = function(_parentElement, _data, _demographicData, _socrataModel, _eventHandler){
+MapVis = function(_parentElement, _data, _demographicData, _eventHandler){
   this.parentElement = _parentElement;
   this.data = _data;
   this.demographicData = _demographicData;
-  this.socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
 
   this.customLabels = {

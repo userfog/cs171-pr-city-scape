@@ -1,7 +1,6 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
-Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
+Sunburst = function(_parentElement, _eventHandler, _data){
   this.parentElement = _parentElement;
-  this._socrataModel = _socrataModel;
 
   this.eventHandler = _eventHandler;
 

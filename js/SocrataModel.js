@@ -105,7 +105,7 @@ SocrataModel.prototype.barChartWrangler = function(that, data, community_area, f
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
 
-SocrataModel.prototype.timeWrangle = function(that, filter_by, update, resolution){
+SocrataModel.prototype.timeWrangle = function(that, data, filter_by, update, resolution){
   var timeData = that.filterQuery(filter_by);
   var dateFormatter = d3.time.format.utc("%Y-%m-%d");
 
