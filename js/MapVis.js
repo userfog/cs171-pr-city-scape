@@ -82,7 +82,7 @@ MapVis.prototype.initVis = function() {
     .data(topojson.feature(this.data, this.data.objects.communityAreas).features)
     .enter().append("path")
     .attr("class", function(d){
-      return "communityareas " + areasMap[d.properties.name.toLowerCase()];
+      return "communityareas " + "_" + areasMap[d.properties.name.toLowerCase()];
     })
     .attr("d", this.path)    
     .on("click", function(d){
@@ -143,8 +143,10 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
+        // d3.select("._"+getId(d)).style("stroke", "black").style("stroke-width", 1.2);
     }).on("mouseout", function(){
       that.table("Total", that.demographicData);
+      // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
 
     that.table("Total", that.demographicData);
