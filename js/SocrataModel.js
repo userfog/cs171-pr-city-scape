@@ -40,13 +40,8 @@ SocrataModel.prototype.wrangleRequest = function (that){
 
 
 SocrataModel.prototype.sunburstWrangle = function(that, data, filter_by){
-
-<<<<<<< HEAD
-  //var sunData = that.filterQuery(filter_by);
-=======
   var that = this;
   var sunData = that.filterTime(that.filterQuery());
->>>>>>> dev-zach
 
   function convert_nested (o) {
     if (typeof o.values == "number"){
