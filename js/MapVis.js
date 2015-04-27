@@ -132,7 +132,11 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
-    })
+        d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
+    }).on("mouseout", function(){
+      that.table("Total", that.demographicData);
+      d3.select(this).style("stroke-width", 0.1)
+    });
 
     this.communityLabels
     .on("mouseover", function(d){
@@ -140,10 +144,16 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
+        // d3.select("._"+getId(d)).style("stroke", "black").style("stroke-width", 1.2);
+    }).on("mouseout", function(){
+      that.table("Total", that.demographicData);
+      // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
+
+    that.table("Total", that.demographicData);
 }
 
-MapVis.prototype.choropleth = function(mapping, filter_by){
+MapVis.prototype.choropleth = function(mapping){
   var that = this;
   var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
       return typeof d == "number" && d != NaN;
@@ -154,7 +164,7 @@ MapVis.prototype.choropleth = function(mapping, filter_by){
     quantiles.push(+d3.quantile(values, quants[i]).toFixed());
   }
 
-  var depth = filter_by.length;
+  var depth = state.crime_filters.length;
   that.color.domain(d3.extent(values)).range(that.depth_to_color[depth]);
 
   this.svg.selectAll(".communityareas")

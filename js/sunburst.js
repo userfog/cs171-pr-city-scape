@@ -28,6 +28,7 @@ Sunburst.prototype.initData = function (_data){
 var lastFilter;
 
 Sunburst.prototype.initVis = function() {
+  this.parentElement.selectAll("*").remove();
   var that = this;
 
   this.svg = this.parentElement.append("svg")
@@ -118,7 +119,10 @@ Sunburst.prototype.initVis = function() {
       .attrTween("d", that.arcTween(d));
       var filters = getFilters(d, []);
       lastFilter = filters;
-      $(that.eventHandler).trigger("selectionChanged", [filters])
+
+      state.crime_filters = filters || [];
+
+      $(that.eventHandler).trigger("selectionChanged", [])
     }
 
     d3.select(self.frameElement).style("height", this.height + "px");
