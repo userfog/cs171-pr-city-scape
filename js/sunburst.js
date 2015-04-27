@@ -79,8 +79,6 @@ Sunburst.prototype.initVis = function() {
           return Math.max(0, that.y(d.y + d.dy)); 
       });
 
-  console.log(this.data);
-
   this.path = that.svg.selectAll("path")
       .data(that.partition.nodes(this.data))
       .enter().append("path")

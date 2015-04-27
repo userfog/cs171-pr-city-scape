@@ -84,8 +84,6 @@ Timeline.prototype.initVis = function() {
 
 Timeline.prototype.updateVis = function() {
   var that = this;
-
-  console.log(this.data)
   /*var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   this.data.map(function(d){
 

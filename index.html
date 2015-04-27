@@ -102,6 +102,9 @@ div.map_tooltip {
 </head>
 <body>
 <div class="row">
+  <h2 class="text-center" id="currentSelection"></h2>
+</div>
+<div class="row">
   <div class="col-md-4" id="mapvis">
   </div>
   <div class="col-md-3" id="maphover">
@@ -158,16 +161,23 @@ div.map_tooltip {
 
         var res = d3.select("#resolution").select("select").on("change", function(){
           MySocrataModel.timeWrangle(MySocrataModel, true, this.value);
-        })
+        });
+
+        var currentSelection = d3.select("#currentSelection")
+          .text(convertFiltersToTitle);
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
           MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
+
+          currentSelection.text(convertFiltersToTitle);
           MySocrataModel.mapWrangle();
-          var res = d3.select("#resolution").selectAll("select").property("value");
-          MySocrataModel.timeWrangle(MySocrataModel, true, res);
+          MySocrataModel.timeWrangle(MySocrataModel
+            , true
+            , d3.select("#resolution").selectAll("select").property("value"));
+
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
@@ -191,6 +201,7 @@ div.map_tooltip {
         });
 
         $(MyEventHandler).bind("timeChange", function(event, event_args){
+          currentSelection.text(convertFiltersToTitle);
           MySocrataModel.mapWrangle();
           MySocrataModel.sunburstWrangle();
         }); 
@@ -206,6 +217,33 @@ var getInnerWidth = function(element) {
         var style = window.getComputedStyle(element.node(), null);
 
         return parseInt(style.getPropertyValue('width'));
+}
+
+var  convertFiltersToTitle = function() {
+  var  crime, time;
+  if(typeof state.crime_filters == "undefined" 
+    ||state.crime_filters.length == 0){
+        crime = "All Crimes";
+  } else{
+      if (state.crime_filters.length == 1){
+        crime = "All {0}".format(state.crime_filters[0].value)
+      } else if (state.crime_filters.length == 2){
+        crime = "All {1} which was {0}".format(state.crime_filters[0].value, state.crime_filters[1].value)
+      } else{
+        crime = "All {2} which was {1} at/on a {0}".format(state.crime_filters[0].value, state.crime_filters[1].value, state.crime_filters[2].value); 
+      }
+  }
+  if(typeof state.time_filters == "undefined" 
+    || state.time_filters.length == 0
+    || state.time_filters[0].getTime() == 
+        state.time_filters[1].getTime()){
+        time = "";
+  } else{
+      time = " between {0} and {1}".format(
+        getReadableDate(state.time_filters[0])
+        , getReadableDate(state.time_filters[1]));
+  }
+  return crime + time;
 }
 </script>
 </body>
