@@ -23,6 +23,7 @@ Sunburst = function(_parentElement, _eventHandler, _data){
 //global last clicked
 var lastFilter;
 
+<<<<<<< HEAD
 Sunburst.prototype.initVis = function(_data) {
   if(!_data){
       return;
@@ -31,6 +32,10 @@ Sunburst.prototype.initVis = function(_data) {
       this.data = _data;
     }
 
+=======
+Sunburst.prototype.initVis = function() {
+  this.parentElement.selectAll("*").remove();
+>>>>>>> dev-zach
   var that = this;
 
   this.svg = this.parentElement.append("svg")
@@ -121,7 +126,10 @@ Sunburst.prototype.initVis = function(_data) {
       .attrTween("d", that.arcTween(d));
       var filters = getFilters(d, []);
       lastFilter = filters;
-      $(that.eventHandler).trigger("selectionChanged", [filters])
+
+      state.crime_filters = filters || [];
+
+      $(that.eventHandler).trigger("selectionChanged", [])
     }
 
     d3.select(self.frameElement).style("height", this.height + "px");

@@ -32,17 +32,21 @@ SocrataModel.prototype.get = function (str, callback){
     });
 }
 
-
-SocrataModel.prototype.wrangleRequest = function (that, data){
-  that.sunburstWrangle(that, data, []);
-  that.mapWrangle(that, data, []);
-  that.timeWrangle(that, data, [], false, "getDay");
+SocrataModel.prototype.wrangleRequest = function (that){
+  that.sunburstWrangle([]);
+  that.mapWrangle([]);
+  that.timeWrangle(that, false, "getDay");
 }
 
 
 SocrataModel.prototype.sunburstWrangle = function(that, data, filter_by){
 
+<<<<<<< HEAD
   //var sunData = that.filterQuery(filter_by);
+=======
+  var that = this;
+  var sunData = that.filterTime(that.filterQuery());
+>>>>>>> dev-zach
 
   function convert_nested (o) {
     if (typeof o.values == "number"){
@@ -60,19 +64,20 @@ SocrataModel.prototype.sunburstWrangle = function(that, data, filter_by){
     .key(function(d){return d.location_description;})
     .rollup(function(leaves){
       return d3.sum(leaves, function(d){ return +d.count_primary_type; })
-    }).entries(data);
+    }).entries(sunData);
 
   nested = convert_nested({"key": "sun_data", "values": nested});
 
   $(that.eventHandler).trigger("sunburstDataReady", [nested]);
 }
 
-SocrataModel.prototype.filterQuery = function(data, filter_by){
-  if(typeof filter_by == "undefined" || filter_by.length == 0)
-    return data;
 
-  var filtered = data;
-  filter_by.map(function(d,i){
+SocrataModel.prototype.filterQuery = function(){
+  if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
+    return this.data;
+
+  var filtered = this.data;
+  state.crime_filters.map(function(d,i){
     filtered = filtered.filter(function(e,j){
       return e[d.key] == d.value;
     })
@@ -80,13 +85,27 @@ SocrataModel.prototype.filterQuery = function(data, filter_by){
   return filtered;
 }
 
-SocrataModel.prototype.mapWrangle = function(that, data, filter_by, years){
-  var mapData = that.filterQuery(data, filter_by);
+SocrataModel.prototype.filterTime = function(){
+  if(typeof state.time_filters == "undefined" 
+    || state.time_filters.length == 0 
+    || state.time_filters[0].getTime() == state.time_filters[1].getTime()) 
+    return this.data;
+
+  filters = state.time_filters[0].getTime() < state.time_filters[1].getTime() ? [state.time_filters[0], state.time_filters[1]] : [state.time_filters[1], state.time_filters[0]];
+  debugger;
+  return this.data.filter(function(d){
+    return d3.time.format.utc("%Y-%m-%dT%H:%M:%S").parse(d.date).getTime() > filters[0].getTime() && d3.time.format.utc("%Y-%m-%dT%H:%M:%S").parse(d.date).getTime() < filters[1].getTime();
+  });
+}
+
+SocrataModel.prototype.mapWrangle = function(){
+  var that = this;
+  var mapData = that.filterTime(that.filterQuery());
   var mapping = d3.map();
   mapData.forEach(function(d){
     var val = mapping.get(+d.community_area) || 0;
     mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
-  $(that.eventHandler).trigger("mapVisDataReady", [[mapping, filter_by]]);
+  $(that.eventHandler).trigger("mapVisDataReady", [mapping]);
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, data, community_area, filter_by, years){
@@ -105,9 +124,9 @@ SocrataModel.prototype.barChartWrangler = function(that, data, community_area, f
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
 
-SocrataModel.prototype.timeWrangle = function(that, data, filter_by, update, resolution){
-  var timeData = that.filterQuery(filter_by);
-  var dateFormatter = d3.time.format.utc("%Y-%m-%d");
+SocrataModel.prototype.timeWrangle = function(that, update, resolution){
+  var timeData = that.filterQuery(state.crime_filters, resolution);
+  var dateFormatter = (resolution == "getDay") ? d3.time.format.utc("%Y-%m-%d") : ((resolution == "getMonth") ? d3.time.format.utc("%Y-%m") : d3.time.format.utc("%Y"));
 
   var getParsed = function (d){
     var re = ((resolution == "getDay") ? /T(.*?)$/gi : ((resolution == "getMonth") ? /-\d+T(.*?)$/gi : /-\d+-\d+T(.*?)$/gi));
@@ -125,12 +144,17 @@ SocrataModel.prototype.timeWrangle = function(that, data, filter_by, update, res
     }).map(timeData)
 
   // generate empty date array to fill in blanks
-  var extent = d3.extent(Object.keys(time_final).map(function(d){return dateFormatter.parse(d)}));
+  var extent = d3.extent(Object.keys(time_final).map(function(d){
+    if(resolution == "getYear") 
+      return new Date(d, 0,1);
+    else 
+      return dateFormatter.parse(d);
+  }));
 
   var dates;
-  if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1])}
-  else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1])}
-  else {dates = d3.time.year.range(extent[0], extent[1])}
+  if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1].setDate(extent[1].getDate() + 1))}
+  else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1].setMonth(extent[1].getMonth() + 1))}
+  else {dates = d3.time.year.range(extent[0], extent[1]); }
 
   var zeroed_data = []
   dates.map(function(d){

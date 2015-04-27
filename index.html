@@ -134,8 +134,8 @@ div.map_tooltip {
 <script type="text/javascript">
 
   var state = {
-    "crime_filters" : [], // Should be a list of up to 3 elements
-    "time_filter" :  [],  // Should 
+    "crime_filters": [],
+    "time_filters": []
   }
 
   queue().defer(d3.json, "map/chicago.json")
@@ -164,8 +164,14 @@ div.map_tooltip {
           MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
 
+        $(MyEventHandler).bind("selectionChanged", function(event, event_args){
+          MySocrataModel.mapWrangle();
+          var res = d3.select("#resolution").selectAll("select").property("value");
+          MySocrataModel.timeWrangle(MySocrataModel, true, res);
+        })
+
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
-          MyMapVis.choropleth(event_args[0], event_args[1]);
+          MyMapVis.choropleth(event_args);
         });
 
         $(MyEventHandler).bind("sunburstDataReady", function(event, event_args){
@@ -184,23 +190,14 @@ div.map_tooltip {
           MyTimeline.onSelectionChange(event_args);
         });
 
-        $(MyEventHandler).bind("selectionChanged", function(event, event_args){
-          MySocrataModel.mapWrangle(MySocrataModel, event_args);
-        })
-
-        $(MyEventHandler).bind("resolutionChange", function(event, event_args){
-          var res = d3.select("#resolution").selectAll("select").property("value");
-          MySocrataModel.timeWrangle(event_args.filter, true, event_args.res);
-        });
-
-         $(MyEventHandler).bind("timeChange", function(event, event_args){
-          MySocrataModel.mapWrangle(event_args);
-          MySocrataModel.sunburstWrangle(event_args);
+        $(MyEventHandler).bind("timeChange", function(event, event_args){
+          MySocrataModel.mapWrangle();
+          MySocrataModel.sunburstWrangle();
         }); 
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$limit=50000", MySocrataModel.wrangleRequest);
 
-        MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
+        // MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 
   }
 
