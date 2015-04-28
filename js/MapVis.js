@@ -298,4 +298,3 @@ MapVis.prototype.table = function (name, table_demographics){
   .append("td")
   .text(function(d) { return d; });
 }
-

@@ -69,6 +69,7 @@
         var MyEventHandler = new Object();
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
+        var BarSocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
         
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, _2000_2010, MySocrataModel, MyEventHandler);
 
@@ -86,7 +87,7 @@
           .text(convertFiltersToTitle);
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          // MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
+          BarSocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
@@ -127,14 +128,12 @@
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$limit=50000", MySocrataModel.wrangleRequest);
 
-        // MySocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
+        BarSocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
 
   }
 
-
 var getInnerWidth = function(element) {
         var style = window.getComputedStyle(element.node(), null);
-
         return parseInt(style.getPropertyValue('width'));
 }
 
@@ -164,6 +163,7 @@ var  convertFiltersToTitle = function() {
   }
   return crime + time;
 }
+
 </script>
 </body>
 </html>
