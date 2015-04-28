@@ -70,7 +70,7 @@
         var MyEventHandler = new Object();
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
-        
+
         var BarSocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
         
         var MyMapVis = new MapVis(d3.select("#mapvis"), chicago, _2000_2010, MySocrataModel, MyEventHandler);
@@ -86,7 +86,7 @@
         });
 
         var currentSelection = d3.select("#currentSelection")
-          .text(convertFiltersToTitle);
+          .html(convertFiltersToTitle);
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
           BarSocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
@@ -94,7 +94,7 @@
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
 
-          currentSelection.text(convertFiltersToTitle);
+          currentSelection.html(convertFiltersToTitle);
           MySocrataModel.getDisplayData();
           MySocrataModel.mapWrangle();
           MySocrataModel.timeWrangle(MySocrataModel, true, d3.select("#resolution").selectAll("select").property("value"));
@@ -122,7 +122,7 @@
         });
 
         $(MyEventHandler).bind("timeChange", function(event, event_args){
-          currentSelection.text(convertFiltersToTitle);
+          currentSelection.html(convertFiltersToTitle);
           MySocrataModel.getDisplayData();
           MySocrataModel.mapWrangle();
           MySocrataModel.sunburstWrangle();
@@ -146,11 +146,11 @@ var  convertFiltersToTitle = function() {
         crime = "All Crimes";
   } else{
       if (state.crime_filters.length == 1){
-        crime = "All {0}".format(state.crime_filters[0].value)
+        crime = "<small>All</small> {0}".format(state.crime_filters[0].value)
       } else if (state.crime_filters.length == 2){
-        crime = "All {1} which was {0}".format(state.crime_filters[0].value, state.crime_filters[1].value)
+        crime = "<small>All</small> {1} <small>which was</small> {0}".format(state.crime_filters[0].value, state.crime_filters[1].value)
       } else{
-        crime = "All {2} which was {1} at/on a {0}".format(state.crime_filters[0].value, state.crime_filters[1].value, state.crime_filters[2].value); 
+        crime = "<small>All</small> {2} <small>which was</small> {1} <small>at/on a</small> {0}".format(state.crime_filters[0].value, state.crime_filters[1].value, state.crime_filters[2].value); 
       }
   }
   if(typeof state.time_filters == "undefined" 
@@ -159,7 +159,7 @@ var  convertFiltersToTitle = function() {
         state.time_filters[1].getTime()){
         time = "";
   } else{
-      time = " between {0} and {1}".format(
+      time = " <small>between</small> {0} <small>and</small> {1}".format(
         getReadableDate(state.time_filters[0])
         , getReadableDate(state.time_filters[1]));
   }

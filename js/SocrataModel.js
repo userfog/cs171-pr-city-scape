@@ -161,6 +161,7 @@ SocrataModel.prototype.mapWrangle = function(){
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){
+  debugger;
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var arrestRatios = d3.nest()
         .key(function(d){
@@ -171,7 +172,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
           else
             return {"arrest_ratio": -1};
         })
-        .entries(that.displayData);
+        .entries(that.data);
         
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
