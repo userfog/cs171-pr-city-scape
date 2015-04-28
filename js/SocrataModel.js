@@ -13,9 +13,12 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.community_area = 77;
   this.grouping = "getMonth"
   this.data = null;
+  this.displayData = null;
 }
 
 SocrataModel.prototype.get = function (str, callback){
+    NProgress.start();
+    debugger;
     var that = this;
     this.previousRequests.push(str);
     $.getJSON(this.fullUrl
@@ -25,6 +28,7 @@ SocrataModel.prototype.get = function (str, callback){
         that.data = data;
         if(callback){
           callback(that);
+          NProgress.done();
         }else{
           console.log(data);
         }

@@ -150,7 +150,19 @@ MapVis.prototype.initVis = function() {
       // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
 
+    this.tableHtml = d3.select("#table").append("table"), 
+    thead = this.tableHtml.append("thead")
+      .attr("class", "thead");
+
+    thead.append("tr").selectAll("th")
+      .data(["Demographics", "2000","2010"]).enter()
+      .append("th")
+      .text(function(d){return d});
+
+    this.tbody = this.tableHtml.append("tbody").attr("id", "tableBody");
+
     that.table("Total", that.demographicData);
+
 }
 
 MapVis.prototype.choropleth = function(mapping){
@@ -247,8 +259,14 @@ MapVis.prototype.table = function (name, table_demographics){
     }).entries(table_demographics)
   }
 
+  var cap = this.tableHtml.select("caption");
+  if(!cap[0][0]){
+    this.tableHtml.append("caption").html(name)
+  } else{
+    cap.html(name);
+  }
 
-  d3.select("#table").selectAll("*").remove()
+  this.tbody.selectAll("*").remove()
 
   if(name == "Total"){
     table_demographics = aggregate().map(function(d){
@@ -257,20 +275,7 @@ MapVis.prototype.table = function (name, table_demographics){
     });
   }
 
-  var table = d3.select("#table").append("table"),
-  thead = table.append("thead")
-    .attr("class", "thead"),
-  tbody = table.append("tbody");
-
-  table.append("caption")
-    .html(name);
-
-  thead.append("tr").selectAll("th")
-  .data(["Demographics", "2000","2010"]).enter()
-  .append("th")
-  .text(function(d){return d});
-
-  var rows = tbody.selectAll("tr.table_row")
+  var rows = this.tbody.selectAll("tr.table_row")
   .data(Object.keys(table_demographics[0]).filter(function(d){
       return d != "year" && d != "community_area";
   }))

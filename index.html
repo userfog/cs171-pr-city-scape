@@ -9,131 +9,50 @@
   <script src="http://d3js.org/queue.v1.min.js"></script>
   <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/nprogress.min.js"></script>
   <script type="text/javascript" src="js/helper.js"></script>
   <script src="js/SocrataModel.js"></script>
   <script src="js/MapVis.js"></script>
   <script src="js/sunburst.js"></script>
   <script src="js/BarChartVis.js"></script>
   <script src="js/timeline.js"></script>
-  
-  <style type="text/css">
-.axis {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-.avg_line {
-    fill: none;
-    stroke: grey;
-    stroke-width: 2;
-    shape-rendering: crispEdges;
-}
-
-.x.axis path {
-}
-
-.bar {
-  fill: orange;
-}
-
-.bar:hover {
-  fill: orangered ;
-}
-
-.d3-tip {
-  line-height: 1;
-  font-weight: bold;
-  font-size: 8pt;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  border-radius: 2px;
-}
-
-.communityarea {
-  fill: #fff;
-  stroke: #aaa;
-}
-
-.communityareas-label {
-  font-size: 9px;
-  text-anchor: middle;
-  text-transform: uppercase;
-}
-
-.communityareas-dropshadow {
-  font-size: 9px;
-  text-anchor: middle;
-  text-transform: uppercase;
-  stroke: #fff;
-  stroke-width:2.5px;
-}
-
-.line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
-
-.legend{
-  margin-left: 20px;
-}
-
-.hidden { 
-  display: none; 
-}
-div.map_tooltip {
-  color: #222; 
-  background: #fff; 
-  padding: .5em; 
-  text-shadow: #f5f5f5 0 1px 0;
-  border-radius: 2px; 
-  box-shadow: 0px 0px 2px 0px #a6a6a6; 
-  opacity: 0.9; 
-  position: absolute;
-}
-
-  </style>
+  <link rel="stylesheet" type="text/css" href="style/nprogress.css"/>
+  <link rel="stylesheet" type="text/css" href="style/style.css"/>
 </head>
 <body>
-<div class="row">
-  <h2 class="text-center" id="currentSelection"></h2>
-</div>
-<div class="row">
-  <div class="col-md-4" id="mapvis">
+  <div class="row">
+    <h2 class="text-center" id="currentSelection"></h2>
   </div>
-  <div class="col-md-3" id="maphover">
-    <div class="row">
-      <div id="table">
+  <div class="row">
+    <div class="col-md-4" id="mapvis">
+    </div>
+    <div class="col-md-3" id="maphover">
+      <div class="row">
+        <div id="table">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6" id="barVis">
+        </div>
+        <div class="col-md-6" id="barLegend">
+          <p>Legend</p>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-6" id="barVis">
+    <div class="col-md-4">
+      <div id="sunburst">
       </div>
-      <div class="col-md-6" id="barLegend">
-        <p>Legend</p>
+      <div id = "resolution">
+        Resolution:
+        <select>
+          <option value="getDay" selected>Day</option>
+          <option value="getMonth">Month</option>
+          <option value="getYear">Year</option>
+        </select>
+      </div>
+      <div id="timeline">
       </div>
     </div>
-  </div>
-  <div class="col-md-4">
-    <div id="sunburst">
-    </div>
-    <div id = "resolution">
-      Resolution:
-      <select>
-        <option value="getDay" selected>Day</option>
-        <option value="getMonth">Month</option>
-        <option value="getYear">Year</option>
-      </select>
-    </div>
-    <div id="timeline">
-    </div>
-  </div>
 <script type="text/javascript">
 
   var state = {
@@ -167,7 +86,7 @@ div.map_tooltip {
           .text(convertFiltersToTitle);
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
+          // MySocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
