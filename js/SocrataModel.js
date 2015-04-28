@@ -18,7 +18,6 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
 
 SocrataModel.prototype.get = function (str, callback){
     NProgress.start();
-    debugger;
     var that = this;
     this.previousRequests.push(str);
     $.getJSON(this.fullUrl
@@ -27,6 +26,7 @@ SocrataModel.prototype.get = function (str, callback){
       function(data, status) {
         that.data = data;
         if(callback){
+          NProgress.inc();
           callback(that);
           NProgress.done();
         }else{
@@ -39,40 +39,6 @@ SocrataModel.prototype.get = function (str, callback){
 }
 
 
-SocrataModel.prototype.wrangleRequest = function (that){
-  that.sunburstWrangle([]);
-  that.mapWrangle([]);
-  that.timeWrangle(that, false, "getDay");
-}
-
-
-SocrataModel.prototype.sunburstWrangle = function(filter_by){
-
-  var that = this;
-  var sunData = that.filterTime(that.filterQuery());
-
-  function convert_nested (o) {
-    if (typeof o.values == "number"){
-      return {"name": o.key,"size":o.values}
-    } else if (typeof o.values == "object") {
-      return {"name": o.key, "children": o.values.map(function(d, i){
-        return convert_nested(d);
-      })}
-    }
-  }
-
-  var nested = d3.nest()
-    .key(function(d){return d.primary_type;})
-    .key(function(d){return d.description;})
-    .key(function(d){return d.location_description;})
-    .rollup(function(leaves){
-      return d3.sum(leaves, function(d){ return +d.count_primary_type; })
-    }).entries(sunData);
-
-  nested = convert_nested({"key": "sun_data", "values": nested});
-
-  $(that.eventHandler).trigger("sunburstDataReady", [nested]);
-}
 
 SocrataModel.prototype.filterQuery = function(){
   if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
@@ -91,20 +57,104 @@ SocrataModel.prototype.filterTime = function(){
   if(typeof state.time_filters == "undefined" 
     || state.time_filters.length == 0 
     || state.time_filters[0].getTime() == state.time_filters[1].getTime()) 
-    return this.data;
+    return [-1,-1];
 
-  filters = state.time_filters[0].getTime() < state.time_filters[1].getTime() ? [state.time_filters[0], state.time_filters[1]] : [state.time_filters[1], state.time_filters[0]];
-  debugger;
-  return this.data.filter(function(d){
-    return d3.time.format.utc("%Y-%m-%dT%H:%M:%S").parse(d.date).getTime() > filters[0].getTime() && d3.time.format.utc("%Y-%m-%dT%H:%M:%S").parse(d.date).getTime() < filters[1].getTime();
-  });
+  var filters = state.time_filters[0].getTime() < state.time_filters[1].getTime() ? [state.time_filters[0], state.time_filters[1]] : [state.time_filters[1], state.time_filters[0]];
+
+  var compare_function = function(el, b){
+    var target = new Date(el.getFullYear(), el.getMonth(), el.getDate());
+    var tmp = d3.time.format.utc("%Y-%m-%dT%H:%M:%S").parse(b.date);
+    var day = new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate());
+    return target.getTime() - day.getTime()
+  }
+
+  var start_index = binarySearch(this.data, filters[0], compare_function);
+  var end_index = binarySearch(this.data, filters[1], compare_function);
+  return [start_index, end_index];
 }
+
+
+SocrataModel.prototype.getDisplayData = function(){
+  var indexes = this.filterTime();
+
+  if(indexes[0] == -1 || indexes[1] == -1){
+    this.displayData = this.data;
+    if(state.time_filters.length > 0){
+        console.log("Times not found");
+    }
+  }else{
+    this.displayData = this.data.slice(indexes[0], indexes[1]);
+  }
+
+  switch(state.crime_filters.length){
+    case 0:{
+      return;
+    }
+    case 1:{
+      this.displayData = this.displayData.filter(function(d){
+          return d[state.crime_filters[0].key] == state.crime_filters[0].value;
+        });
+      return
+    }
+    case 2:{
+      this.displayData = this.displayData.filter(function(d){
+          return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
+          && (d[state.crime_filters[1].key] == state.crime_filters[1].value);
+      })
+      return;
+    }
+    case 3:{
+      this.displayData = this.displayData.filter(function(d){
+        return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
+        && (d[state.crime_filters[1].key] == state.crime_filters[1].value)
+        && (d[state.crime_filters[2].key] == state.crime_filters[2].value);
+      });
+      return 
+    }
+  }
+}
+
+
+SocrataModel.prototype.wrangleRequest = function (that){
+  that.getDisplayData();
+  that.sunburstWrangle();
+  that.mapWrangle();
+  that.timeWrangle(that, false, "getDay");
+}
+
+
+SocrataModel.prototype.sunburstWrangle = function(){
+
+  var that = this;
+
+  function convert_nested (o) {
+    if (typeof o.values == "number"){
+      return {"name": o.key,"size":o.values}
+    } else if (typeof o.values == "object") {
+      return {"name": o.key, "children": o.values.map(function(d, i){
+        return convert_nested(d);
+      })}
+    }
+  }
+
+  var nested = d3.nest()
+    .key(function(d){return d.primary_type;})
+    .key(function(d){return d.description;})
+    .key(function(d){return d.location_description;})
+    .rollup(function(leaves){
+      return d3.sum(leaves, function(d){ return +d.count_primary_type; })
+    }).entries(that.displayData);
+
+  nested = convert_nested({"key": "sun_data", "values": nested});
+
+  $(that.eventHandler).trigger("sunburstDataReady", [nested]);
+}
+
 
 SocrataModel.prototype.mapWrangle = function(){
   var that = this;
-  var mapData = that.filterTime(that.filterQuery());
   var mapping = d3.map();
-  mapData.forEach(function(d){
+  that.displayData.forEach(function(d){
     var val = mapping.get(+d.community_area) || 0;
     mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
   $(that.eventHandler).trigger("mapVisDataReady", [mapping]);
@@ -121,7 +171,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
           else
             return {"arrest_ratio": -1};
         })
-        .entries(that.data);
+        .entries(that.displayData);
         
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }

@@ -4,7 +4,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this._socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
 
-  // defines constants
+  // defines  tants
   this.margin = {top: 20, right: 0, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
   this.height = 600 - this.margin.top - this.margin.bottom;
@@ -72,7 +72,8 @@ Timeline.prototype.initVis = function() {
 
     this.brush = d3.svg.brush()
       .on("brush", function (d){
-        state.time_filters = that.brush.extent();
+        var ex = that.brush.extent();
+        (ex[0].getTime() == ex[1].getTime()) ? state.time_filters = [] : state.time_filters = ex;
         $(that.eventHandler).trigger("timeChange")
       }) 
 
@@ -107,8 +108,9 @@ Timeline.prototype.updateVis = function() {
       .data([this.data])
 
   // enter
-  trendline.enter().append("path")
-      .attr("class", "line")
+  trendline.enter()
+    .append("path")
+    .attr("class", "line")
 
   // update
   trendline.transition().duration(750)
