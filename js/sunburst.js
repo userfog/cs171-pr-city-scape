@@ -112,6 +112,7 @@ Sunburst.prototype.initVis = function() {
           return getFilters(d.parent, prev);
         }
       }
+      
       that.path.transition()
       .duration(750)
       .attrTween("d", that.arcTween(d));

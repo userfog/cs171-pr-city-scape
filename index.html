@@ -130,7 +130,7 @@
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC&$limit=50000", MySocrataModel.wrangleRequest);
 
-        BarSocrataModel.get("$select=date,arrest&$where=community_area=%2777%27", MySocrataModel.barChartWrangler);
+        BarSocrataModel.get("$select=date,arrest&$limit=50000", MySocrataModel.barChartWrangler);
 
   }
 

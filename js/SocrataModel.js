@@ -161,7 +161,6 @@ SocrataModel.prototype.mapWrangle = function(){
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){
-  debugger;
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var arrestRatios = d3.nest()
         .key(function(d){
@@ -181,28 +180,45 @@ SocrataModel.prototype.timeWrangle = function(that, update, resolution){
   var timeData = that.filterQuery(state.crime_filters, resolution);
   var dateFormatter = (resolution == "getDay") ? d3.time.format.utc("%Y-%m-%d") : ((resolution == "getMonth") ? d3.time.format.utc("%Y-%m") : d3.time.format.utc("%Y"));
 
-  var getParsed = function (d){
-    var re = ((resolution == "getDay") ? /T(.*?)$/gi : ((resolution == "getMonth") ? /-\d+T(.*?)$/gi : /-\d+-\d+T(.*?)$/gi));
-    return d.date.replace(re, "")
+  var getParsed = function(d, dateFormatter){
+    var month = dateFormatter.parse(d).getMonth()
+    var year = dateFormatter.parse(d).getFullYear()
+    var day = dateFormatter.parse(d).getDate()
+    return {"d":day, "m": month, "yr":year}
   }
 
   var time_final = d3.nest()
     .key(function(d){
-      return getParsed(d);
-    })
-    .rollup(function(values){
+      var info = getParsed(d.date, d3.time.format.utc("%Y-%m-%dT%H:%M:%S"));
+      if (resolution == "getDay"){
+        return dateFormatter(new Date(info.yr, info.m, info.d))
+      }
+      else if (resolution == "getMonth"){
+        return dateFormatter(new Date(info.yr, info.m, 1))
+      }
+      else {
+        return dateFormatter(new Date(info.yr, 0, 1))
+      }
+    }).rollup(function(values){
       if(values){
         return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
       }
     }).map(timeData)
 
   // generate empty date array to fill in blanks
-  var extent = d3.extent(Object.keys(time_final).map(function(d){
-    if(resolution == "getYear") 
-      return new Date(d, 0,1);
-    else 
-      return dateFormatter.parse(d);
-  }));
+  var keys_to_dates = Object.keys(time_final).map(function(d){
+    var info = getParsed(d, dateFormatter);
+    if (resolution == "getDay"){
+      return new Date(info.yr, info.m, info.d);
+    }
+    else if (resolution == "getMonth"){
+      return new Date(info.yr, info.m, 1);
+    }
+    else {
+      return new Date(info.yr, 0, 1);
+    }
+  });
+  var extent = d3.extent(keys_to_dates); 
 
   var dates;
   if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1].setDate(extent[1].getDate() + 1))}
