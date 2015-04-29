@@ -1,5 +1,3 @@
-
-
 var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _responseType){
   this.baseUrl = _baseUrl;
   this.resource = _resource;
@@ -12,25 +10,29 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.years = [2004];
   this.community_area = 77;
   this.grouping = "getMonth"
-  this.data = null;
+  this.data = [];
   this.displayData = null;
 }
 
-SocrataModel.prototype.get = function (str, callback){
+SocrataModel.prototype.get = function (str, callback, offset, limit){
     NProgress.start();
     var that = this;
-    this.previousRequests.push(str);
+    request = str + "&$offset={0}&$limit={1}".format(offset, limit);
     $.getJSON(this.fullUrl
-        + str 
+        + request 
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
-        that.data = data;
-        if(callback){
+        that.data.push.apply(that.data, data);
+        if(data.length !=  limit){
+            if(callback){
+              callback(that);
+              NProgress.done();
+            }else{
+              console.log(data);
+            }
+        } else{
           NProgress.inc();
-          callback(that);
-          NProgress.done();
-        }else{
-          console.log(data);
+          that.get(str, callback, offset+limit, limit);
         }
       }
     ).fail(function() {
