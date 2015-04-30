@@ -25,8 +25,24 @@ Sunburst.prototype.initData = function (_data){
 }
 
 Sunburst.prototype.initVis = function() {
-  this.parentElement.selectAll("*").remove();
   var that = this;
+  var sunburst_colors = d3.scale.category20().domain(that.data.children.map(function(d){return d.name}).sort());
+
+  var getDepth = function (d, height) {
+      var top = d;
+      for(var i = d.depth; i > height; i--){
+        top = top.parent;
+      }
+      return top
+
+  }
+
+  var getColor = function (d){
+    var top = getDepth(d, 1);
+    return (top.name != "sun_data") ? sunburst_colors(top.name) : "black";
+  }
+
+  // this.parentElement.selectAll("*").remove();
 
   this.svg = this.parentElement.append("svg")
     .attr("width", this.width)
@@ -90,7 +106,7 @@ Sunburst.prototype.initVis = function() {
       .style("stroke", "white")
       .style("stroke-width", .2) */
 
-    this.path.style("fill", function(d){return that.color[d.depth]})
+    this.path.style("fill", getColor);
 
     function click(d){
       function getFilters(d, prev){
@@ -105,9 +121,9 @@ Sunburst.prototype.initVis = function() {
       that.path.transition()
       .duration(750)
       .attrTween("d", that.arcTween(d));
-
+      debugger;
       state.set_crime(getFilters(d, []));
-      $(that.eventHandler).trigger("selectionChanged", [])
+      $(that.eventHandler).trigger("selectionChanged", getColor(d));
     }
 
     d3.select(self.frameElement).style("height", this.height + "px");

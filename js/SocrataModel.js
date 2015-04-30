@@ -120,8 +120,8 @@ SocrataModel.prototype.getDisplayData = function(){
 SocrataModel.prototype.wrangleRequest = function (that){
   that.getDisplayData();
   that.sunburstWrangle();
-  that.mapWrangle();
-  that.timeWrangle(that, false, "getDay");
+  that.mapWrangle("black");
+  // that.timeWrangle(that, false, "getDay");
   state.changed = false;
 }
 
@@ -155,7 +155,7 @@ SocrataModel.prototype.sunburstWrangle = function(){
 }
 
 
-SocrataModel.prototype.mapWrangle = function(){
+SocrataModel.prototype.mapWrangle = function(color){
   var t0 = new Date().getTime();
   var that = this;
   var mapping = d3.map();
@@ -164,7 +164,7 @@ SocrataModel.prototype.mapWrangle = function(){
     mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
   var t1 = new Date().getTime();
   console.log("mapWrangle: " + (t1-t0));
-  $(that.eventHandler).trigger("mapVisDataReady", [mapping]);
+  $(that.eventHandler).trigger("mapVisDataReady", [[mapping, color]]);
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){

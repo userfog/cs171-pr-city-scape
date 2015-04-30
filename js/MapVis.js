@@ -173,7 +173,7 @@ MapVis.prototype.initVis = function() {
 
 }
 
-MapVis.prototype.choropleth = function(mapping){
+MapVis.prototype.choropleth = function(mapping, color){
   var that = this;
   that.displayData = mapping;
   var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
@@ -185,7 +185,7 @@ MapVis.prototype.choropleth = function(mapping){
   quantiles.push(d3.max(values));
 
   var depth = state.crime_filters.length;
-  that.color.domain(d3.extent(values)).range(that.depth_to_color[depth]);
+  that.color.domain(d3.extent(values)).range(["#eee", color]);
 
   this.svg.selectAll(".communityareas")
   .style("stroke", "black")
@@ -224,12 +224,12 @@ MapVis.prototype.choropleth = function(mapping){
 
   gradient.append("svg:stop")
     .attr("offset", "0%")
-    .attr("stop-color", that.depth_to_color[depth][1])
+    .attr("stop-color", color)
     .attr("stop-opacity", 1);
 
   gradient.append("svg:stop")
     .attr("offset", "100%")
-    .attr("stop-color", that.depth_to_color[depth][0])
+    .attr("stop-color", "#eee")
     .attr("stop-opacity", 1);
 
   legend.append("rect")
