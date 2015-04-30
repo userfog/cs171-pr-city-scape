@@ -180,10 +180,9 @@ MapVis.prototype.choropleth = function(mapping){
       return typeof d == "number" && d != NaN;
   });
   var quantiles = [];
-  var quants = [0, .4, .8, 1]
-  for(var i = 0; i < quants.length; i++){
-    quantiles.push(+d3.quantile(values, quants[i]).toFixed());
-  }
+  quantiles.push(d3.min(values));
+  quantiles.push(d3.mean(values).toFixed());
+  quantiles.push(d3.max(values));
 
   var depth = state.crime_filters.length;
   that.color.domain(d3.extent(values)).range(that.depth_to_color[depth]);
@@ -246,7 +245,8 @@ MapVis.prototype.choropleth = function(mapping){
   .append("text")
   .attr("x", 50)
   .attr("y", function(d, i){ 
-    return that.height/2 - (i*ls_h/(quants.length+.5)) - ls_h/(quants.length+.5) - 4;})
+    return 400 - i%3*80
+  })
   .text(function(d, i){  
     return d;
   });
