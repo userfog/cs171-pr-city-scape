@@ -108,7 +108,7 @@
           .html(convertFiltersToTitle);
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          BarSocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27".format(event_args), MySocrataModel.barChartWrangler);
+          BarSocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27&$order=date ASC".format(event_args[0]), MySocrataModel.barChartWrangler, 0, 50000);
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
@@ -146,7 +146,7 @@
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC", MySocrataModel.wrangleRequest, 0, 50000);
 
-        // BarSocrataModel.get("$select=date,arrest&$limit=50000", MySocrataModel.barChartWrangler);
+        BarSocrataModel.get("$select=date,arrest&$order=date ASC", MySocrataModel.barChartWrangler, 0, 50000);
 
   }
 

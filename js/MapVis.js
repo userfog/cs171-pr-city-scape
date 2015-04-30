@@ -88,7 +88,7 @@ MapVis.prototype.initVis = function() {
     })
     .attr("d", this.path)    
     .on("click", function(d){
-        $(that.eventHandler).trigger("communityAreaChanged", [getId(d)]);
+        $(that.eventHandler).trigger("communityAreaChanged", [getId(d), that.colorRange]);
     });
 
   this.communityLabels = this.svg.selectAll(".communityareas-label")

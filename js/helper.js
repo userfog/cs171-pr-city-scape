@@ -126,6 +126,13 @@ function isSame (array1, array2, name){
   return (array1.length == array2.length) && array1.every(f);
 }
 
+function dayFromDate(year, day){
+  var start = new Date(year, 0, 0);
+  var diff = day - start;
+  var oneDay = 1000 * 60 * 60 * 24;
+  return Math.floor(diff / oneDay);
+}
+
 function binarySearch(arr, el, compare_fn){
   var m = 0;
   var n = arr.length - 1;

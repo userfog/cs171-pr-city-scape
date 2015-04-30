@@ -147,7 +147,6 @@ SocrataModel.prototype.wrangleTimeChange = function(that){
   state.changed = false;
 }
 
-
 SocrataModel.prototype.sunburstWrangle = function(){
   var t0 = new Date().getTime();
   var that = this;
@@ -177,7 +176,6 @@ SocrataModel.prototype.sunburstWrangle = function(){
   
 }
 
-
 SocrataModel.prototype.mapWrangle = function(color){
   var t0 = new Date().getTime();
   var that = this;
@@ -191,11 +189,11 @@ SocrataModel.prototype.mapWrangle = function(color){
   
 }
 
-SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){
+SocrataModel.prototype.barChartWrangler = function(that, community_area, resolution){
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var arrestRatios = d3.nest()
         .key(function(d){
-            return dateFormatter.parse(d.date)[that.grouping]();})
+            return dateFormatter.parse(d.date).getMonth();})
         .rollup(function(leaves){
           if(leaves)
             return {"arrest_ratio" : d3.sum(leaves, function(d){return (d.arrest) ? 1 : 0}) / leaves.length};
@@ -208,7 +206,6 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
 }
 
 SocrataModel.prototype.timeWrangle = function(that, resolution){
-
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
   var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
@@ -245,13 +242,6 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
 
   for(var i = 0; i < zeroed_data.length; i++){
       zeroed_data[i] = {"date": dateFromDay(yr, i), "count": 0};
-  }
-
-  function dayFromDate(year, day){
-    var start = new Date(year, 0, 0);
-    var diff = day - start;
-    var oneDay = 1000 * 60 * 60 * 24;
-    return Math.floor(diff / oneDay);
   }
 
   for(var i = 0; i < timeDisplayData.length; i++){
