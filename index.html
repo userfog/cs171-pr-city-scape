@@ -112,10 +112,8 @@
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
-          MySocrataModel.getDisplayData();
-          MySocrataModel.mapWrangle(event_args);
-          MySocrataModel.timeWrangle(MySocrataModel, true, d3.select("#resolution").selectAll("select").property("value"));
-          state.changed = false;
+          var resolution = d3.select("#resolution").selectAll("select").property("value");
+          MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
@@ -141,10 +139,7 @@
         $(MyEventHandler).bind("timeChange", function(event, event_args){
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
-          MySocrataModel.getDisplayData();
-          MySocrataModel.mapWrangle();
-          MySocrataModel.sunburstWrangle();
-          state.changed = false;
+          MySocrataModel.wrangleTimeChange(MySocrataModel);
         }); 
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC", MySocrataModel.wrangleRequest, 0, 50000);

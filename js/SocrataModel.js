@@ -119,9 +119,31 @@ SocrataModel.prototype.getDisplayData = function(){
 
 SocrataModel.prototype.wrangleRequest = function (that){
   that.getDisplayData();
-  that.sunburstWrangle();
-  that.mapWrangle("black");
-  // that.timeWrangle(that, false, "getDay");
+  var sunArgs = that.sunburstWrangle();
+  var mapArgs = that.mapWrangle("black");
+  var timeArgs = that.timeWrangle(that, "getDay");
+
+  $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
+  $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
+  state.changed = false;
+}
+
+SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution){
+  that.getDisplayData();
+  var mapArgs = that.mapWrangle(color);
+  var timeArgs = that.timeWrangle(that, resolution);
+  $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  $(that.eventHandler).trigger("timeUpdate", [timeArgs]);
+  state.changed = false;
+}
+
+SocrataModel.prototype.wrangleTimeChange = function(that){
+  that.getDisplayData();
+  var sunArgs = that.sunburstWrangle();
+  var mapArgs = that.mapWrangle();
+  $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
+  $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   state.changed = false;
 }
 
@@ -151,7 +173,8 @@ SocrataModel.prototype.sunburstWrangle = function(){
   nested = convert_nested({"key": "sun_data", "values": nested});
   var t1 = new Date().getTime();
   console.log("sunburstWrangle: " + (t1-t0));
-  $(that.eventHandler).trigger("sunburstDataReady", [nested]);
+  return nested;
+  
 }
 
 
@@ -164,7 +187,8 @@ SocrataModel.prototype.mapWrangle = function(color){
     mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
   var t1 = new Date().getTime();
   console.log("mapWrangle: " + (t1-t0));
-  $(that.eventHandler).trigger("mapVisDataReady", [[mapping, color]]);
+  return [mapping, color]
+  
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_by, years){
@@ -183,7 +207,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
   $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
 
-SocrataModel.prototype.timeWrangle = function(that, update, resolution){
+SocrataModel.prototype.timeWrangle = function(that, resolution){
 
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
@@ -239,9 +263,7 @@ SocrataModel.prototype.timeWrangle = function(that, update, resolution){
   var t1 = new Date().getTime();
   console.log("timeWrangle: " + (t1-t0));
 
-  var pass = update;
-  if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
-    else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}
+  return zeroed_data;  
 }
 
 SocrataModel.prototype.timeFilter = function (data, pass){

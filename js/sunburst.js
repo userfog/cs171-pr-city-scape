@@ -42,7 +42,7 @@ Sunburst.prototype.initVis = function() {
     return (top.name != "sun_data") ? sunburst_colors(top.name) : "black";
   }
 
-  // this.parentElement.selectAll("*").remove();
+  this.parentElement.selectAll("*").remove();
 
   this.svg = this.parentElement.append("svg")
     .attr("width", this.width)
@@ -91,20 +91,10 @@ Sunburst.prototype.initVis = function() {
       .attr("d", that.arc)
       .style("stroke", "#eee")
       .style("stroke-width", ".5")
-      //.style("fill", function(d) { return that.color((d.children ? d : d.parent).name); })
-      //.style("fill", function(d){return that.color(d.name)})
       .on("click", click)
       .on("mouseover", tip.show)
       .on("mouseout", tip.hide)
 
-    /* this.border = that.svg.selectAll(".sun-border")
-      .data(that.partition.nodes(this.data))
-      .enter().append("path")
-      .attr("class", "sun-border")
-      .attr("d", that.arc)
-      .style("fill", "none")
-      .style("stroke", "white")
-      .style("stroke-width", .2) */
 
     this.path.style("fill", getColor);
 
@@ -127,14 +117,6 @@ Sunburst.prototype.initVis = function() {
     }
 
     d3.select(self.frameElement).style("height", this.height + "px");
-
-    //    // ranking changes
-    // this.parentElement.select("#resolution").select("select").on("change", function(){
-    //       var res = d3.select("#resolution").selectAll("select").property("value");
-    //       pass = {"res": res, "filter": lastFilter}
-    //       console.log("hi")
-    //       $(that.eventHandler).trigger("resolutionChange", pass)
-    // })
 };
 
 // Interpolate the scales!
