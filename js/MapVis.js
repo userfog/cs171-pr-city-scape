@@ -5,6 +5,7 @@ MapVis = function(_parentElement, _data, _demographicData, _socrataModel, _event
   this.demographicData = _demographicData;
   this.socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
+  this.displayData = d3.map();
 
   this.customLabels = {
   "ARMOUR SQUARE": {offset: [0,-10]},
@@ -131,11 +132,18 @@ MapVis.prototype.initVis = function() {
         var table_demographics = that.demographicData.filter(function(e){
           return getId(d) == e.community_area;
         });
+
+        d3.select("#quantity")
+        .text("Quantity : " + that.displayData.get(getId(d)));
+
         that.table(d.properties.name, table_demographics);
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
+
     }).on("mouseout", function(){
+
       that.table("Total", that.demographicData);
       d3.select(this).style("stroke-width", 0.1)
+      
     });
 
     this.communityLabels
@@ -167,6 +175,7 @@ MapVis.prototype.initVis = function() {
 
 MapVis.prototype.choropleth = function(mapping){
   var that = this;
+  that.displayData = mapping;
   var values = d3.range(78).map(function(d){return mapping.get(d)}).filter(function(d,i){
       return typeof d == "number" && d != NaN;
   });

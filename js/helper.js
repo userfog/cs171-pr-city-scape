@@ -78,6 +78,13 @@ var areasMap = {
 "o'hare": 76,
 "edgewater": 77};
 
+
+var leap_years = [2004,
+2008,
+2012,
+2016,
+2020];
+
 // First, checks if it isn't implemented yet.
 if (!String.prototype.format) {
   String.prototype.format = function() {

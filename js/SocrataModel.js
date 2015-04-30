@@ -40,8 +40,6 @@ SocrataModel.prototype.get = function (str, callback, offset, limit){
     });
 }
 
-
-
 SocrataModel.prototype.filterQuery = function(){
   if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
     return this.data;
@@ -118,10 +116,19 @@ SocrataModel.prototype.getDisplayData = function(){
 
 
 SocrataModel.prototype.wrangleRequest = function (that){
+  var t0 = new Date().getTime();
   that.getDisplayData();
+  var t1 = new Date().getTime();
+  console.log("getDisplayData: " + (t1-t0));
   that.sunburstWrangle();
+  var t2 = new Date().getTime();
+  console.log("sunburstWrangle: " + (t2-t1));
   that.mapWrangle();
+  var t3 = new Date().getTime();
+  console.log("mapWrangle: " + (t3-t2));
   that.timeWrangle(that, false, "getDay");
+  var t4 = new Date().getTime();
+  console.log("timeWrangle: " + (t4-t3));
 }
 
 
@@ -179,67 +186,129 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
 }
 
 SocrataModel.prototype.timeWrangle = function(that, update, resolution){
-  var timeData = that.filterQuery(state.crime_filters, resolution);
-  var dateFormatter = (resolution == "getDay") ? d3.time.format.utc("%Y-%m-%d") : ((resolution == "getMonth") ? d3.time.format.utc("%Y-%m") : d3.time.format.utc("%Y"));
-
-  var getParsed = function(d, dateFormatter){
-    var month = dateFormatter.parse(d).getMonth()
-    var year = dateFormatter.parse(d).getFullYear()
-    var day = dateFormatter.parse(d).getDate()
-    return {"d":day, "m": month, "yr":year}
+  var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
+  var yr = 2004;
+  var zeroed_data;
+  if(resolution == "getDay"){
+    if(yr == 2004 || yr == 2008 || yr == 2012 || yr == 2016){
+      zeroed_data = new Array(367);
+    } else {
+      zeroed_data = new Array(366);
+    }
+  } else if (resolution == "getMonth"){
+    zeroed_data = new Array(12);
+  } else{
+    zeroed_data = new Array(1);
   }
 
-  var time_final = d3.nest()
-    .key(function(d){
-      var info = getParsed(d.date, d3.time.format.utc("%Y-%m-%dT%H:%M:%S"));
-      if (resolution == "getDay"){
-        return dateFormatter(new Date(info.yr, info.m, info.d))
-      }
-      else if (resolution == "getMonth"){
-        return dateFormatter(new Date(info.yr, info.m, 1))
-      }
-      else {
-        return dateFormatter(new Date(info.yr, 0, 1))
-      }
-    }).rollup(function(values){
-      if(values){
-        return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
-      }
-    }).map(timeData)
-
-  // generate empty date array to fill in blanks
-  var keys_to_dates = Object.keys(time_final).map(function(d){
-    var info = getParsed(d, dateFormatter);
+  function make_date(info){
     if (resolution == "getDay"){
-      return new Date(info.yr, info.m, info.d);
+      return new Date(info.getFullYear(), info.getMonth(), info.getDate());
     }
     else if (resolution == "getMonth"){
-      return new Date(info.yr, info.m, 1);
+      return new Date(info.getFullYear(), info.getMonth(), 1);
     }
     else {
-      return new Date(info.yr, 0, 1);
+      return new Date(info.getFullYear(), 0, 1);
     }
-  });
-  var extent = d3.extent(keys_to_dates); 
+  }
 
-  var dates;
-  if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1].setDate(extent[1].getDate() + 1))}
-  else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1].setMonth(extent[1].getMonth() + 1))}
-  else {dates = d3.time.year.range(extent[0], extent[1]); }
+  function dateFromDay(year, day){
+    var date = new Date(year, 0);
+    return new Date(date.setDate(day));
+  }
 
-  var zeroed_data = []
-  dates.map(function(d){
-    zeroed_data.push({"date":d, "count":0})
-  })
+  for(var i = 0; i < zeroed_data.length; i++){
+      zeroed_data[i] = {"date": dateFromDay(yr, i), "value": 0};
+  }
 
-  // populate zeroed data
-  zeroed_data.forEach(function (k){
-    var str = dateFormatter(k.date);
-    if(str in time_final){
-      k.count += time_final[str].count;
+  function dayFromDate(year, day){
+    var start = new Date(year, 0, 0);
+    var diff = day - start;
+    var oneDay = 1000 * 60 * 60 * 24;
+    return Math.floor(diff / oneDay);
+  }
+
+  for(var i = 0; i < that.displayData.length; i++){
+    var info = df.parse(that.displayData[i].date);
+    var day = dayFromDate(yr, info);
+    if(day == 366){
+      console.log(day)
     }
-  });
+    zeroed_data[day].value++;
+  }
 
+
+  // var timeData = that.displayData;
+  
+
+  // var getParsed = function(d, dateFormatter){
+  //   var month = dateFormatter.parse(d).getMonth()
+  //   var year = dateFormatter.parse(d).getFullYear()
+  //   var day = dateFormatter.parse(d).getDate()
+  //   return {"d":day, "m": month, "yr":year}
+  // }
+
+  // var t0 = new Date().getTime();
+  // var time_final = d3.nest()
+  //   .key(function(d){
+  //     var info = getParsed(d.date, d3.time.format.utc("%Y-%m-%dT%H:%M:%S"));
+  //     if (resolution == "getDay"){
+  //       return dateFormatter(new Date(info.yr, info.m, info.d))
+  //     }
+  //     else if (resolution == "getMonth"){
+  //       return dateFormatter(new Date(info.yr, info.m, 1))
+  //     }
+  //     else {
+  //       return dateFormatter(new Date(info.yr, 0, 1))
+  //     }
+  //   }).rollup(function(values){
+  //     if(values){
+  //       return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
+  //     }
+  //   }).map(timeData)
+
+  
+
+  // var t1 = new Date().getTime();
+  // console.log("\ttime_final: " + (t1-t0));
+
+  // // generate empty date array to fill in blanks
+  // var keys_to_dates = Object.keys(time_final).map(function(d){
+  //   var info = getParsed(d, dateFormatter);
+  //   if (resolution == "getDay"){
+  //     return new Date(info.yr, info.m, info.d);
+  //   }
+  //   else if (resolution == "getMonth"){
+  //     return new Date(info.yr, info.m, 1);
+  //   }
+  //   else {
+  //     return new Date(info.yr, 0, 1);
+  //   }
+  // });
+  // var extent = d3.extent(keys_to_dates); 
+
+
+  // var dates;
+  // if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1].setDate(extent[1].getDate() + 1))}
+  // else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1].setMonth(extent[1].getMonth() + 1))}
+  // else {dates = d3.time.year.range(extent[0], extent[1]); }
+
+  // var zeroed_data = []
+  // dates.map(function(d){
+  //   zeroed_data.push({"date":d, "count":0})
+  // })
+
+  // // populate zeroed data
+  // zeroed_data.forEach(function (k){
+  //   var str = dateFormatter(k.date);
+  //   if(str in time_final){
+  //     k.count += time_final[str].count;
+  //   }
+  // });
+  // var t2 = new Date().getTime();
+  // console.log("\tzero data : " + (t2-t1));
+  debugger;
   var pass = update;
   if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
     else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}

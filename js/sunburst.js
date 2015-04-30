@@ -68,14 +68,6 @@ Sunburst.prototype.initVis = function() {
           return Math.max(0, that.y(d.y)); 
         })
       .outerRadius(function(d) { 
-          // if(d.depth==0)
-          //   return 50;
-          // if(d.depth==1)
-          //   return 75;
-          // if(d.depth==2)
-          //   return 100;
-          // if(d.depth==3)
-          //   return 125;
           return Math.max(0, that.y(d.y + d.dy)); 
       });
 
