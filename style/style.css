@@ -1,0 +1,91 @@
+table td {
+    padding-left: 10px;
+    padding-right:10px;
+    padding-top: 5px;
+    text-align: right;
+}
+
+table th {
+  text-align: center;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.avg_line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 2;
+    shape-rendering: crispEdges;
+}
+
+.x.axis path {
+}
+
+.bar {
+  fill: orange;
+}
+
+.bar:hover {
+  fill: orangered ;
+}
+
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  font-size: 8pt;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+.communityarea {
+  fill: #fff;
+  stroke: #aaa;
+}
+
+.communityareas-label {
+  font-size: 9px;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+.communityareas-dropshadow {
+  font-size: 9px;
+  text-anchor: middle;
+  text-transform: uppercase;
+  stroke: #fff;
+  stroke-width:2.5px;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+.legend{
+  margin-left: 20px;
+}
+
+.hidden { 
+  display: none; 
+}
+div.map_tooltip {
+  color: #222; 
+  background: #fff; 
+  padding: .5em; 
+  text-shadow: #f5f5f5 0 1px 0;
+  border-radius: 2px; 
+  box-shadow: 0px 0px 2px 0px #a6a6a6; 
+  opacity: 0.9; 
+  position: absolute;
+}
