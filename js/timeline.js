@@ -73,7 +73,7 @@ Timeline.prototype.initVis = function() {
     this.brush = d3.svg.brush()
       .on("brush", function (d){
         var ex = that.brush.extent();
-        (ex[0].getTime() == ex[1].getTime()) ? state.time_filters = []   : state.time_filters = ex;
+        state.set_time(ex);
         $(that.eventHandler).trigger("timeChange")
       }) 
 

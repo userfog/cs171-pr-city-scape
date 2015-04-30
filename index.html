@@ -59,8 +59,23 @@
 <script type="text/javascript">
 
   var state = {
-    "crime_filters": [],
-    "time_filters": []
+    "crime_filters" : [],
+    "time_filters" : [],
+    "changed" : true,
+    "set_time" : function (ex){
+      var next = (ex[0].getTime() == ex[1].getTime()) ? [] : ex;
+      if(!isSame(next, this.time_filters, "time")){
+        this.changed = true;
+        this.time_filters = next;
+      }
+    },
+    "set_crime" : function (filters){
+      var next = filters || [];
+      if(!isSame(next, this.crime_filters, "crime")){
+        this.changed = true;
+        this.crime_filters = next;
+      }
+    }
   }
 
   queue().defer(d3.json, "map/chicago.json")
@@ -95,11 +110,12 @@
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
-
+          if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
           MySocrataModel.getDisplayData();
           MySocrataModel.mapWrangle();
           MySocrataModel.timeWrangle(MySocrataModel, true, d3.select("#resolution").selectAll("select").property("value"));
+          state.changed = false;
 
         })
 
@@ -124,10 +140,12 @@
         });
 
         $(MyEventHandler).bind("timeChange", function(event, event_args){
+          if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
           MySocrataModel.getDisplayData();
           MySocrataModel.mapWrangle();
           MySocrataModel.sunburstWrangle();
+          state.changed = false;
         }); 
 
         MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC", MySocrataModel.wrangleRequest, 0, 50000);

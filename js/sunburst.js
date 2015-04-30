@@ -24,9 +24,6 @@ Sunburst.prototype.initData = function (_data){
   this.initVis();
 }
 
-//global last clicked
-var lastFilter;
-
 Sunburst.prototype.initVis = function() {
   this.parentElement.selectAll("*").remove();
   var that = this;
@@ -108,11 +105,8 @@ Sunburst.prototype.initVis = function() {
       that.path.transition()
       .duration(750)
       .attrTween("d", that.arcTween(d));
-      var filters = getFilters(d, []);
-      lastFilter = filters;
 
-      state.crime_filters = filters || [];
-
+      state.set_crime(getFilters(d, []));
       $(that.eventHandler).trigger("selectionChanged", [])
     }
 

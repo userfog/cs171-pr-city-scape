@@ -1,14 +1,13 @@
 var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _responseType){
+  // Data for Requesting Resources from the server
   this.baseUrl = _baseUrl;
   this.resource = _resource;
   this.apiKey = _apiKey;
   this.responseType = _responseType || "json";
   this.fullUrl = "{0}/resource/{1}.{2}?".format(this.baseUrl, this.resource, this.responseType);
+  // Local variable
   this.eventHandler = _eventHandler;
-  this.previousRequests = [];
-  this.filters = [];
   this.years = [2004];
-  this.community_area = 77;
   this.grouping = "getMonth"
   this.data = [];
   this.displayData = null;
@@ -75,6 +74,7 @@ SocrataModel.prototype.filterTime = function(){
 
 
 SocrataModel.prototype.getDisplayData = function(){
+  var t0 = new Date().getTime();
   var indexes = this.filterTime();
 
   if(indexes[0] == -1 || indexes[1] == -1){
@@ -88,20 +88,20 @@ SocrataModel.prototype.getDisplayData = function(){
 
   switch(state.crime_filters.length){
     case 0:{
-      return;
+      break;
     }
     case 1:{
       this.displayData = this.displayData.filter(function(d){
           return d[state.crime_filters[0].key] == state.crime_filters[0].value;
         });
-      return
+      break;
     }
     case 2:{
       this.displayData = this.displayData.filter(function(d){
           return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
           && (d[state.crime_filters[1].key] == state.crime_filters[1].value);
       })
-      return;
+      break;
     }
     case 3:{
       this.displayData = this.displayData.filter(function(d){
@@ -109,31 +109,25 @@ SocrataModel.prototype.getDisplayData = function(){
         && (d[state.crime_filters[1].key] == state.crime_filters[1].value)
         && (d[state.crime_filters[2].key] == state.crime_filters[2].value);
       });
-      return 
+      break;
     }
   }
+  var t1 = new Date().getTime();
+  console.log("getDisplayData: " + (t1-t0));
 }
 
 
 SocrataModel.prototype.wrangleRequest = function (that){
-  var t0 = new Date().getTime();
   that.getDisplayData();
-  var t1 = new Date().getTime();
-  console.log("getDisplayData: " + (t1-t0));
   that.sunburstWrangle();
-  var t2 = new Date().getTime();
-  console.log("sunburstWrangle: " + (t2-t1));
   that.mapWrangle();
-  var t3 = new Date().getTime();
-  console.log("mapWrangle: " + (t3-t2));
   that.timeWrangle(that, false, "getDay");
-  var t4 = new Date().getTime();
-  console.log("timeWrangle: " + (t4-t3));
+  state.changed = false;
 }
 
 
 SocrataModel.prototype.sunburstWrangle = function(){
-
+  var t0 = new Date().getTime();
   var that = this;
 
   function convert_nested (o) {
@@ -155,17 +149,21 @@ SocrataModel.prototype.sunburstWrangle = function(){
     }).entries(that.displayData);
 
   nested = convert_nested({"key": "sun_data", "values": nested});
-
+  var t1 = new Date().getTime();
+  console.log("sunburstWrangle: " + (t1-t0));
   $(that.eventHandler).trigger("sunburstDataReady", [nested]);
 }
 
 
 SocrataModel.prototype.mapWrangle = function(){
+  var t0 = new Date().getTime();
   var that = this;
   var mapping = d3.map();
   that.displayData.forEach(function(d){
     var val = mapping.get(+d.community_area) || 0;
     mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
+  var t1 = new Date().getTime();
+  console.log("mapWrangle: " + (t1-t0));
   $(that.eventHandler).trigger("mapVisDataReady", [mapping]);
 }
 
@@ -186,6 +184,9 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, filter_
 }
 
 SocrataModel.prototype.timeWrangle = function(that, update, resolution){
+
+  var timeDisplayData = that.filterQuery(that.data);
+  var t0 = new Date().getTime();
   var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var yr = 2004;
   var zeroed_data;
@@ -219,7 +220,7 @@ SocrataModel.prototype.timeWrangle = function(that, update, resolution){
   }
 
   for(var i = 0; i < zeroed_data.length; i++){
-      zeroed_data[i] = {"date": dateFromDay(yr, i), "value": 0};
+      zeroed_data[i] = {"date": dateFromDay(yr, i), "count": 0};
   }
 
   function dayFromDate(year, day){
@@ -229,86 +230,15 @@ SocrataModel.prototype.timeWrangle = function(that, update, resolution){
     return Math.floor(diff / oneDay);
   }
 
-  for(var i = 0; i < that.displayData.length; i++){
-    var info = df.parse(that.displayData[i].date);
-    var day = dayFromDate(yr, info);
-    if(day == 366){
-      console.log(day)
-    }
-    zeroed_data[day].value++;
+  for(var i = 0; i < timeDisplayData.length; i++){
+    var info = df.parse(timeDisplayData[i].date);
+    var day = (resolution == "getDay") ? dayFromDate(yr, info) : info.getMonth()
+    zeroed_data[day].count++;
   }
 
+  var t1 = new Date().getTime();
+  console.log("timeWrangle: " + (t1-t0));
 
-  // var timeData = that.displayData;
-  
-
-  // var getParsed = function(d, dateFormatter){
-  //   var month = dateFormatter.parse(d).getMonth()
-  //   var year = dateFormatter.parse(d).getFullYear()
-  //   var day = dateFormatter.parse(d).getDate()
-  //   return {"d":day, "m": month, "yr":year}
-  // }
-
-  // var t0 = new Date().getTime();
-  // var time_final = d3.nest()
-  //   .key(function(d){
-  //     var info = getParsed(d.date, d3.time.format.utc("%Y-%m-%dT%H:%M:%S"));
-  //     if (resolution == "getDay"){
-  //       return dateFormatter(new Date(info.yr, info.m, info.d))
-  //     }
-  //     else if (resolution == "getMonth"){
-  //       return dateFormatter(new Date(info.yr, info.m, 1))
-  //     }
-  //     else {
-  //       return dateFormatter(new Date(info.yr, 0, 1))
-  //     }
-  //   }).rollup(function(values){
-  //     if(values){
-  //       return {"count" : d3.sum(values, function(d){return d.count_primary_type})}
-  //     }
-  //   }).map(timeData)
-
-  
-
-  // var t1 = new Date().getTime();
-  // console.log("\ttime_final: " + (t1-t0));
-
-  // // generate empty date array to fill in blanks
-  // var keys_to_dates = Object.keys(time_final).map(function(d){
-  //   var info = getParsed(d, dateFormatter);
-  //   if (resolution == "getDay"){
-  //     return new Date(info.yr, info.m, info.d);
-  //   }
-  //   else if (resolution == "getMonth"){
-  //     return new Date(info.yr, info.m, 1);
-  //   }
-  //   else {
-  //     return new Date(info.yr, 0, 1);
-  //   }
-  // });
-  // var extent = d3.extent(keys_to_dates); 
-
-
-  // var dates;
-  // if (resolution == "getDay"){dates = d3.time.day.range(extent[0], extent[1].setDate(extent[1].getDate() + 1))}
-  // else if (resolution == "getMonth"){dates = d3.time.month.range(extent[0], extent[1].setMonth(extent[1].getMonth() + 1))}
-  // else {dates = d3.time.year.range(extent[0], extent[1]); }
-
-  // var zeroed_data = []
-  // dates.map(function(d){
-  //   zeroed_data.push({"date":d, "count":0})
-  // })
-
-  // // populate zeroed data
-  // zeroed_data.forEach(function (k){
-  //   var str = dateFormatter(k.date);
-  //   if(str in time_final){
-  //     k.count += time_final[str].count;
-  //   }
-  // });
-  // var t2 = new Date().getTime();
-  // console.log("\tzero data : " + (t2-t1));
-  debugger;
   var pass = update;
   if (pass){$(that.eventHandler).trigger("timeUpdate", [zeroed_data])}
     else {$(that.eventHandler).trigger("timeDataReady", [zeroed_data])}

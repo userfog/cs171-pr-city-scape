@@ -106,6 +106,26 @@ function getReadableDate(d){
   return d.getMonth() + "/" + d.getDate() + "/" + d.getFullYear();
 }
 
+
+function isSame (array1, array2, name){
+  var f;
+  var compareCrimeFilters = function(element, index) {
+      return element.key === array2[index].key && element.value === array2[index].value; 
+  }
+
+  var compareTimeFilters = function(element, index){
+    return element.getTime() == array2[index].getTime();
+  }
+
+  if(name == "time"){
+    f = compareTimeFilters;
+  } else {
+    f = compareCrimeFilters;
+  }
+
+  return (array1.length == array2.length) && array1.every(f);
+}
+
 function binarySearch(arr, el, compare_fn){
   var m = 0;
   var n = arr.length - 1;
