@@ -120,7 +120,7 @@ SocrataModel.prototype.getDisplayData = function(){
 SocrataModel.prototype.wrangleRequest = function (that){
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
-  var mapArgs = that.mapWrangle("black");
+  var mapArgs = that.mapWrangle("#FFCC44");
   var timeArgs = that.timeWrangle(that, "getDay");
 
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);

@@ -89,3 +89,7 @@ div.map_tooltip {
   opacity: 0.9; 
   position: absolute;
 }
+#rcorners {
+    border-radius: 25px;
+    border: 2px solid #000;
+}

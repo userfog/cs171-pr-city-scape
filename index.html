@@ -38,13 +38,14 @@
       <div id="timeline">
       </div>
     </div>
-    <div class="col-md-4" id="mapvis">
-    </div>
-    <div class="col-md-3" id="maphover">
-      <div class="row">
-        <div id="table">
-        </div>
+    <div class="col-md-7" id="rcorners">
+      <div class="col-md-6" id="mapvis">
       </div>
+      <div class="col-md-4" id="maphover">
+        <div class="row">
+          <div id="table">
+          </div>
+        </div>
       <p id="quantity" class="row"></p>
       </div>
       <div class="row">
@@ -99,7 +100,8 @@
         var MyTimeline = new Timeline(d3.select("#timeline"), MyEventHandler)
 
         var res = d3.select("#resolution").select("select").on("change", function(){
-          MySocrataModel.timeWrangle(MySocrataModel, true, this.value);
+          var timeArgs = MySocrataModel.timeWrangle(MySocrataModel, this.value);
+          MyTimeline.onSelectionChange(timeArgs);
         });
 
         var currentSelection = d3.select("#currentSelection")

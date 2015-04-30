@@ -33,13 +33,12 @@ Sunburst.prototype.initVis = function() {
       for(var i = d.depth; i > height; i--){
         top = top.parent;
       }
-      return top
-
+      return top;
   }
 
   var getColor = function (d){
     var top = getDepth(d, 1);
-    return (top.name != "sun_data") ? sunburst_colors(top.name) : "black";
+    return (top.name != "sun_data") ? sunburst_colors(top.name) : "#FFCC44";
   }
 
   this.parentElement.selectAll("*").remove();
