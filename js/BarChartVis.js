@@ -4,15 +4,16 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.eventHandler = _eventHandler;
     this.displayData = [];
     // defines constants
-    this.margin = {top: 20, right: 20, bottom: 30, left: 20},
+    this.margin = {top: 20, right: 50, bottom: 30, left: 50},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
     this.height = 400 - this.margin.top - this.margin.bottom;
 }
 
-BarChartVis.prototype.initData = function (_data){
+BarChartVis.prototype.initData = function (_data, color){
   delete _data["undefined"];
   this.data = _data;
   this.displayData = this.data;
+  this.color = color;
   this.initVis();
 }
 
@@ -24,7 +25,7 @@ BarChartVis.prototype.initVis = function (){
         .attr("width", this.width + this.margin.left + this.margin.right)
         .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
-        .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
+        .attr("transform", "translate(" + that.margin.left + "," + this.margin.top + ")");
 
     // creates axis and scales
     this.y = d3.scale.linear()
@@ -49,13 +50,12 @@ BarChartVis.prototype.initVis = function (){
 
     this.svg.append("g")
       .attr("class", "y axis")
-      .attr("transform", "translate(" + that.margin.left + ", 0)")
+      .attr("transform", "translate(" + 0 + ", 0)")
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
+      .attr("x", -200)
       .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Arrests / Crime");
 
     this.valueline = d3.svg.line()
     .x(function(d) { return that.x(d.key)*1.07 + 1.5; })
@@ -100,6 +100,7 @@ BarChartVis.prototype.updateVis = function(){
           .call(that.xAxis);
     this.svg.select(".y")
           .call(that.yAxis);
+
     // updates graph
     var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
     this.svg.select(".x").selectAll("text")
@@ -109,7 +110,7 @@ BarChartVis.prototype.updateVis = function(){
      .style("text-anchor", "end")
     .attr("transform", "rotate(-90)")
     .attr("y", -3)
-    .attr("x", -4)
+    .attr("x", -10)
     // Data join
     var bar = this.svg.selectAll(".bar")
       .data(this.displayData);
@@ -140,8 +141,9 @@ BarChartVis.prototype.updateVis = function(){
         return that.y(d.values.arrest_ratio); })
       .attr("height", function(d,i){
         return that.height - that.y(d.values.arrest_ratio);})
+      .style("fill", this.color)
       .transition()
-      .attr("width", that.x.rangeBand());
+      .attr("width", that.x.rangeBand()*.8);
 
         // Add attributes (position) to all bars
     bar

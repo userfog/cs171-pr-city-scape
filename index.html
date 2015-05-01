@@ -67,7 +67,8 @@
       var next = (ex[0].getTime() == ex[1].getTime()) ? [] : ex;
       if(!isSame(next, this.time_filters, "time")){
         this.changed = true;
-        this.time_filters = next;
+        ordered = (next[0] > next[1]) ? next : [next[1], next[0]];
+        this.time_filters = ordered;
       }
     },
     "set_crime" : function (filters){
@@ -76,6 +77,24 @@
         this.changed = true;
         this.crime_filters = next;
       }
+    },
+    "genQuery" : function () {
+      var timeQ = "", crimeQ = "";
+      if(this.time_filters.length > 0 
+        && state.time_filters[0] != undefined
+        && state.time_filters[1] != undefined
+        && this.time_filters[0].getTime() != this.time_filters[1].getTime()){
+        timeQ = "%20and%20date%3E=%27{0}%27%20and%20date%3E=%27{1}%27".format(getReadableDate(state.time_filters[0])
+          , getReadableDate(state.time_filters[1]));
+      } else{
+        timeQ = "%20and%20date>%272004-01-01%27and%20date<%272004-12-31%27";
+      }
+      if(this.crime_filters.length > 0){
+        for(var i = 0; i < this.crime_filters.length; i++){
+          crimeQ += "%20and%20{0}=%27{1}%27".format(this.crime_filters[i].key, this.crime_filters[i].value);
+        }
+      }
+      return timeQ + crimeQ;
     }
   }
 
@@ -108,7 +127,10 @@
           .html(convertFiltersToTitle);
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          BarSocrataModel.get("$select=date,arrest&$where=community_area=%27{0}%27&$order=date ASC".format(event_args[0]), MySocrataModel.barChartWrangler, 0, 50000);
+          var str = "$select=date,arrest&$order=date%20ASC&$where=community_area=%27{0}%27%20{1}".format(event_args, state.genQuery());
+          BarSocrataModel.get(str
+            , BarSocrataModel.wrangleBarChartRequest
+            , 0, 50000, true);
         })
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
@@ -127,7 +149,7 @@
         });
 
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
-          MyBarChart.initData(event_args);
+          MyBarChart.initData(event_args, MyMapVis.colorRange || "#FFCC44");
         });
 
         $(MyEventHandler).bind("timeDataReady", function(event, event_args){
@@ -144,9 +166,13 @@
           MySocrataModel.wrangleTimeChange(MySocrataModel);
         }); 
 
-        MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC", MySocrataModel.wrangleRequest, 0, 50000);
+        MySocrataModel.get("$where=year='2004'&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC"
+          , MySocrataModel.wrangleRequest
+          , 0, 50000, true);
 
-        BarSocrataModel.get("$select=date,arrest&$order=date ASC", MySocrataModel.barChartWrangler, 0, 50000);
+        BarSocrataModel.get("$select=date,arrest&$order=date ASC&$where=date>%272004-01-01%27and%20date<%272004-12-31%27"
+          , BarSocrataModel.wrangleBarChartRequest
+          , 0, 50000, true);
 
   }
 
@@ -169,10 +195,10 @@ var  convertFiltersToTitle = function() {
         crime = "<small>All</small> {2} <small>which was</small> {1} <small>at/on a</small> {0}".format(state.crime_filters[0].value, state.crime_filters[1].value, state.crime_filters[2].value); 
       }
   }
-  if(typeof state.time_filters == "undefined" 
-    || state.time_filters.length == 0
-    || state.time_filters[0].getTime() == 
-        state.time_filters[1].getTime()){
+  if(typeof state.time_filters == "undefined"
+      || typeof state.time_filters[0] == "undefined"
+      || typeof state.time_filters[1] == "undefined"
+      || state.time_filters.length == 0){
         time = "";
   } else{
       time = " <small>between</small> {0} <small>and</small> {1}".format(

@@ -103,7 +103,7 @@ function getId(d){
 }
 
 function getReadableDate(d){
-  return d.getMonth() + "/" + d.getDate() + "/" + d.getFullYear();
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
 }
 
 
@@ -114,6 +114,9 @@ function isSame (array1, array2, name){
   }
 
   var compareTimeFilters = function(element, index){
+    if(typeof array2[0] != typeof element || typeof array2[1] != typeof element){
+      return false;
+    }
     return element.getTime() == array2[index].getTime();
   }
 

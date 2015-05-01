@@ -73,7 +73,10 @@ Timeline.prototype.initVis = function() {
     this.brush = d3.svg.brush()
       .on("brush", function (d){
         var ex = that.brush.extent();
-        state.set_time(ex);
+        if(ex[0] == "undefined" || ex[1] == "undefined")
+          state.set_time([]);
+        else
+          state.set_time(ex);
         $(that.eventHandler).trigger("timeChange")
       }) 
 

@@ -13,16 +13,19 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.displayData = null;
 }
 
-SocrataModel.prototype.get = function (str, callback, offset, limit){
+SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     NProgress.start();
     var that = this;
-    request = str + "&$offset={0}&$limit={1}".format(offset, limit);
+    if(clear)
+      that.data = [];
+
+    var request = str + "&$offset={0}&$limit={1}".format(offset, limit);
     $.getJSON(this.fullUrl
         + request 
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
         that.data.push.apply(that.data, data);
-        if(data.length !=  limit){
+        if(data.length < limit){
             if(callback){
               callback(that);
               NProgress.done();
@@ -31,7 +34,7 @@ SocrataModel.prototype.get = function (str, callback, offset, limit){
             }
         } else{
           NProgress.inc();
-          that.get(str, callback, offset+limit, limit);
+          that.get(str, callback, offset+limit, limit, false);
         }
       }
     ).fail(function() {
@@ -53,8 +56,10 @@ SocrataModel.prototype.filterQuery = function(){
 }
 
 SocrataModel.prototype.filterTime = function(){
-  if(typeof state.time_filters == "undefined" 
+  if(state.time_filters == undefined
     || state.time_filters.length == 0 
+    || state.time_filters[0] == undefined
+    || state.time_filters[1] == undefined
     || state.time_filters[0].getTime() == state.time_filters[1].getTime()) 
     return [-1,-1];
 
@@ -116,6 +121,10 @@ SocrataModel.prototype.getDisplayData = function(){
   console.log("getDisplayData: " + (t1-t0));
 }
 
+SocrataModel.prototype.wrangleBarChartRequest = function (that){
+  var barData = that.barChartWrangler(that);
+  $(that.eventHandler).trigger("barChartDataReady", [barData]);
+}
 
 SocrataModel.prototype.wrangleRequest = function (that){
   that.getDisplayData();
@@ -191,7 +200,7 @@ SocrataModel.prototype.mapWrangle = function(color){
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, resolution){
   var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
-  var arrestRatios = d3.nest()
+  return d3.nest()
         .key(function(d){
             return dateFormatter.parse(d.date).getMonth();})
         .rollup(function(leaves){
@@ -201,8 +210,6 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
             return {"arrest_ratio": -1};
         })
         .entries(that.data);
-        
-  $(that.eventHandler).trigger("barChartDataReady", [arrestRatios]);
 }
 
 SocrataModel.prototype.timeWrangle = function(that, resolution){
