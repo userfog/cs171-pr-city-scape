@@ -1,8 +1,9 @@
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
-MapVis = function(_parentElement, _data, _demographicData, _socrataModel, _eventHandler){
+MapVis = function(_parentElement, _data, _demographicData, _income, _socrataModel, _eventHandler){
   this.parentElement = _parentElement;
   this.data = _data;
   this.demographicData = _demographicData;
+  this.incomeData = _income;
   this.socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
   this.displayData = d3.map();
@@ -133,11 +134,19 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
 
+        var table_income = that.incomeData.filter(function(e){
+          return getId(d) == e.community_area;
+        });
+
+
         d3.select("#quantity")
         .text("Quantity : " + that.displayData.get(getId(d)));
 
         that.table(d.properties.name, table_demographics);
+        that.income_table(d.properties.name, table_income);
+
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
+
 
     }).on("mouseout", function(){
 
@@ -158,7 +167,21 @@ MapVis.prototype.initVis = function() {
       // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
 
-    this.tableHtml = d3.select("#table").append("table"), 
+
+    this.incomeTable = d3.select("#tableIncome").append("table"), 
+    incomeThead = this.incomeTable.append("thead")
+      .attr("class", "thead");
+
+
+    incomeThead.append("tr").selectAll("th")
+      .data(["", "2006-2010"]).enter()
+      .append("th")
+      .text(function(d){return d});
+
+    this.incomeTbody = this.incomeTable.append("tbody").attr("id", "incomeTableBody");
+
+
+    this.tableHtml = d3.select("#tableDemographics").append("table"), 
     thead = this.tableHtml.append("thead")
       .attr("class", "thead");
 
@@ -171,6 +194,74 @@ MapVis.prototype.initVis = function() {
 
     that.table("Total", that.demographicData);
 
+    that.income_table("Total", that.incomeData);
+
+}
+
+MapVis.prototype.income_table = function (name, table_income){
+  var counts = {}
+    function aggregate(){
+      var total = {}
+      table_income.map(function(d){
+        for(var property in d){
+            if(property != "Community Name" && property != "community_area")
+              if(d[property] != "n/a"){
+                counts[property + "_count"] = counts[property + "_count"] + 1 || 1;
+                total[property] = total[property] + parseInt(d[property]) || parseInt(d[property])
+              }
+        }
+      });
+      return total;
+  }
+  var cap = this.incomeTable.select("caption");
+  if(!cap[0][0]){
+    this.incomeTable.append("caption")
+    .html("Med. Household Income")
+    .style("text-align", "right");
+  } 
+
+  this.incomeTbody.selectAll("*").remove()
+
+  if(name == "Total"){
+    table_income = aggregate();
+  } else{
+    table_income = table_income[0];
+  }
+
+  var rows = this.incomeTbody.selectAll("tr.table_row")
+  .data(Object.keys(table_income).filter(function(d){
+      return d != "Community Name" && d != "community_area";
+  }))
+  .enter()
+  .append("tr").attr("class", "table_row");
+
+  var cells = rows.selectAll("td")
+  .data(function(row) {
+      return d3.range(2).map(function(column, i) {
+          function getValue(){
+            if(name != "Total"){
+              return table_income[row];
+            }
+            else{
+              return table_income[row]/counts[row+"_count"];
+            }
+          }
+          if(i==0){
+            if(row == "Average")
+              return row;
+            else
+              return ""; 
+          }
+          if(row == "Total Households"){
+            return d3.format(".0f")(getValue());
+          }else{
+            return d3.format("$.2f")(getValue());
+          }
+      });
+  })
+  .enter()
+  .append("td")
+  .text(function(d) { return d; });
 }
 
 MapVis.prototype.choropleth = function(mapping, color){
@@ -253,6 +344,7 @@ MapVis.prototype.choropleth = function(mapping, color){
     return d;
   });
 }
+
 
 MapVis.prototype.table = function (name, table_demographics){
   function aggregate(){

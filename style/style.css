@@ -89,6 +89,14 @@ div.map_tooltip {
   opacity: 0.9; 
   position: absolute;
 }
+
+#tableIncome {
+  padding-left:0;
+}
+#tableDemographics {
+  padding-right:0;
+}
+
 #rcorners {
     border-radius: 25px;
     border: 2px solid #000;

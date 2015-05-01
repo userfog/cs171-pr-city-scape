@@ -14,7 +14,8 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
 }
 
 SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
-    NProgress.start();
+    // NProgress.configure({ parent: "" })
+
     var that = this;
     if(clear)
       that.data = [];
@@ -28,12 +29,10 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
         if(data.length < limit){
             if(callback){
               callback(that);
-              NProgress.done();
             }else{
               console.log(data);
             }
         } else{
-          NProgress.inc();
           that.get(str, callback, offset+limit, limit, false);
         }
       }
@@ -124,6 +123,8 @@ SocrataModel.prototype.getDisplayData = function(){
 SocrataModel.prototype.wrangleBarChartRequest = function (that){
   var barData = that.barChartWrangler(that);
   $(that.eventHandler).trigger("barChartDataReady", [barData]);
+  $(that.eventHandler).trigger("loadingDone");
+  state.changed = false;
 }
 
 SocrataModel.prototype.wrangleRequest = function (that){
@@ -135,7 +136,8 @@ SocrataModel.prototype.wrangleRequest = function (that){
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
-  state.changed = false;
+  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  
 }
 
 SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution){
@@ -216,7 +218,7 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
   var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
-  var yr = 2004;
+  var yr = state.year;
   var zeroed_data;
   if(resolution == "getDay"){
     if(yr == 2004 || yr == 2008 || yr == 2012 || yr == 2016){

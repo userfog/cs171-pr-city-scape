@@ -3,6 +3,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
   this._socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
+  this.initialized = false;
 
   // defines  tants
   this.margin = {top: 20, right: 0, bottom: 5, left: 0},
@@ -14,10 +15,15 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
 Timeline.prototype.initData = function (_data){
   this.data = _data;
   this.initVis();
+  this.initialized = true;
 }
 
 Timeline.prototype.initVis = function() {
   var that = this;
+  if(this.initialized){
+    this.updateVis();
+    return;
+  }
 
   this.svg = this.parentElement.append("svg")
     .attr("width", this.width)

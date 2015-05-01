@@ -102,7 +102,7 @@ BarChartVis.prototype.updateVis = function(){
           .call(that.yAxis);
 
     // updates graph
-    var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"].slice(0,that.displayData.length-1);
     this.svg.select(".x").selectAll("text")
     .text(function(d,i){
       return month[d]; 

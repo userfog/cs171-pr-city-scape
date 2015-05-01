@@ -110,7 +110,6 @@ Sunburst.prototype.initVis = function() {
       that.path.transition()
       .duration(750)
       .attrTween("d", that.arcTween(d));
-      debugger;
       state.set_crime(getFilters(d, []));
       $(that.eventHandler).trigger("selectionChanged", getColor(d));
     }
