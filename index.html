@@ -107,7 +107,7 @@
         && state.time_filters[0] != undefined
         && state.time_filters[1] != undefined
         && this.time_filters[0].getTime() != this.time_filters[1].getTime()){
-        timeQ = "%20and%20date%3E=%27{0}%27%20and%20date%3E=%27{1}%27".format(getReadableDate(state.time_filters[0])
+        timeQ = "%20and%20date>%27{0}%27%20and%20date<%27{1}%27".format(getReadableDate(state.time_filters[0])
           , getReadableDate(state.time_filters[1]));
       } else{
         timeQ = "%20and%20date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year);

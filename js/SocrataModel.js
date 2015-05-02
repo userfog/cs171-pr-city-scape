@@ -230,9 +230,13 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
     zeroed_data = new Array(1);
   }
 
+  function dateFromDay(year, day){
+     var date = new Date(year, 0);
+     return new Date(date.setDate(day));
+   }
+
   for(var i = 0; i < zeroed_data.length; i++){
-          debugger;
-      zeroed_data[i] = {"date": new Date(moment().year(yr).dayOfYear(i).hour(0).minute(0).second(0).millisecond(0)), "count": 0};
+      zeroed_data[i] = {"date": dateFromDay(yr, i), "count": 0};
   }
 
   for(var i = 0; i < timeDisplayData.length; i++){

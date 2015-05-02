@@ -102,13 +102,16 @@ BarChartVis.prototype.updateVis = function(){
       })
     ));
 
+    // updates graph
+    var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    that.xAxis.ticks(d3.time.months, that.displayData.length-1);
+
     this.svg.select(".x")
           .call(that.xAxis);
     this.svg.select(".y")
           .call(that.yAxis);
 
-    // updates graph
-    var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"].slice(0,that.displayData.length-1);
+
     this.svg.select(".x").selectAll("text")
     .text(function(d,i){
       return month[d]; 
