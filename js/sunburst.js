@@ -89,7 +89,9 @@ Sunburst.prototype.updateVis = function(){
     // Also compute the full name and fill color for each node,
     // and stash the children so they can be restored as we descend.
     var that = this;
+    var target = state.crime_filters.map(function(d){return d.value;}).reverse();
     var root = that.data;
+
     that.partition
         .value(function(d) { return d.values.size; })
         .nodes(root)
@@ -112,8 +114,30 @@ Sunburst.prototype.updateVis = function(){
     center.append("title")
         .text("zoom out");
 
+    var tr = that.partition.nodes(root);
+    if(!(state.crime_filters == undefined || state.crime_filters.length == 0)){
+        var level = 0;
+        var i = 0;
+        while(true){
+          if(tr[i].key == target[level]){
+            if(level == target.length-1){
+              root = [tr[i].values];
+              break;
+            } else {
+              tr = tr[i].values;
+              i = 0;
+              level++;
+            }
+          } else {
+            i++;
+          } 
+        }
+    } else {
+      root = tr;
+    }
+
     var path = that.svg.selectAll("path")
-        .data(that.partition.nodes(root).slice(1))
+        .data(root.slice(1))
       .enter().append("path")
         .classed("sunChunk", true)
         .attr("d", that.arc)
@@ -128,7 +152,11 @@ Sunburst.prototype.updateVis = function(){
 
     function custonClick(p){
       function getFilters(p){
-        return p.key.split(".").map(function(d,i){return {"key":that.depth_to_field[i+1], "value":d}}).reverse(); 
+        var s = p.key.split(".").map(function(d,i){return {"key":that.depth_to_field[i+1], "value":d}}).reverse();
+        if(s.length == 4)
+          return s.slice(1,3);
+        else
+          return s;
       }
       state.set_crime(getFilters(p));
       $(that.eventHandler).trigger("selectionChanged", p.fill);
