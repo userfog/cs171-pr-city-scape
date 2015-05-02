@@ -216,6 +216,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
 SocrataModel.prototype.timeWrangle = function(that, resolution){
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
+  var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var yr = state.year;
   var zeroed_data;
   if(resolution == "getDay"){
