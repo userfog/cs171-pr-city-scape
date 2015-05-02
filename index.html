@@ -10,6 +10,7 @@
   <script src="http://d3js.org/topojson.v1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/nprogress.min.js"></script>
+  <script type="text/javascript" src="js/moment.js"></script>
   <script type="text/javascript" src="js/helper.js"></script>
   <script src="js/SocrataModel.js"></script>
   <script src="js/MapVis.js"></script>
@@ -61,11 +62,11 @@
     <div class="col-md-7" id="rcorners">
       <div class="col-md-6" id="mapvis">
       </div>
-      <div class="col-md-4" id="maphover">
+      <div class="col-md-5" id="maphover">
         <div class="row">
           <div class="col-md-6" id="tableDemographics">
           </div>
-          <div class="col-md-6" id="tableIncome">
+          <div class="col-md-4" id="tableIncome">
           </div>
         </div>
       <p id="quantity" class="row"></p>
@@ -109,7 +110,7 @@
         timeQ = "%20and%20date%3E=%27{0}%27%20and%20date%3E=%27{1}%27".format(getReadableDate(state.time_filters[0])
           , getReadableDate(state.time_filters[1]));
       } else{
-        timeQ = "%20and%20date>%272004-01-01%27and%20date<%272004-12-31%27";
+        timeQ = "%20and%20date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year);
       }
       if(this.crime_filters.length > 0){
         for(var i = 0; i < this.crime_filters.length; i++){

@@ -295,7 +295,7 @@ MapVis.prototype.choropleth = function(mapping, color){
   //Adding legend for our Choropleth
   d3.selectAll(".legend").remove();
 
-  var ls_w = 20, ls_h = 200;
+  var ls_w = 20, ls_h = 120;
   var legend = this.svg.append("g")
     .classed("legend", true)
     .attr("transform", "translate(" + 20 + "," + 0 + ")");
@@ -304,7 +304,7 @@ MapVis.prototype.choropleth = function(mapping, color){
 
   legend.append("text")
   .attr("x", 20)
-  .attr("y", that.height/2 - (ls_h+10))
+  .attr("y", that.height/1.8 - (ls_h+10))
   .text("Quantity Of Crimes");
 
   var gradient = legend.append("svg:linearGradient")
@@ -327,9 +327,9 @@ MapVis.prototype.choropleth = function(mapping, color){
 
   legend.append("rect")
   .attr("x", 20)
-  .attr("y", that.height/2-ls_h)
+  .attr("y", that.height/1.8-ls_h)
   .attr("width", ls_w)
-  .attr("height", ls_h)
+  .attr("height", ls_h+30)
   .style("fill", "url(#gradient)")
 
   legend.append("g")
@@ -338,7 +338,7 @@ MapVis.prototype.choropleth = function(mapping, color){
   .append("text")
   .attr("x", 50)
   .attr("y", function(d, i){ 
-    return 400 - i%3*80
+    return 500 - i%3*70
   })
   .text(function(d, i){  
     return d;

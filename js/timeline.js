@@ -103,10 +103,17 @@ Timeline.prototype.updateVis = function() {
   this.x.domain(d3.extent(this.data, function(d) { return d.date; }));
   this.y.domain([0,d3.max(this.data, function(d) { return d.count; })]);
 
+
+
   // updates axis
   this.svg.select(".x.axis")
       .transition().duration(750)
-      .call(this.xAxis);
+      .call(this.xAxis)
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("transform", "rotate(-75)")
+      .attr("y", -3)
+      .attr("x", -10);
 
   this.svg.select(".y.axis")
       .transition().duration(750)

@@ -32,7 +32,7 @@ BarChartVis.prototype.initVis = function (){
       .range([this.height, 0]);
 
     this.x = d3.scale.ordinal()
-      .rangeRoundBands([0, this.width], .1);
+      .rangeRoundBands([0, this.width], .5);
 
     this.xAxis = d3.svg.axis()
       .scale(this.x)
@@ -58,8 +58,14 @@ BarChartVis.prototype.initVis = function (){
       .attr("dy", ".71em")
 
     this.valueline = d3.svg.line()
-    .x(function(d) { return that.x(d.key)*1.07 + 1.5; })
-    .y(function(d) { return that.y(that.avg); });
+    .x(function(d) { 
+      debugger; 
+      return that.x(d.key); 
+    })
+    .y(function(d) { 
+      debugger;
+      return that.y(that.avg); 
+    }); 
 
     // call the update method
     this.updateVis();
@@ -89,12 +95,12 @@ BarChartVis.prototype.updateVis = function(){
 
     this.svg.call(tip);
 
-
     // updates scales
     this.x.domain(Object.keys(that.displayData));
     this.y.domain(d3.extent(Object.keys(that.displayData).map(function(d){
-      return that.data[d].values.arrest_ratio;}
-    )));
+        return that.data[d].values.arrest_ratio;
+      })
+    ));
 
     this.svg.select(".x")
           .call(that.xAxis);
@@ -108,7 +114,7 @@ BarChartVis.prototype.updateVis = function(){
       return month[d]; 
     })
      .style("text-anchor", "end")
-    .attr("transform", "rotate(-90)")
+    .attr("transform", "rotate(-75)")
     .attr("y", -3)
     .attr("x", -10)
     // Data join
@@ -122,11 +128,6 @@ BarChartVis.prototype.updateVis = function(){
     bar_enter.append("rect")
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide);
-
-    // // Add click interactivity
-    // bar_enter.on("click", function(d, i) {
-    // });
-
 
     // Remove the extra bars
     bar.exit()
@@ -143,9 +144,9 @@ BarChartVis.prototype.updateVis = function(){
         return that.height - that.y(d.values.arrest_ratio);})
       .style("fill", this.color)
       .transition()
-      .attr("width", that.x.rangeBand()*.8);
+      .attr("width", that.x.rangeBand());
 
-        // Add attributes (position) to all bars
+    // Add attributes (position) to all bars
     bar
       .attr("class", function(d){
         return "bar ";

@@ -201,10 +201,9 @@ SocrataModel.prototype.mapWrangle = function(color){
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, resolution){
-  var dateFormatter = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   return d3.nest()
         .key(function(d){
-            return dateFormatter.parse(d.date).getMonth();})
+            return moment(d.date).month();})
         .rollup(function(leaves){
           if(leaves)
             return {"arrest_ratio" : d3.sum(leaves, function(d){return (d.arrest) ? 1 : 0}) / leaves.length};
@@ -217,7 +216,6 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
 SocrataModel.prototype.timeWrangle = function(that, resolution){
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
-  var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var yr = state.year;
   var zeroed_data;
   if(resolution == "getDay"){
