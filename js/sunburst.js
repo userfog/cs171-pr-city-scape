@@ -104,11 +104,12 @@ Sunburst.prototype.updateVis = function(){
 
     // Now redefine the value function to use the previously-computed sum.
     that.partition
-        .children(function(d, depth) { return depth < 2 ? d._children : null; })
+        .children(function(d, depth) { return depth < 4 ? d._children : null; })
         .value(function(d) { return d.size; });
 
     var center = that.svg.append("circle")
         .attr("r", that.radius / 3)
+        .style("fill", "#FFCC44")
         .on("click", zoomOut);
 
     center.append("title")
@@ -121,7 +122,7 @@ Sunburst.prototype.updateVis = function(){
         while(true){
           if(tr[i].key == target[level]){
             if(level == target.length-1){
-              root = [tr[i].values];
+              root = [tr[i]];
               break;
             } else {
               tr = tr[i].values;
@@ -152,11 +153,11 @@ Sunburst.prototype.updateVis = function(){
 
     function custonClick(p){
       function getFilters(p){
-        var s = p.key.split(".").map(function(d,i){return {"key":that.depth_to_field[i+1], "value":d}}).reverse();
+        var s = p.key.split(".");
         if(s.length == 4)
-          return s.slice(1,3);
+          return s.slice(1,4).map(function(d,i){return {"key":that.depth_to_field[i+1], "value":d};}).reverse();
         else
-          return s;
+          return s.map(function(d,i){return {"key":that.depth_to_field[(i+1)], "value":d};}).reverse();
       }
       state.set_crime(getFilters(p));
       $(that.eventHandler).trigger("selectionChanged", p.fill);
