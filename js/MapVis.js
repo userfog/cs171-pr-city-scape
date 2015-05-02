@@ -151,6 +151,7 @@ MapVis.prototype.initVis = function() {
     }).on("mouseout", function(){
 
       that.table("Total", that.demographicData);
+      that.income_table("Total", that.incomeData);
       d3.select(this).style("stroke-width", 0.1)
       
     });

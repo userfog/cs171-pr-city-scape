@@ -59,11 +59,9 @@ BarChartVis.prototype.initVis = function (){
 
     this.valueline = d3.svg.line()
     .x(function(d) { 
-      debugger; 
       return that.x(d.key); 
     })
     .y(function(d) { 
-      debugger;
       return that.y(that.avg); 
     }); 
 
@@ -97,10 +95,7 @@ BarChartVis.prototype.updateVis = function(){
 
     // updates scales
     this.x.domain(Object.keys(that.displayData));
-    this.y.domain(d3.extent(Object.keys(that.displayData).map(function(d){
-        return that.data[d].values.arrest_ratio;
-      })
-    ));
+    this.y.domain([0, 1]);
 
     // updates graph
     var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];

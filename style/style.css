@@ -2,7 +2,7 @@ table td {
     padding-left: 10px;
     padding-right:10px;
     padding-top: 5px;
-    text-align: right;
+    text-align: center;
 }
 
 table th {
@@ -56,6 +56,10 @@ table th {
   font-size: 9px;
   text-anchor: middle;
   text-transform: uppercase;
+}
+
+.sunChunk path:hover{
+  fill: aquamarine;
 }
 
 .communityareas-dropshadow {

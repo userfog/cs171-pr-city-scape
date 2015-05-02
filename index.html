@@ -107,10 +107,10 @@
         && state.time_filters[0] != undefined
         && state.time_filters[1] != undefined
         && this.time_filters[0].getTime() != this.time_filters[1].getTime()){
-        timeQ = "%20and%20date>%27{0}%27%20and%20date<%27{1}%27".format(getReadableDate(state.time_filters[0])
+        timeQ = "date>%27{0}%27%20and%20date<%27{1}%27".format(getReadableDate(state.time_filters[0])
           , getReadableDate(state.time_filters[1]));
       } else{
-        timeQ = "%20and%20date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year);
+        timeQ = "date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year);
       }
       if(this.crime_filters.length > 0){
         for(var i = 0; i < this.crime_filters.length; i++){
@@ -164,13 +164,15 @@
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
           NProgress.start();
+          $(MyEventHandler).trigger("loadingDone");
+          return;
           if(event_args != "Total"){
-            var str = "$select=date,arrest&$order=date%20ASC&$where=community_area=%27{0}%27%20{1}".format(event_args, state.genQuery());
+            var str = "$select=date,arrest&$order=date%20ASC&$where=community_area=%27{0}%27%20and%20{1}".format(event_args, state.genQuery());
             BarSocrataModel.get(str
               , BarSocrataModel.wrangleBarChartRequest
               , 0, 50000, true);
           } else{
-            BarSocrataModel.get("$select=date,arrest&$order=date ASC&$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year)
+            BarSocrataModel.get("$select=date,arrest&$order=date ASC%20&$where={0}".format(state.genQuery())
               , BarSocrataModel.wrangleBarChartRequest
               , 0, 50000, true);
           }
@@ -184,6 +186,7 @@
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
           var resolution = d3.select("#resolution").selectAll("select").property("value");
+          NProgress.start();
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
         })
 
@@ -192,7 +195,7 @@
         });
 
         $(MyEventHandler).bind("sunburstDataReady", function(event, event_args){
-          MySunburst.initData(event_args);
+          MySunburst.initData(event_args, MyMapVis.colorRange);
         });
 
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
@@ -210,6 +213,7 @@
         $(MyEventHandler).bind("timeChange", function(event, event_args){
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
+          NProgress.start();
           MySocrataModel.wrangleTimeChange(MySocrataModel);
         }); 
 

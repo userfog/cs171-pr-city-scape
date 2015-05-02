@@ -77,6 +77,14 @@ SocrataModel.prototype.filterTime = function(){
 }
 
 
+SocrataModel.prototype.timeOnlyFilter  = function (){
+  var indexes = this.filterTime();
+  if(indexes[0] == -1 || indexes[1] == -1)
+    return this.data;
+  return this.data.slice(indexes[0], indexes[1])
+}
+
+
 SocrataModel.prototype.getDisplayData = function(){
   var t0 = new Date().getTime();
   var indexes = this.filterTime();
@@ -136,7 +144,9 @@ SocrataModel.prototype.wrangleRequest = function (that){
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
+  NProgress.inc()
   $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  state.changed = false;
   
 }
 
@@ -146,41 +156,38 @@ SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution
   var timeArgs = that.timeWrangle(that, resolution);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeUpdate", [timeArgs]);
+  NProgress.inc()
+  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
   state.changed = false;
 }
 
 SocrataModel.prototype.wrangleTimeChange = function(that){
+
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
   var mapArgs = that.mapWrangle();
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  NProgress.inc()
+  // $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  NProgress.done()
   state.changed = false;
 }
 
 SocrataModel.prototype.sunburstWrangle = function(){
   var t0 = new Date().getTime();
   var that = this;
-
-  function convert_nested (o) {
-    if (typeof o.values == "number"){
-      return {"name": o.key,"size":o.values}
-    } else if (typeof o.values == "object") {
-      return {"name": o.key, "children": o.values.map(function(d, i){
-        return convert_nested(d);
-      })}
-    }
-  }
+  var sunburstDisp = that.timeOnlyFilter(that.data);
 
   var nested = d3.nest()
     .key(function(d){return d.primary_type;})
     .key(function(d){return d.description;})
     .key(function(d){return d.location_description;})
     .rollup(function(leaves){
-      return d3.sum(leaves, function(d){ return +d.count_primary_type; })
-    }).entries(that.displayData);
+      return {"size": d3.sum(leaves, function(d){ return +d.count_primary_type; })}
+    }).entries(sunburstDisp);
 
-  nested = convert_nested({"key": "sun_data", "values": nested});
+  nested = {"key": "Total", "values": nested};
   var t1 = new Date().getTime();
   console.log("sunburstWrangle: " + (t1-t0));
   return nested;

@@ -4,7 +4,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this._socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
   this.initialized = false;
-
+  this.prev_brush = [];
   // defines  tants
   this.margin = {top: 20, right: 0, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
@@ -61,7 +61,7 @@ Timeline.prototype.initVis = function() {
           return "Crime Count";
         });
 
-    this.svg.append("g")
+  this.svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + this.height/2 + ")")
 
@@ -78,16 +78,21 @@ Timeline.prototype.initVis = function() {
 
     this.brush = d3.svg.brush()
       .on("brush", function (d){
+
         var ex = that.brush.extent();
+
         if(ex[0] == "undefined" || ex[1] == "undefined")
           state.set_time([]);
         else
           state.set_time(ex);
-        $(that.eventHandler).trigger("timeChange")
-      }) 
+        $(that.eventHandler).trigger("timeChange"); 
+      })
 
-    this.svg.append("g")
+
+    var g =  this.svg.append("g")
         .attr("class", "brush")
+
+
 
     this.updateVis();
 };
