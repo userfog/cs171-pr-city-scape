@@ -1,3 +1,4 @@
+
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
 MapVis = function(_parentElement, _data, _demographicData, _income, _socrataModel, _eventHandler){
   this.parentElement = _parentElement;
@@ -49,8 +50,8 @@ this.depth_to_color = {
 ];
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
-  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 650 - this.margin.top - this.margin.bottom;
+  this.width = 50+getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+  this.height = 750 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
 
@@ -64,7 +65,7 @@ MapVis.prototype.initVis = function() {
   this.projection = d3.geo.albers()
     .rotate([87.73, 0])
     .center([0, 42.0433])
-    .scale(120000)
+    .scale(80000)
     .translate([this.width / 2, 0]);
 
   this.path = d3.geo.path()
