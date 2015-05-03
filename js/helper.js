@@ -103,7 +103,7 @@ function getId(d){
 }
 
 function getReadableDate(d){
-  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+  return moment(d).format("YYYY-MM-DD");
 }
 
 

@@ -216,12 +216,11 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
 SocrataModel.prototype.timeWrangle = function(that, resolution){
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
-  var df = d3.time.format.utc("%Y-%m-%dT%H:%M:%S");
   var yr = state.year;
   var zeroed_data;
   if(resolution == "getDay"){
     if(yr == 2004 || yr == 2008 || yr == 2012 || yr == 2016){
-      zeroed_data = new Array(367);
+      zeroed_data = new Array(367);chrom
     } else {
       zeroed_data = new Array(366);
     }
@@ -231,31 +230,19 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
     zeroed_data = new Array(1);
   }
 
-  function make_date(info){
-    if (resolution == "getDay"){
-      return new Date(info.getFullYear(), info.getMonth(), info.getDate());
-    }
-    else if (resolution == "getMonth"){
-      return new Date(info.getFullYear(), info.getMonth(), 1);
-    }
-    else {
-      return new Date(info.getFullYear(), 0, 1);
-    }
-  }
-
   function dateFromDay(year, day){
-    var date = new Date(year, 0);
-    return new Date(date.setDate(day));
-  }
+     var date = new Date(year, 0);
+     return new Date(date.setDate(day));
+   }
 
   for(var i = 0; i < zeroed_data.length; i++){
       zeroed_data[i] = {"date": dateFromDay(yr, i), "count": 0};
   }
 
   for(var i = 0; i < timeDisplayData.length; i++){
-    var info = df.parse(timeDisplayData[i].date);
-    var day = (resolution == "getDay") ? dayFromDate(yr, info) : info.getMonth()
-    zeroed_data[day].count++;
+    var info = moment(timeDisplayData[i].date);
+    var index = (resolution == "getDay") ? info.dayOfYear() : info.month();
+    zeroed_data[index].count += parseInt(timeDisplayData[i].count_primary_type);
   }
 
   var t1 = new Date().getTime();
