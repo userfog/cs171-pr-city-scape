@@ -59,11 +59,9 @@ BarChartVis.prototype.initVis = function (){
 
     this.valueline = d3.svg.line()
     .x(function(d) { 
-      debugger; 
       return that.x(d.key); 
     })
     .y(function(d) { 
-      debugger;
       return that.y(that.avg); 
     }); 
 
