@@ -2,26 +2,37 @@
 <html>
 <head>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-  <link href='http://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
-  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-  <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-  <script src="http://d3js.org/queue.v1.min.js"></script>
-  <script src="http://d3js.org/topojson.v1.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/d3.v3.min.js"></script>
   <script type="text/javascript" src="js/nprogress.min.js"></script>
   <script type="text/javascript" src="js/moment.js"></script>
   <script type="text/javascript" src="js/helper.js"></script>
-  <script src="js/SocrataModel.js"></script>
-  <script src="js/MapVis.js"></script>
-  <script src="js/sunburst.js"></script>
-  <script src="js/BarChartVis.js"></script>
-  <script src="js/timeline.js"></script>
+  <script type="text/javascript" src="js/topojson.v1.min.js"></script>
+  <script type="text/javascript" src="js/queue.v1.min.js"></script>
+  <script type="text/javascript" src="js/d3.tip.js"></script>
+  <script type="text/javascript" src="js/d3.legend.js"></script>
+  <script type="text/javascript" src="js/SocrataModel.js"></script>
+  <script type="text/javascript" src="js/MapVis.js"></script>
+  <script type="text/javascript" src="js/sunburst.js"></script>
+  <script type="text/javascript" src="js/BarChartVis.js"></script>
+  <script type="text/javascript" src="js/timeline.js"></script>
   <link rel="stylesheet" type="text/css" href="style/nprogress.css"/>
   <link rel="stylesheet" type="text/css" href="style/style.css"/>
 </head>
 <body>
-  <div id="year">
+  <div class = "title">
+  Visualizing Crime in Chicago: 2001-present 
+  </div>
+  <div class = "subtitle">
+  Zachary Fogelson & Alexander Jaffe, CS171
+  </div>
+  </br>
+  <div class="row">
+    <h2 class="text-center" id="currentSelection"></h2>
+  </div>
+    <div id="year">
     Year:
     <select>
       <option value="2015">2015</option>
@@ -42,10 +53,7 @@
     </select>
   </div>
   <div class="row">
-    <h2 class="text-center" id="currentSelection"></h2>
-  </div>
-  <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-5">
       <div id="sunburst">
       </div>
       <div id = "resolution">
@@ -59,7 +67,7 @@
       <div id="timeline">
       </div>
     </div>
-    <div class="col-md-7" id="rcorners">
+    <div class="col-md-7" >
       <div class="col-md-6" id="mapvis">
       </div>
       <div class="col-md-5" id="maphover">
@@ -83,6 +91,7 @@
 <script type="text/javascript">
 
   var state = {
+    "ready": false,
     "crime_filters" : [],
     "time_filters" : [],
     "year" : 2015,
@@ -162,23 +171,16 @@
         var currentSelection = d3.select("#currentSelection")
           .html(convertFiltersToTitle);
 
-        $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
+        $(MyEventHandler).bind("barChartInit", function(event, event_args){
           NProgress.start();
-          $(MyEventHandler).trigger("loadingDone");
-          return;
-          if(event_args != "Total"){
-            var str = "$select=date,arrest&$order=date%20ASC&$where=community_area=%27{0}%27%20and%20{1}".format(event_args, state.genQuery());
-            BarSocrataModel.get(str
+          state.community_area = "Total";
+          BarSocrataModel.get("$select=date,arrest,community_area&$order=date ASC%20&$where={0}".format(state.genQuery())
               , BarSocrataModel.wrangleBarChartRequest
               , 0, 50000, true);
-          } else{
-            BarSocrataModel.get("$select=date,arrest&$order=date ASC%20&$where={0}".format(state.genQuery())
-              , BarSocrataModel.wrangleBarChartRequest
-              , 0, 50000, true);
-          }
         })
 
         $(MyEventHandler).bind("loadingDone", function(){
+           state.ready = true 
            NProgress.done();
         });
        
@@ -198,8 +200,12 @@
           MySunburst.initData(event_args, MyMapVis.colorRange);
         });
 
+        $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
+          MyBarChart.updateDisplay(MyBarChart, event_args[0], event_args[1]);
+        });
+
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
-          MyBarChart.initData(event_args, MyMapVis.colorRange || "#FFCC44");
+          MyBarChart.initData(event_args, "Total", MyMapVis.colorRange || "#FFCC44");
         });
 
         $(MyEventHandler).bind("timeDataReady", function(event, event_args){
@@ -219,7 +225,7 @@
 
         function init(yr) {
           NProgress.start();
-          MySocrataModel.get("$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC".format(yr, yr)
+          MySocrataModel.getMain("$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC".format(yr, yr)
             , MySocrataModel.wrangleRequest
             , 0, 50000, true);
         }

@@ -1,3 +1,4 @@
+
 // view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
 MapVis = function(_parentElement, _data, _demographicData, _income, _socrataModel, _eventHandler){
   this.parentElement = _parentElement;
@@ -49,8 +50,8 @@ this.depth_to_color = {
 ];
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
-  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 900 - this.margin.top - this.margin.bottom;
+  this.width = 50+getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+  this.height = 750 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
 
@@ -64,7 +65,7 @@ MapVis.prototype.initVis = function() {
   this.projection = d3.geo.albers()
     .rotate([87.73, 0])
     .center([0, 42.0433])
-    .scale(120000)
+    .scale(80000)
     .translate([this.width / 2, 0]);
 
   this.path = d3.geo.path()
@@ -75,7 +76,7 @@ MapVis.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
   .append("g")
-    .attr("transform", "translate(-25,-30)");
+    .attr("transform", "translate(0,0)");
 
   var blocksById = {},
       blockGroups = topojson.feature(this.data, this.data.objects.blockGroups),
@@ -87,10 +88,7 @@ MapVis.prototype.initVis = function() {
     .attr("class", function(d){
       return "communityareas " + areasMap[d.properties.name.toLowerCase()];
     })
-    .attr("d", this.path)    
-    .on("click", function(d){
-        $(that.eventHandler).trigger("communityAreaChanged", [getId(d), that.colorRange]);
-    });
+    .attr("d", this.path);
 
   this.communityLabels = this.svg.selectAll(".communityareas-label")
       .data(communityAreas.features.filter(function(d) {
@@ -146,13 +144,16 @@ MapVis.prototype.initVis = function() {
         that.income_table(d.properties.name, table_income);
 
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
-
+        if(state.ready)
+          $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]]);
 
     }).on("mouseout", function(){
 
       that.table("Total", that.demographicData);
       that.income_table("Total", that.incomeData);
       d3.select(this).style("stroke-width", 0.1)
+      if(state.ready)
+        $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       
     });
 
@@ -294,11 +295,11 @@ MapVis.prototype.choropleth = function(mapping, color){
   });
 
   //Adding legend for our Choropleth
-  d3.selectAll(".legend").remove();
+  d3.selectAll("#myLegend").remove();
 
   var ls_w = 20, ls_h = 120;
   var legend = this.svg.append("g")
-    .classed("legend", true)
+    .attr("id", "myLegend")
     .attr("transform", "translate(" + 20 + "," + 0 + ")");
 
 

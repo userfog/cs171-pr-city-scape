@@ -7,9 +7,10 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
 
 
   // defines constants
-  this.margin = {top: 50, right: 50, bottom: 50, left: 50},
+  this.margin = {top: 10, right: 10, bottom: 10, left: 50},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 600 - this.margin.top - this.margin.bottom;
+  this.height = 300 - this.margin.top - this.margin.bottom;
+
 
   this.depth_to_field = {
     0: "none",
@@ -84,32 +85,32 @@ Sunburst.prototype.initVis = function() {
     }
 };
 
-// Sunburst.prototype.findRoot = function(){
-//   var that = this;
-//   var target = state.crime_filters.map(function(d){return d.value;}).reverse();
-//   var tr = that.partition.nodes(this.data);
-//   if(!(state.crime_filters == undefined || state.crime_filters.length == 0)){
-//       var level = 0;
-//       var i = 0;
-//       while(true){
-//         if(tr[i].key == target[level]){
-//           if(level == target.length-1){
-//             root = [tr[i]];
-//             break;
-//           } else {
-//             tr = tr[i].values;
-//             i = 0;
-//             level++;
-//           }
-//         } else {
-//           i++;
-//         } 
-//       }
-//   } else {
-//     root = tr;
-//   }
-//   return root;
-// }
+Sunburst.prototype.findRoot = function(){
+  var that = this;
+  var target = state.crime_filters.map(function(d){return d.value;}).reverse();
+  var tr = that.partition.nodes(this.data);
+  if(!(state.crime_filters == undefined || state.crime_filters.length == 0)){
+      var level = 0;
+      var i = 0;
+      while(true){
+        if(tr[i].key == target[level]){
+          if(level == target.length-1){
+            root = [tr[i]];
+            break;
+          } else {
+            tr = tr[i].values;
+            i = 0;
+            level++;
+          }
+        } else {
+          i++;
+        } 
+      }
+  } else {
+    root = tr;
+  }
+  return root;
+}
 
 Sunburst.prototype.updateVis = function(){
    // Compute the initial layout on the entire tree to sum sizes.

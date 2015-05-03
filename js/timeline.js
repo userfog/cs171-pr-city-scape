@@ -8,7 +8,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   // defines  tants
   this.margin = {top: 20, right: 0, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
-  this.height = 600 - this.margin.top - this.margin.bottom;
+  this.height = 350 - this.margin.top - this.margin.bottom;
 
 }
 

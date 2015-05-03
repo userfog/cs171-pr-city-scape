@@ -136,6 +136,15 @@ function dayFromDate(year, day){
   return Math.floor(diff / oneDay);
 }
 
+function safe_callback(callback, args){
+    if(callback){
+      callback(args);
+    }else{
+      console.log(args);
+    }
+}
+
+
 function binarySearch(arr, el, compare_fn){
   var m = 0;
   var n = arr.length - 1;
