@@ -50,7 +50,7 @@ this.depth_to_color = {
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 900 - this.margin.top - this.margin.bottom;
+  this.height = 650 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
 
@@ -75,7 +75,7 @@ MapVis.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
   .append("g")
-    .attr("transform", "translate(-25,-30)");
+    .attr("transform", "translate(0,0)");
 
   var blocksById = {},
       blockGroups = topojson.feature(this.data, this.data.objects.blockGroups),
