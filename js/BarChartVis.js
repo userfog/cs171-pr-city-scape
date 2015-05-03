@@ -96,7 +96,7 @@ BarChartVis.prototype.updateVis = function(){
     this.svg.call(tip);
 
     // updates scales
-    this.x.domain(Object.keys(that.displayData));
+    this.x.domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
     this.y.domain(d3.extent(Object.keys(that.displayData).map(function(d){
         return that.data[d].values.arrest_ratio;
       })
@@ -104,7 +104,7 @@ BarChartVis.prototype.updateVis = function(){
 
     // updates graph
     var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-    that.xAxis.ticks(d3.time.months, that.displayData.length-1);
+    that.xAxis.ticks(d3.time.months, 12);
 
     this.svg.select(".x")
           .call(that.xAxis);
@@ -140,7 +140,7 @@ BarChartVis.prototype.updateVis = function(){
 
     bar.selectAll("rect")
       .attr("x", function(d){
-        return that.x(d.key); })
+        return that.x(parseInt(d.key));})
       .attr("y", function(d) { 
         return that.y(d.values.arrest_ratio); })
       .attr("height", function(d,i){
@@ -150,11 +150,9 @@ BarChartVis.prototype.updateVis = function(){
       .attr("width", that.x.rangeBand());
 
     // Add attributes (position) to all bars
-    bar
-      .attr("class", function(d){
+    bar.attr("class", function(d){
         return "bar ";
-      })
-      .transition();
+    }).transition();
 
     // Add the valueline path.
     that.svg.append("path")

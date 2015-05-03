@@ -13,9 +13,8 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.displayData = null;
 }
 
-SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
-    // NProgress.configure({ parent: "" })
 
+SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     var that = this;
     if(clear)
       that.data = [];
@@ -27,11 +26,7 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
       function(data, status) {
         that.data.push.apply(that.data, data);
         if(data.length < limit){
-            if(callback){
-              callback(that);
-            }else{
-              console.log(data);
-            }
+          safe_callback(callback, that);
         } else{
           that.get(str, callback, offset+limit, limit, false);
         }
@@ -39,6 +34,24 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     ).fail(function() {
       console.log("Something went wrong!");
     });
+}
+
+
+SocrataModel.prototype.getMain = function (str, callback, offset, limit, clear){
+    var that = this;
+    if(clear)
+      that.data = [];
+
+    if(state.year < 2015){
+      queue().defer(d3.json, "data/socrata_{0}.json".format(state.year))
+        .await(ready);
+      function ready(error, data){
+        that.data = data;
+        safe_callback(callback, that);
+      }
+    } else {
+      this.get(str, callback, offset, limit, clear);
+    }
 }
 
 SocrataModel.prototype.filterQuery = function(){
