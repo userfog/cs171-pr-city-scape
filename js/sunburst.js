@@ -84,17 +84,44 @@ Sunburst.prototype.initVis = function() {
     }
 };
 
+// Sunburst.prototype.findRoot = function(){
+//   var that = this;
+//   var target = state.crime_filters.map(function(d){return d.value;}).reverse();
+//   var tr = that.partition.nodes(this.data);
+//   if(!(state.crime_filters == undefined || state.crime_filters.length == 0)){
+//       var level = 0;
+//       var i = 0;
+//       while(true){
+//         if(tr[i].key == target[level]){
+//           if(level == target.length-1){
+//             root = [tr[i]];
+//             break;
+//           } else {
+//             tr = tr[i].values;
+//             i = 0;
+//             level++;
+//           }
+//         } else {
+//           i++;
+//         } 
+//       }
+//   } else {
+//     root = tr;
+//   }
+//   return root;
+// }
+
 Sunburst.prototype.updateVis = function(){
    // Compute the initial layout on the entire tree to sum sizes.
     // Also compute the full name and fill color for each node,
     // and stash the children so they can be restored as we descend.
     var that = this;
-    var target = state.crime_filters.map(function(d){return d.value;}).reverse();
-    var root = that.data;
+
+    this.svg.selectAll("*").remove();
 
     that.partition
         .value(function(d) { return d.values.size; })
-        .nodes(root)
+        .nodes(that.data)
         .forEach(function(d) {
           d._children = d.values;
           d.size = d.value;
@@ -115,33 +142,15 @@ Sunburst.prototype.updateVis = function(){
     center.append("title")
         .text("zoom out");
 
-    var tr = that.partition.nodes(root);
-    if(!(state.crime_filters == undefined || state.crime_filters.length == 0)){
-        var level = 0;
-        var i = 0;
-        while(true){
-          if(tr[i].key == target[level]){
-            if(level == target.length-1){
-              root = [tr[i]];
-              break;
-            } else {
-              tr = tr[i].values;
-              i = 0;
-              level++;
-            }
-          } else {
-            i++;
-          } 
-        }
-    } else {
-      root = tr;
-    }
+    var r = that.findRoot();
 
     var path = that.svg.selectAll("path")
-        .data(root.slice(1))
-      .enter().append("path")
-        .classed("sunChunk", true)
-        .attr("d", that.arc)
+        .data(r.slice(1));
+    path.exit().remove();
+    path.enter().append("path")
+        .classed("sunChunk", true);
+
+    path.attr("d", that.arc)
         .style("fill", function(d) { 
           return d.fill; })
         .each(function(d) { 
@@ -153,14 +162,20 @@ Sunburst.prototype.updateVis = function(){
 
     function custonClick(p){
       function getFilters(p){
-        var s = p.key.split(".");
-        if(s.length == 4)
-          return s.slice(1,4).map(function(d,i){return {"key":that.depth_to_field[i+1], "value":d};}).reverse();
-        else
-          return s.map(function(d,i){return {"key":that.depth_to_field[(i+1)], "value":d};}).reverse();
+        if(p != undefined){
+              var s = p.key.split(".");
+              if(s.length == 4)
+                return s.slice(1,4).map(function(d,i){return {"key":that.depth_to_field[i+1], "value":d};}).reverse();
+              else
+                return s.map(function(d,i){return {"key":that.depth_to_field[(i+1)], "value":d};}).reverse();
+        } else {
+          return state.crime_filters.slice(1,4)
+        }
       }
+      
       state.set_crime(getFilters(p));
-      $(that.eventHandler).trigger("selectionChanged", p.fill);
+      var color = (p) ? p.fill : "black"
+      $(that.eventHandler).trigger("selectionChanged", color);
     }
 
     function zoomIn(p) {
@@ -171,6 +186,13 @@ Sunburst.prototype.updateVis = function(){
     }
 
     function zoomOut(p) {
+      if(p == undefined){
+        custonClick()
+        var r = that.findRoot();
+        zoom(r[0], r[0].values[1]);
+        // that.updateVis();
+        return;
+      }
       if (!p.parent) return;
       zoom(p.parent, p);
       custonClick(p.parent);
