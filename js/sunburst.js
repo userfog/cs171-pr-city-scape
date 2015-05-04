@@ -17,16 +17,27 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
     3: "location_description"
   };
 
+  this.radius = Math.min(this.width/1.1, this.height/1.1) / 2;
+  //http://bl.ocks.org/Caged/6476579
+  this.tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([0,0])
+    .html(function(d) {
+      var txt = d.key.split(".");
+      return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(d.key, d.value);
+    });
 }
 
 Sunburst.prototype.initData = function (_data){
   this.data = _data;
+
   this.initVis();
+
 }
 
 Sunburst.prototype.initVis = function() {
   var that = this;
-  var sunburst_colors = d3.scale.category20().domain(that.data.children.map(function(d){return d.name}).sort());
+
 
   var getDepth = function (d, height) {
       var top = d;
@@ -38,7 +49,7 @@ Sunburst.prototype.initVis = function() {
 
   var getColor = function (d){
     var top = getDepth(d, 1);
-    return (top.name != "sun_data") ? sunburst_colors(top.name) : "#FFCC44";
+    return (top.key != "Total") ? that.sunburst_colors(top.key) : "#FFCC44";
   }
 
   this.parentElement.selectAll("*").remove();
@@ -49,29 +60,18 @@ Sunburst.prototype.initVis = function() {
     .append("g")
     .attr("transform", "translate(225,130)");
 
-  //http://bl.ocks.org/Caged/6476579
-  var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([0,0])
-  .html(function(d) {
-    return d.name + ": " + d.value;
-  })
+  this.svg.call(this.tip);
 
-  this.svg.call(tip);
-
-  radius = Math.min(this.width/1.1, this.height/1.1) / 2;
 
   this.x = d3.scale.linear()
       .range([0, 2 * Math.PI]);
 
   this.y = d3.scale.sqrt()
-      .range([0, radius]);
-
-  //this.color = d3.scale.category20c();
-  this.color = ["#2D2DFB", "#329732", "#FC3333", "#932B93"];
+      .range([0, that.radius]);
 
   this.partition = d3.layout.partition()
-      .value(function(d) { return d.size; });
+      .value(function(d) { return d.values.size; })
+      .children(function(d){return d.values;})
 
   this.arc = d3.svg.arc()
       .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x))); })
@@ -83,16 +83,29 @@ Sunburst.prototype.initVis = function() {
           return Math.max(0, that.y(d.y + d.dy)); 
       });
 
+  var par = that.partition.nodes(this.data)
+
+  if(!this.sunburst_colors){
+      var tmp = par[0].values.sort(function(a,b){a.value - b.value});
+      this.sunburst_colors = d3.scale.category20().domain(tmp.map(function(d){return d.key}));
+  }
+
   this.path = that.svg.selectAll("path")
-      .data(that.partition.nodes(this.data))
+      .data(par)
       .enter().append("path")
       .attr("class", "sun-path")
       .attr("d", that.arc)
       .style("stroke", "#eee")
       .style("stroke-width", ".5")
       .on("click", click)
-      .on("mouseover", tip.show)
-      .on("mouseout", tip.hide)
+      .on("mouseover", function(d){
+        d3.select(this).style("fill", "aquamarine")
+        that.tip.show(d)
+      })
+      .on("mouseout", function(d){
+        d3.select(this).style("fill", getColor(d))
+        that.tip.hide(d)
+      })
 
 
     this.path.style("fill", getColor);
@@ -102,7 +115,7 @@ Sunburst.prototype.initVis = function() {
         if(d.depth == 0){
           return prev;
         } else {
-          prev.push({"key":that.depth_to_field[d.depth], "value":d.name});
+          prev.push({"key":that.depth_to_field[d.depth], "value":d.key});
           return getFilters(d.parent, prev);
         }
       }
@@ -122,7 +135,7 @@ Sunburst.prototype.arcTween = function(d) {
   that = this;
   var xd = d3.interpolate(that.x.domain(), [d.x, d.x + d.dx]),
   yd = d3.interpolate(that.y.domain(), [d.y, 1]),
-  yr = d3.interpolate(that.y.range(), [d.y ? 20 : 0, radius]);
+  yr = d3.interpolate(that.y.range(), [d.y ? 20 : 0, that.radius]);
   return function(d, i) {
     return i
         ? function(t) { return that.arc(d); }

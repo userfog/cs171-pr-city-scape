@@ -4,18 +4,60 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.eventHandler = _eventHandler;
     this.displayData = [];
     // defines constants
-    this.margin = {top: 20, right: 50, bottom: 30, left: 50},
+    this.margin = {top: 25, right: 20, bottom: 30, left: 30},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-    this.height = 400 - this.margin.top - this.margin.bottom;
+    this.height = 200- this.margin.top - this.margin.bottom;
 }
 
-BarChartVis.prototype.initData = function (_data, color){
-  delete _data["undefined"];
-  this.data = _data;
-  this.displayData = this.data;
-  this.color = color;
-  this.initVis();
+
+BarChartVis.prototype.setDisplayData = function(that, community_area){
+  if(that.community_area == "Total"){
+    that.displayData = that.data.map(function(d){
+      return {"key": d.key, "values": {"arrest_ratio": d3.mean(d.values, function(d){
+        return d.values.arrest_ratio;
+      })}}
+    })
+  } else {
+    that.displayData = that.data.map(function(d){
+      var cm = community_area
+      var vs = (d.values[cm]) ? d.values[cm].values.arrest_ratio : 0;
+      return {"key": d.key, "values": {"arrest_ratio": vs }}
+    })
+  }
 }
+
+BarChartVis.prototype.initData = function (_data, community_area, color){
+  delete _data["undefined"];
+
+  this.data = _data;
+
+  this.color = color;
+  this.community_area = community_area;
+
+  this.setDisplayData(this,community_area);
+
+  this.grandAvg = d3.mean(this.data, function(d){
+      return d3.mean(d.values, function(d){
+        return d.values.arrest_ratio;
+      });
+    })
+
+  this.localAvg = d3.mean(this.displayData, function(d){
+    return d.values.arrest_ratio;
+  })
+
+  // // 
+  // that.displayData = that.data.filter(function(d){return d.values.arrest_ratio != -1});
+ this.initVis();
+}
+
+BarChartVis.prototype.updateDisplay = function(that, community_area, color){
+  this.color = color;
+  this.community_area = community_area;
+  that.setDisplayData(that, community_area);
+  that.updateVis();
+}
+
 
 BarChartVis.prototype.initVis = function (){
     this.parentElement.selectAll("*").remove();
@@ -34,6 +76,10 @@ BarChartVis.prototype.initVis = function (){
     this.x = d3.scale.ordinal()
       .rangeRoundBands([0, this.width], .5);
 
+    // updates scales
+    this.x.domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    this.y.domain([0, 1]); 
+
     this.xAxis = d3.svg.axis()
       .scale(this.x)
       .orient("bottom");
@@ -41,6 +87,14 @@ BarChartVis.prototype.initVis = function (){
     this.yAxis = d3.svg.axis()
       .scale(this.y)
       .orient("left");
+
+    this.svg.append("text")
+        .attr("x", (that.width / 2))             
+        .attr("y", 0 - (that.margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Arrest % vs Months");
 
     // updates axis
     this.svg.append("g")
@@ -57,13 +111,27 @@ BarChartVis.prototype.initVis = function (){
       .attr("x", -200)
       .attr("dy", ".71em")
 
-    this.valueline = d3.svg.line()
+    this.localAvgLine = d3.svg.line()
+    .interpolate("basis")
     .x(function(d) { 
-      return that.x(d.key); 
-    })
-    .y(function(d) { 
-      return that.y(that.avg); 
+      return that.x(d); 
+    });
+
+    this.grandAvgLine = d3.svg.line()
+    .interpolate("basis")
+    .x(function(d) { 
+      return that.x(d); 
+    }).y(function(d) { 
+      return that.y(that.grandAvg); 
     }); 
+
+    this.tip = d3.tip()
+      .attr('class', 'd3-tip')
+      .offset([-10, 0])
+      .html(function(d) {
+        var formatPercent = d3.format(".2%");
+        return "<strong>Arrest Percentage:</strong> <span style='color:red'>" + formatPercent(+d.values.arrest_ratio) + "</span>";
+      });
 
     // call the update method
     this.updateVis();
@@ -74,35 +142,26 @@ BarChartVis.prototype.initVis = function (){
  * the drawing function - should use the D3 selection, enter, exit
  */
 BarChartVis.prototype.updateVis = function(){
+    d3.select("#barVis").selectAll(".legend").remove()
+    d3.select("#barVis").selectAll("rect").remove()
+    d3.select("#barVis").selectAll(".line").remove()
 
     var that = this;
 
-    that.displayData = that.data.filter(function(d){return d.values.arrest_ratio != -1});
+    this.svg.call(that.tip);
 
     that.avg = d3.mean(that.displayData, function(d){
-      return d.values.arrest_ratio;
-    });
+      return d.values.arrest_ratio
+    })
 
-    var tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .offset([-10, 0])
-    .html(function(d) {
-      var formatPercent = d3.format(".2%");
-      return "<strong>Arrest Percentage:</strong> <span style='color:red'>" + formatPercent(+d.values.arrest_ratio) + "</span>";
-    });
+    that.localAvgLine.y(function(d) { 
+      return that.y(that.avg); 
+    }); 
 
-    this.svg.call(tip);
-
-    // updates scales
-    this.x.domain(Object.keys(that.displayData));
-    this.y.domain(d3.extent(Object.keys(that.displayData).map(function(d){
-        return that.data[d].values.arrest_ratio;
-      })
-    ));
 
     // updates graph
     var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
-    that.xAxis.ticks(d3.time.months, that.displayData.length-1);
+    that.xAxis.ticks(d3.time.months, 12);
 
     this.svg.select(".x")
           .call(that.xAxis);
@@ -118,46 +177,56 @@ BarChartVis.prototype.updateVis = function(){
     .attr("transform", "rotate(-75)")
     .attr("y", -3)
     .attr("x", -10)
-    // Data join
-    var bar = this.svg.selectAll(".bar")
-      .data(this.displayData);
 
-    // Append new bar groups, if required
-    var bar_enter = bar.enter().append("g");
+    var bar = this.svg.selectAll("rect")
+        .data(this.displayData)
 
-    // Append a rect and a text only for the Enter set (new g)
-    bar_enter.append("rect")
-    .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
+    bar.exit().remove();
 
-    // Remove the extra bars
-    bar.exit()
-      .remove();
-
-    // Update all inner rects and texts (both update and enter sets)
-
-    bar.selectAll("rect")
+    bar.enter()
+    .append("rect")
+      .attr("class", "bar")
       .attr("x", function(d){
-        return that.x(d.key); })
+        return that.x(parseInt(d.key));})
       .attr("y", function(d) { 
         return that.y(d.values.arrest_ratio); })
       .attr("height", function(d,i){
         return that.height - that.y(d.values.arrest_ratio);})
       .style("fill", this.color)
       .transition()
-      .attr("width", that.x.rangeBand());
+      .attr("width", that.x.rangeBand())
 
-    // Add attributes (position) to all bars
-    bar
-      .attr("class", function(d){
-        return "bar ";
-      })
-      .transition();
+    bar.on('mouseover', that.tip.show)
+      .on('mouseout', that.tip.hide);
 
-    // Add the valueline path.
-    that.svg.append("path")
-        .attr("class", "avg_line")
-        .attr("d", that.valueline(that.displayData));
+  this.svg.append("path")
+      .datum(d3.range(12))
+      .attr("d", that.localAvgLine)
+      .attr("class", "line")
+      .attr("data-legend", function(){return "Local Avg: " + (that.avg*100).toFixed("2")})
+      .attr("data-legend-icon", function(){return "line"})
+      .style("stroke", "red")
+      .style("stroke-width", 1.5)
+      
+
+  this.svg.append("path")
+      .datum(d3.range(12))
+      .attr("d", that.grandAvgLine)
+      .attr("class", "line")
+      .attr("data-legend", function(){return "Global Avg: " + (that.grandAvg*100).toFixed("2")})
+      .attr("data-legend-icon", function(){return "line"})
+      .style("stroke", "black")
+      .style("stroke-width", 1.5)
+      
+
+  d3.selectAll("#barLeg").remove();
+  legend = this.svg.append("g")
+    .attr("class","legend")
+    .attr("transform","translate(50,30)")
+    .style("font-size","12px")
+    .call(d3.legend)
+
+
 }
 
 

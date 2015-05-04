@@ -24,7 +24,7 @@ var areasMap = {
 "humboldt park": 23,
 "west town": 24,
 "austin": 25,
-"west garfield park": 26,
+"garfield park": 26,
 "east garfield park": 27,
 "near west side": 28,
 "north lawndale": 29,
@@ -135,6 +135,15 @@ function dayFromDate(year, day){
   var oneDay = 1000 * 60 * 60 * 24;
   return Math.floor(diff / oneDay);
 }
+
+function safe_callback(callback, args){
+    if(callback){
+      callback(args);
+    }else{
+      console.log(args);
+    }
+}
+
 
 function binarySearch(arr, el, compare_fn){
   var m = 0;

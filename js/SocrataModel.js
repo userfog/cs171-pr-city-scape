@@ -13,9 +13,8 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.displayData = null;
 }
 
-SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
-    // NProgress.configure({ parent: "" })
 
+SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     var that = this;
     if(clear)
       that.data = [];
@@ -26,12 +25,9 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
         that.data.push.apply(that.data, data);
+        state.length = state.length + data.length  || data.length
         if(data.length < limit){
-            if(callback){
-              callback(that);
-            }else{
-              console.log(data);
-            }
+          safe_callback(callback, that);
         } else{
           that.get(str, callback, offset+limit, limit, false);
         }
@@ -39,6 +35,24 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     ).fail(function() {
       console.log("Something went wrong!");
     });
+}
+
+
+SocrataModel.prototype.getMain = function (str, callback, offset, limit, clear){
+    var that = this;
+    if(clear)
+      that.data = [];
+
+    if(state.year < 2015){
+      queue().defer(d3.json, "data/socrata_{0}.json".format(state.year))
+        .await(ready);
+      function ready(error, data){
+        that.data = data;
+        safe_callback(callback, that);
+      }
+    } else {
+      this.get(str, callback, offset, limit, clear);
+    }
 }
 
 SocrataModel.prototype.filterQuery = function(){
@@ -74,6 +88,14 @@ SocrataModel.prototype.filterTime = function(){
   var start_index = binarySearch(this.data, filters[0], compare_function);
   var end_index = binarySearch(this.data, filters[1], compare_function);
   return [start_index, end_index];
+}
+
+
+SocrataModel.prototype.timeOnlyFilter  = function (){
+  var indexes = this.filterTime();
+  if(indexes[0] == -1 || indexes[1] == -1)
+    return this.data;
+  return this.data.slice(indexes[0], indexes[1])
 }
 
 
@@ -132,11 +154,13 @@ SocrataModel.prototype.wrangleRequest = function (that){
   var sunArgs = that.sunburstWrangle();
   var mapArgs = that.mapWrangle("#FFCC44");
   var timeArgs = that.timeWrangle(that, "getDay");
-
+  $(that.eventHandler).trigger("overtimeReady", [])
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
-  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  NProgress.inc()
+  $(that.eventHandler).trigger("barChartInit", ["Total"])
+  state.changed = false;
   
 }
 
@@ -146,41 +170,39 @@ SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution
   var timeArgs = that.timeWrangle(that, resolution);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeUpdate", [timeArgs]);
+  NProgress.inc()
+  // $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  $(that.eventHandler).trigger("barChartInit", ["Total"])
   state.changed = false;
 }
 
 SocrataModel.prototype.wrangleTimeChange = function(that){
+
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
   var mapArgs = that.mapWrangle();
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  NProgress.inc()
+  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  NProgress.done()
   state.changed = false;
 }
 
 SocrataModel.prototype.sunburstWrangle = function(){
   var t0 = new Date().getTime();
   var that = this;
-
-  function convert_nested (o) {
-    if (typeof o.values == "number"){
-      return {"name": o.key,"size":o.values}
-    } else if (typeof o.values == "object") {
-      return {"name": o.key, "children": o.values.map(function(d, i){
-        return convert_nested(d);
-      })}
-    }
-  }
+  var sunburstDisp = that.timeOnlyFilter(that.data);
 
   var nested = d3.nest()
     .key(function(d){return d.primary_type;})
     .key(function(d){return d.description;})
     .key(function(d){return d.location_description;})
     .rollup(function(leaves){
-      return d3.sum(leaves, function(d){ return +d.count_primary_type; })
-    }).entries(that.displayData);
+      return {"size": d3.sum(leaves, function(d){ return +d.count_primary_type; })}
+    }).entries(sunburstDisp);
 
-  nested = convert_nested({"key": "sun_data", "values": nested});
+  nested = {"key": "Total", "values": nested};
   var t1 = new Date().getTime();
   console.log("sunburstWrangle: " + (t1-t0));
   return nested;
@@ -201,9 +223,11 @@ SocrataModel.prototype.mapWrangle = function(color){
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, resolution){
-  return d3.nest()
+  var nested = d3.nest()
         .key(function(d){
             return moment(d.date).month();})
+        .key(function(d){
+            return d.community_area;})
         .rollup(function(leaves){
           if(leaves)
             return {"arrest_ratio" : d3.sum(leaves, function(d){return (d.arrest) ? 1 : 0}) / leaves.length};
@@ -211,6 +235,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
             return {"arrest_ratio": -1};
         })
         .entries(that.data);
+  return nested;
 }
 
 SocrataModel.prototype.timeWrangle = function(that, resolution){

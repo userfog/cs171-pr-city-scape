@@ -12,11 +12,13 @@
   <script type="text/javascript" src="js/topojson.v1.min.js"></script>
   <script type="text/javascript" src="js/queue.v1.min.js"></script>
   <script type="text/javascript" src="js/d3.tip.js"></script>
+  <script type="text/javascript" src="js/d3.legend.js"></script>
   <script type="text/javascript" src="js/SocrataModel.js"></script>
   <script type="text/javascript" src="js/MapVis.js"></script>
   <script type="text/javascript" src="js/sunburst.js"></script>
   <script type="text/javascript" src="js/BarChartVis.js"></script>
   <script type="text/javascript" src="js/timeline.js"></script>
+  <script type="text/javascript" src="js/OvertimeVis.js"></script>
   <link rel="stylesheet" type="text/css" href="style/nprogress.css"/>
   <link rel="stylesheet" type="text/css" href="style/style.css"/>
 </head>
@@ -30,8 +32,12 @@
   </br>
   <div class="row">
     <h3 class="text-center" id="currentSelection"></h3>
+    <div id="overtime" class="col-md-12">
+    </div>
   </div>
-    <div id="year">
+  </br>
+  <h2 class="text-center" id="currentSelection"></h2>
+  <div id="year">
     Year:
     <select>
       <option value="2015">2015</option>
@@ -52,7 +58,7 @@
     </select>
   </div>
   <div class="row">
-    <div class="col-md-5">
+    <div class="col-md-4">
       <div id="sunburst">
       </div>
       <div id = "resolution">
@@ -66,23 +72,26 @@
       <div id="timeline">
       </div>
     </div>
-    <div class="col-md-7" >
-      <div class="col-md-6" id="mapvis">
-      </div>
-      <div class="col-md-5" id="maphover">
-        <div class="row">
-          <div class="col-md-6" id="tableDemographics">
-          </div>
-          <div class="col-md-4" id="tableIncome">
-          </div>
-        </div>
-      <p id="quantity" class="row"></p>
-      </div>
+    <div class="col-md-8" >
       <div class="row">
-        <div class="col-md-6" id="barVis">
-        </div>
-        <div class="col-md-6" id="barLegend">
-          <p>Legend</p>
+        <span class="pull-left">
+          <div class="col-md-6" id="mapvis">
+          </div>
+        </span>
+        <div class="col-md-4" id="maphover">
+          <div class="row">
+            <span class="pull-left">
+              <div class="col-md-4" id="tableDemographics">
+              </div>
+            </span>
+            <div class="col-md-2" id="tableIncome">
+            </div>
+          </div>
+          <div class="row">
+            <p id="quantity" class="row"></p>
+            <div id="barVis">
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -90,6 +99,7 @@
 <script type="text/javascript">
 
   var state = {
+    "ready": false,
     "crime_filters" : [],
     "time_filters" : [],
     "year" : 2015,
@@ -114,10 +124,10 @@
         && state.time_filters[0] != undefined
         && state.time_filters[1] != undefined
         && this.time_filters[0].getTime() != this.time_filters[1].getTime()){
-        timeQ = "%20and%20date>%27{0}%27%20and%20date<%27{1}%27".format(getReadableDate(state.time_filters[0])
+        timeQ = "date>%27{0}%27%20and%20date<%27{1}%27".format(getReadableDate(state.time_filters[0])
           , getReadableDate(state.time_filters[1]));
       } else{
-        timeQ = "%20and%20date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year);
+        timeQ = "date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year);
       }
       if(this.crime_filters.length > 0){
         for(var i = 0; i < this.crime_filters.length; i++){
@@ -137,11 +147,13 @@
   queue().defer(d3.json, "map/chicago.json")
         .defer(d3.json, "data/2000_2010.json")
         .defer(d3.json, "data/income_2006_2010.json")
+        .defer(d3.json, "data/overtime.json")
         .await(ready);
 
-  function ready(error, chicago, _2000_2010, _income){
+  function ready(error, chicago, _2000_2010, _income, overtime){
 
         var MyEventHandler = new Object();
+        var MySilencer  = new Object();
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
 
@@ -154,6 +166,8 @@
         var MyBarChart = new BarChartVis(d3.select("#barVis"), MyEventHandler)
 
         var MyTimeline = new Timeline(d3.select("#timeline"), MyEventHandler)
+
+        var MyOvertime = new OvertimeVis(d3.select("#overtime"), MySilencer)
 
         var res = d3.select("#resolution").select("select").on("change", function(){
           var timeArgs = MySocrataModel.timeWrangle(MySocrataModel, this.value);
@@ -169,21 +183,16 @@
         var currentSelection = d3.select("#currentSelection")
           .html(convertFiltersToTitle);
 
-        $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
+        $(MyEventHandler).bind("barChartInit", function(event, event_args){
           NProgress.start();
-          if(event_args != "Total"){
-            var str = "$select=date,arrest&$order=date%20ASC&$where=community_area=%27{0}%27%20{1}".format(event_args, state.genQuery());
-            BarSocrataModel.get(str
+          state.community_area = "Total";
+          BarSocrataModel.get("$select=date,arrest,community_area&$order=date ASC%20&$where={0}".format(state.genQuery())
               , BarSocrataModel.wrangleBarChartRequest
               , 0, 50000, true);
-          } else{
-            BarSocrataModel.get("$select=date,arrest&$order=date ASC&$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27".format(state.year, state.year)
-              , BarSocrataModel.wrangleBarChartRequest
-              , 0, 50000, true);
-          }
         })
 
         $(MyEventHandler).bind("loadingDone", function(){
+           state.ready = true 
            NProgress.done();
         });
        
@@ -191,7 +200,16 @@
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
           var resolution = d3.select("#resolution").selectAll("select").property("value");
+          NProgress.start();
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
+          state.ready = false;
+          
+        })
+
+        $(MyEventHandler).bind("overtimeReady", function(event, event_args){
+          if(state.year == moment().year)
+            overtime.push({"date": 2015, "count":state.length})
+          MyOvertime.initData(overtime)
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
@@ -202,8 +220,12 @@
           MySunburst.initData(event_args);
         });
 
+        $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
+          MyBarChart.updateDisplay(MyBarChart, event_args[0], event_args[1]);
+        });
+
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
-          MyBarChart.initData(event_args, MyMapVis.colorRange || "#FFCC44");
+          MyBarChart.initData(event_args, "Total", MyMapVis.colorRange || "#FFCC44");
         });
 
         $(MyEventHandler).bind("timeDataReady", function(event, event_args){
@@ -217,12 +239,13 @@
         $(MyEventHandler).bind("timeChange", function(event, event_args){
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
+          NProgress.start();
           MySocrataModel.wrangleTimeChange(MySocrataModel);
         }); 
 
         function init(yr) {
           NProgress.start();
-          MySocrataModel.get("$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC".format(yr, yr)
+          MySocrataModel.getMain("$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC".format(yr, yr)
             , MySocrataModel.wrangleRequest
             , 0, 50000, true);
         }

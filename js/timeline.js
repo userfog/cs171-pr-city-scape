@@ -4,9 +4,9 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this._socrataModel = _socrataModel;
   this.eventHandler = _eventHandler;
   this.initialized = false;
-
+  this.prev_brush = [];
   // defines  tants
-  this.margin = {top: 20, right: 0, bottom: 5, left: 0},
+  this.margin = {top: 25, right: 50, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
   this.height = 350 - this.margin.top - this.margin.bottom;
 
@@ -48,6 +48,14 @@ Timeline.prototype.initVis = function() {
       .scale(this.x)
       
 
+    this.svg.append("text")
+        .attr("x", (that.width / 2))             
+        .attr("y", (that.margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Crime In {0} vs Time".format(state.year));
+
     // Add axes visual elements
     this.svg.append("g")
         .attr("class", "y axis")
@@ -61,7 +69,7 @@ Timeline.prototype.initVis = function() {
           return "Crime Count";
         });
 
-    this.svg.append("g")
+  this.svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + this.height/2 + ")")
 
@@ -78,16 +86,21 @@ Timeline.prototype.initVis = function() {
 
     this.brush = d3.svg.brush()
       .on("brush", function (d){
+
         var ex = that.brush.extent();
+
         if(ex[0] == "undefined" || ex[1] == "undefined")
           state.set_time([]);
         else
           state.set_time(ex);
-        $(that.eventHandler).trigger("timeChange")
-      }) 
+        $(that.eventHandler).trigger("timeChange"); 
+      })
 
-    this.svg.append("g")
+
+    var g =  this.svg.append("g")
         .attr("class", "brush")
+
+
 
     this.updateVis();
 };
@@ -142,7 +155,7 @@ Timeline.prototype.updateVis = function() {
     return String(d.date).slice(0,16) + ": " + d.count;
   })
 
-    this.svg.call(tip);
+  this.svg.call(tip);
   /* // updates graph
   var path = this.svg.selectAll(".area")
       .data([that.data])

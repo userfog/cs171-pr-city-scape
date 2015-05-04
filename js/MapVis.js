@@ -50,7 +50,7 @@ this.depth_to_color = {
 ];
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
-  this.width = 50+getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+  this.width = 500 - this.margin.left - this.margin.right,
   this.height = 750 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
@@ -88,10 +88,7 @@ MapVis.prototype.initVis = function() {
     .attr("class", function(d){
       return "communityareas " + areasMap[d.properties.name.toLowerCase()];
     })
-    .attr("d", this.path)    
-    .on("click", function(d){
-        $(that.eventHandler).trigger("communityAreaChanged", [getId(d), that.colorRange]);
-    });
+    .attr("d", this.path);
 
   this.communityLabels = this.svg.selectAll(".communityareas-label")
       .data(communityAreas.features.filter(function(d) {
@@ -147,12 +144,17 @@ MapVis.prototype.initVis = function() {
         that.income_table(d.properties.name, table_income);
 
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
-
+        if(state.ready){
+                  $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
+        };
 
     }).on("mouseout", function(){
 
       that.table("Total", that.demographicData);
+      that.income_table("Total", that.incomeData);
       d3.select(this).style("stroke-width", 0.1)
+      if(state.ready)
+        $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       
     });
 
@@ -275,7 +277,7 @@ MapVis.prototype.choropleth = function(mapping, color){
   });
   var quantiles = [];
   quantiles.push(d3.min(values));
-  quantiles.push(d3.mean(values).toFixed());
+  // quantiles.push(d3.mean(values).toFixed());
   quantiles.push(d3.max(values));
 
   var depth = state.crime_filters.length;
@@ -294,11 +296,11 @@ MapVis.prototype.choropleth = function(mapping, color){
   });
 
   //Adding legend for our Choropleth
-  d3.selectAll(".legend").remove();
+  d3.selectAll("#myLegend").remove();
 
   var ls_w = 20, ls_h = 120;
   var legend = this.svg.append("g")
-    .classed("legend", true)
+    .attr("id", "myLegend")
     .attr("transform", "translate(" + 20 + "," + 0 + ")");
 
 
@@ -327,27 +329,30 @@ MapVis.prototype.choropleth = function(mapping, color){
     .attr("stop-opacity", 1);
 
   legend.append("rect")
-  .attr("x", 20)
-  .attr("y", that.height/1.8-ls_h)
-  .attr("width", ls_w)
-  .attr("height", ls_h+30)
-  .style("fill", "url(#gradient)")
+    .attr("x", 20)
+    .attr("y", that.height/1.8-ls_h)
+    .attr("width", ls_w)
+    .attr("height", ls_h+30)
+    .style("fill", "url(#gradient)")
 
   legend.append("g")
-  .selectAll("legend_el")
-  .data(quantiles.sort(d3.ascending)).enter()
-  .append("text")
-  .attr("x", 50)
-  .attr("y", function(d, i){ 
-    return 500 - i%3*70
-  })
-  .text(function(d, i){  
-    return d;
-  });
+    .selectAll("legend_el")
+    .data(quantiles.sort(d3.ascending)).enter()
+    .append("text")
+    .attr("x", 50)
+    .attr("y", function(d, i){ 
+      return (!i) ? 410 : 290
+    })
+    .text(function(d, i){  
+      return d;
+    });
 }
 
 
 MapVis.prototype.table = function (name, table_demographics){
+  // if(tableDemographics == undefined || tableDemographics == null){
+  //   return
+  // }
   function aggregate(){
     return d3.nest()
     .key(function (d) { return d.year })
