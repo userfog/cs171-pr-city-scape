@@ -52,22 +52,12 @@ Timeline.prototype.initVis = function() {
         .attr("x", (that.width / 2))             
         .attr("y", (that.margin.top / 2))
         .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("text-decoration", "underline")  
-        .text("Crime In {0} vs Time".format(state.year));
+        .style("font-size", "16px")  
+        .text("Crime Counts with Time");
 
     // Add axes visual elements
     this.svg.append("g")
         .attr("class", "y axis")
-        .append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("x", -20)
-        .attr("dy", ".71em")
-        .style("text-anchor", "end")
-        .text(function(){
-          return "Crime Count";
-        });
 
   this.svg.append("g")
         .attr("class", "x axis")

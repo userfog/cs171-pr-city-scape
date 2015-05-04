@@ -275,19 +275,3 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
 
   return zeroed_data;  
 }
-
-SocrataModel.prototype.timeFilter = function (data, pass){
-
-    // unpack passed object
-    start = pass["start"];
-    end = pass["end"];
-
-    // generate custom filter from extent
-    var time_filter = function(d){
-        return (d.time <= end && d.time >= start)
-    }
-
-    this.wrangleData(time_filter);
-
-    this.updateVis();
-}

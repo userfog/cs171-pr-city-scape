@@ -56,12 +56,12 @@
     </div>
     <div id="data-etc" class="col-md-6" style="height: 350px">
       <h4> How to use our visualization: </h4>
-      <p> Use the sunburst to select the year of interest and browse the crime hierarchy, which follow a PRIMARY TYPE > DESCRIPTION > LOCATION paradigm. Click on a crime type or location to update the map and timeline to display that item alone. </p>
+      <p> Use the sunburst to select the year of interest and browse the crime hierarchy, which follows a PRIMARY TYPE > DESCRIPTION > LOCATION paradigm. Click on a crime type or location to update the map and timeline to display that item alone. </p>
       <p> At the top level (all crime types) the timeline can be brushed to update the sunburst and map with crimes for the selected portion of the year. </p>
       <p> Finally, hover over neighborhoods on the map to view demographics, income data, and month-by-month arrest statistics. </p>
     </br>
       <p> The main data for this project came from the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">City of Chicago Data Portal</a>.
-      Additional data on demographic information came from <a href="http://www.robparal.com/ChicagoCommunityAreaData.html"> robparal.com </a></p>
+      Additional data on demographic information came from <a href="http://www.robparal.com/ChicagoCommunityAreaData.html"> robparal.com. </a></p>
       <p>View our <a href="https://github.com/userfog/cs171-pr-city-scape"> GitHub repository for this project. </a> View our <a href="https://github.com/userfog/cs171-pr-city-scape/blob/master/City%20Scape%20Project%20Book.pdf"> Process Book. </a></p>
     </div>
   </div>
@@ -89,16 +89,16 @@
   </div>
   <div class="row">
     <div class="col-md-4">
-      <div id="sunburst">
+      <div id="sunburst" style="height=350px">
       </div>
-      <div id = "resolution">
+      <!--<div id = "resolution">
         Resolution:
         <select>
           <option value="getDay" selected>Day</option>
           <option value="getMonth">Month</option>
           <option value="getYear">Year</option>
         </select>
-      </div>
+      </div> -->
       <div id="timeline">
       </div>
     </div>
@@ -251,10 +251,10 @@
 
         var MyOvertime = new OvertimeVis(d3.select("#overtime"), MySilencer)
 
-        var res = d3.select("#resolution").select("select").on("change", function(){
+        /* var res = d3.select("#resolution").select("select").on("change", function(){
           var timeArgs = MySocrataModel.timeWrangle(MySocrataModel, this.value);
           MyTimeline.onSelectionChange(timeArgs);
-        });
+        }); */
 
         var yearSelector = d3.select("#year").select("select").on("change", function(){
           state.set_year(this.value);
@@ -281,7 +281,8 @@
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           if(!state.changed) return;
           currentSelection.html(convertFiltersToTitle);
-          var resolution = d3.select("#resolution").selectAll("select").property("value");
+          //var resolution = d3.select("#resolution").selectAll("select").property("value");
+          resolution = "getDay";
           NProgress.start();
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
           state.ready = false;
