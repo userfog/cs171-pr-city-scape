@@ -8,7 +8,7 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   // defines constants
   this.margin = {top: 10, right: 10, bottom: 10, left: 50},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 300 - this.margin.top - this.margin.bottom;
+  this.height = 400 - this.margin.top - this.margin.bottom;
 
   this.depth_to_field = {
     0: "none",
@@ -35,9 +35,7 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
 
 Sunburst.prototype.initData = function (_data){
   this.data = _data;
-
   this.initVis();
-
 }
 
 Sunburst.prototype.initVis = function() {
@@ -63,7 +61,7 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(225,130)");
+    .attr("transform", "translate("+ this.width/2 + ","+ this.height/2 + ")");
 
   this.svg.call(this.tip);
 

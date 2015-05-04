@@ -6,9 +6,9 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.initialized = false;
   this.prev_brush = [];
   // defines  tants
-  this.margin = {top: 25, right: 50, bottom: 5, left: 0},
+  this.margin = {top: 25, right: 50, bottom: 65, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
-  this.height = 350 - this.margin.top - this.margin.bottom;
+  this.height = 300 - this.margin.top - this.margin.bottom;
 
 }
 
@@ -38,7 +38,7 @@ Timeline.prototype.initVis = function() {
       .range([0, this.width/1.25]);
 
     this.y = d3.scale.linear()
-      .range([this.height/2,this.margin.top]);
+      .range([this.height/1.45,this.margin.top]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -61,7 +61,7 @@ Timeline.prototype.initVis = function() {
 
   this.svg.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + this.height/2 + ")")
+        .attr("transform", "translate(0," + this.height/1.45 + ")")
 
   this.line = d3.svg.line()
     .interpolate("monotone")
