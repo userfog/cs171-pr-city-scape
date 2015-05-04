@@ -170,7 +170,8 @@ SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeUpdate", [timeArgs]);
   NProgress.inc()
-  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  // $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  $(that.eventHandler).trigger("barChartInit", ["Total"])
   state.changed = false;
 }
 

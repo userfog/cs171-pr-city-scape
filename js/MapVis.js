@@ -277,7 +277,7 @@ MapVis.prototype.choropleth = function(mapping, color){
   });
   var quantiles = [];
   quantiles.push(d3.min(values));
-  quantiles.push(d3.mean(values).toFixed());
+  // quantiles.push(d3.mean(values).toFixed());
   quantiles.push(d3.max(values));
 
   var depth = state.crime_filters.length;
@@ -329,23 +329,23 @@ MapVis.prototype.choropleth = function(mapping, color){
     .attr("stop-opacity", 1);
 
   legend.append("rect")
-  .attr("x", 20)
-  .attr("y", that.height/1.8-ls_h)
-  .attr("width", ls_w)
-  .attr("height", ls_h+30)
-  .style("fill", "url(#gradient)")
+    .attr("x", 20)
+    .attr("y", that.height/1.8-ls_h)
+    .attr("width", ls_w)
+    .attr("height", ls_h+30)
+    .style("fill", "url(#gradient)")
 
   legend.append("g")
-  .selectAll("legend_el")
-  .data(quantiles.sort(d3.ascending)).enter()
-  .append("text")
-  .attr("x", 50)
-  .attr("y", function(d, i){ 
-    return 500 - i%3*70
-  })
-  .text(function(d, i){  
-    return d;
-  });
+    .selectAll("legend_el")
+    .data(quantiles.sort(d3.ascending)).enter()
+    .append("text")
+    .attr("x", 50)
+    .attr("y", function(d, i){ 
+      return 500 - i%2*110
+    })
+    .text(function(d, i){  
+      return d;
+    });
 }
 
 

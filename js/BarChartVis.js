@@ -4,7 +4,7 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.eventHandler = _eventHandler;
     this.displayData = [];
     // defines constants
-    this.margin = {top: 20, right: 20, bottom: 30, left: 120},
+    this.margin = {top: 20, right: 20, bottom: 30, left: 30},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
     this.height = 200- this.margin.top - this.margin.bottom;
 }
@@ -27,8 +27,8 @@ BarChartVis.prototype.setDisplayData = function(that, community_area){
 
 BarChartVis.prototype.initData = function (_data, community_area, color){
   delete _data["undefined"];
-  if(!this.data)
-    this.data = _data;
+
+  this.data = _data;
 
   this.color = color;
   this.community_area = community_area;
@@ -103,19 +103,16 @@ BarChartVis.prototype.initVis = function (){
       .attr("dy", ".71em")
 
     this.localAvgLine = d3.svg.line()
+    .interpolate("basis")
     .x(function(d) { 
-      return that.x(d.key); 
-    })
-    .y(function(d) { 
-      return that.y(that.localAvg); 
-    }); 
-
+      return that.x(d); 
+    });
 
     this.grandAvgLine = d3.svg.line()
+    .interpolate("basis")
     .x(function(d) { 
-      return that.x(d.key); 
-    })
-    .y(function(d) { 
+      return that.x(d); 
+    }).y(function(d) { 
       return that.y(that.grandAvg); 
     }); 
 
@@ -136,18 +133,22 @@ BarChartVis.prototype.initVis = function (){
  * the drawing function - should use the D3 selection, enter, exit
  */
 BarChartVis.prototype.updateVis = function(){
+    d3.select("#barVis").selectAll(".legend").remove()
     d3.select("#barVis").selectAll("rect").remove()
-    d3.select("#barVis").selectAll("line").remove()
+    d3.select("#barVis").selectAll(".line").remove()
 
     var that = this;
 
     this.svg.call(that.tip);
 
     that.avg = d3.mean(that.displayData, function(d){
-      return d3.mean(d.values, function(d){
-        return d.values.arrest_ratio;
-      });
+      return d.values.arrest_ratio
     })
+
+    that.localAvgLine.y(function(d) { 
+      return that.y(that.avg); 
+    }); 
+
 
     // updates graph
     var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
@@ -167,7 +168,6 @@ BarChartVis.prototype.updateVis = function(){
     .attr("transform", "rotate(-75)")
     .attr("y", -3)
     .attr("x", -10)
-    .attr("data-legend", "Hello")
 
     var bar = this.svg.selectAll("rect")
         .data(this.displayData)
@@ -191,20 +191,24 @@ BarChartVis.prototype.updateVis = function(){
       .on('mouseout', that.tip.hide);
 
   this.svg.append("path")
-      .datum(that.displayData)
+      .datum(d3.range(12))
+      .attr("d", that.localAvgLine)
       .attr("class", "line")
-      .attr("data-legend", "Local Avg: " + that.localAvg)
-      .attr("data-legend", "line")
-      .style("fill", "aquamarine")
-      .attr("d", that.localAvgLine);
+      .attr("data-legend", function(){return "Local Avg: " + (that.avg*100).toFixed("2")})
+      .attr("data-legend-icon", function(){return "line"})
+      .style("stroke", "red")
+      .style("stroke-width", 1.5)
+      
 
   this.svg.append("path")
-      .datum(that.displayData)
+      .datum(d3.range(12))
+      .attr("d", that.grandAvgLine)
       .attr("class", "line")
-      .attr("data-legend", "Global Avg: " + that.grandAvg)
-      .attr("data-legend", "line")
-      .style("fill", "black")
-      .attr("d", that.grandAvgLine);
+      .attr("data-legend", function(){return "Global Avg: " + (that.grandAvg*100).toFixed("2")})
+      .attr("data-legend-icon", function(){return "line"})
+      .style("stroke", "black")
+      .style("stroke-width", 1.5)
+      
 
   d3.selectAll("#barLeg").remove();
   legend = this.svg.append("g")

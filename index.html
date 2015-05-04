@@ -193,6 +193,8 @@
           var resolution = d3.select("#resolution").selectAll("select").property("value");
           NProgress.start();
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
+          state.ready = false;
+          
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
