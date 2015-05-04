@@ -218,54 +218,6 @@ BarChartVis.prototype.updateVis = function(){
     .call(d3.legend)
 
 
-//   var ls_w = 20, ls_h = 120;
-//   var legend = this.svg.append("g")
-//     .classed("myLegend", true)
-//     .attr("transform", "translate(" + 20 + "," + 0 + ")");
-
-//   legend.append("text")
-//   .attr("x", 20)
-//   .attr("y", that.height/1.8 - (ls_h+10))
-//   .text("Quantity Of Crimes");
-
-//   var gradient = legend.append("svg:linearGradient")
-//     .attr("id", "gradient")
-//     .attr("x1", "0%")
-//     .attr("y1", "0%")
-//     .attr("x2", "0%")
-//     .attr("y2", "100%")
-//     .attr("spreadMethod", "pad");
-
-//   gradient.append("svg:stop")
-//     .attr("offset", "0%")
-//     .attr("stop-color", that.colorRange)
-//     .attr("stop-opacity", 1);
-
-//   gradient.append("svg:stop")
-//     .attr("offset", "100%")
-//     .attr("stop-color", "#eee")
-//     .attr("stop-opacity", 1);
-
-//   legend.append("rect")
-//   .attr("x", 20)
-//   .attr("y", that.height/1.8-ls_h)
-//   .attr("width", ls_w)
-//   .attr("height", ls_h+30)
-//   .style("fill", "url(#gradient)")
-
-//   legend.append("g")
-//   .selectAll("legend_el")
-//   .data(quantiles.sort(d3.ascending)).enter()
-//   .append("text")
-//   .attr("x", 50)
-//   .attr("y", function(d, i){ 
-//     return 500 - i%3*70
-//   })
-//   .text(function(d, i){  
-//     return d;
-//   });
-
-
 }
 
 

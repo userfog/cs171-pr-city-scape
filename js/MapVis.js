@@ -76,7 +76,7 @@ MapVis.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
   .append("g")
-    .attr("transform", "translate(0,0)");
+    .attr("transform", "translate(-25,0)");
 
   var blocksById = {},
       blockGroups = topojson.feature(this.data, this.data.objects.blockGroups),
@@ -106,7 +106,7 @@ MapVis.prototype.initVis = function() {
         return "translate(" + [c[0] + d.properties.dx, c[1] + d.properties.dy] + ")";
       });
 
-  this.communityLabels.selectAll("text")
+  /*this.communityLabels.selectAll("text")
     .data(function(d) {
           var words = d.properties.name.split(" ");
           return words.map(function(d) { return {word: d, count: words.length}; });
@@ -114,7 +114,7 @@ MapVis.prototype.initVis = function() {
     .enter().append("text") 
       .attr("class", "communityareas-dropshadow")
       .attr("dy", function(d, i) { return (i - d.count / 2 + .7) + "em"; })
-      .text(function(d){ return d.word; })
+      .text(function(d){ return d.word; }) */
 
   this.communityLabels.selectAll(".communityareas-name")
       .data(function(d) {

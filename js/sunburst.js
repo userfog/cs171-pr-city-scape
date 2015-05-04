@@ -35,7 +35,8 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(" + that.width / 2 + "," + (that.height / 2) + ")");
+    .attr("transform", "translate(225,130)");
+
 
   this.radius = Math.min(this.width/2, this.height/2);
 
