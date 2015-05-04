@@ -26,6 +26,11 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
       var txt = d.key.split(".");
       return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(d.key, d.value);
     });
+
+  this.luminance = d3.scale.sqrt()
+    .domain([0, 3])
+    .clamp(true)
+    .range([10, 75]);
 }
 
 Sunburst.prototype.initData = function (_data){
@@ -49,7 +54,7 @@ Sunburst.prototype.initVis = function() {
 
   var getColor = function (d){
     var top = getDepth(d, 1);
-    return (top.key != "Total") ? that.sunburst_colors(top.key) : "#FFCC44";
+    return (top.key != "Total") ? that.fill(top.key, d.depth) : "#FFCC44";
   }
 
   this.parentElement.selectAll("*").remove();
@@ -95,8 +100,8 @@ Sunburst.prototype.initVis = function() {
       .enter().append("path")
       .attr("class", "sun-path")
       .attr("d", that.arc)
-      .style("stroke", "#eee")
-      .style("stroke-width", ".5")
+      .style("stroke", "#E0D9DA")
+      .style("stroke-width", ".4")
       .on("click", click)
       .on("mouseover", function(d){
         d3.select(this).style("fill", "aquamarine")
@@ -143,5 +148,11 @@ Sunburst.prototype.arcTween = function(d) {
   };
 }
 
+
+Sunburst.prototype.fill = function  (key, depth) {
+  var c = d3.lab(this.sunburst_colors(key));
+  c.l = this.luminance(depth);
+  return c;
+}
 
 
