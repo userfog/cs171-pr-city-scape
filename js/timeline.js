@@ -155,7 +155,7 @@ Timeline.prototype.updateVis = function() {
     return String(d.date).slice(0,16) + ": " + d.count;
   })
 
-    this.svg.call(tip);
+  this.svg.call(tip);
   /* // updates graph
   var path = this.svg.selectAll(".area")
       .data([that.data])

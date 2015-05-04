@@ -25,6 +25,7 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
         that.data.push.apply(that.data, data);
+        state.length = state.length + data.length  || data.length
         if(data.length < limit){
           safe_callback(callback, that);
         } else{
@@ -153,7 +154,7 @@ SocrataModel.prototype.wrangleRequest = function (that){
   var sunArgs = that.sunburstWrangle();
   var mapArgs = that.mapWrangle("#FFCC44");
   var timeArgs = that.timeWrangle(that, "getDay");
-
+  $(that.eventHandler).trigger("overtimeReady", [])
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeDataReady", [timeArgs]);

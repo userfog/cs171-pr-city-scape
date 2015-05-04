@@ -341,7 +341,7 @@ MapVis.prototype.choropleth = function(mapping, color){
     .append("text")
     .attr("x", 50)
     .attr("y", function(d, i){ 
-      return 500 - i%2*110
+      return (!i) ? 410 : 290
     })
     .text(function(d, i){  
       return d;

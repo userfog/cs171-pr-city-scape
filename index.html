@@ -18,6 +18,7 @@
   <script type="text/javascript" src="js/sunburst.js"></script>
   <script type="text/javascript" src="js/BarChartVis.js"></script>
   <script type="text/javascript" src="js/timeline.js"></script>
+  <script type="text/javascript" src="js/OvertimeVis.js"></script>
   <link rel="stylesheet" type="text/css" href="style/nprogress.css"/>
   <link rel="stylesheet" type="text/css" href="style/style.css"/>
 </head>
@@ -30,8 +31,11 @@
   </div>
   </br>
   <div class="row">
-    <h2 class="text-center" id="currentSelection"></h2>
+    <div id="overtime" class="col-md-12">
+    </div>
   </div>
+  </br>
+  <h2 class="text-center" id="currentSelection"></h2>
   <div id="year">
     Year:
     <select>
@@ -142,11 +146,13 @@
   queue().defer(d3.json, "map/chicago.json")
         .defer(d3.json, "data/2000_2010.json")
         .defer(d3.json, "data/income_2006_2010.json")
+        .defer(d3.json, "data/overtime.json")
         .await(ready);
 
-  function ready(error, chicago, _2000_2010, _income){
+  function ready(error, chicago, _2000_2010, _income, overtime){
 
         var MyEventHandler = new Object();
+        var MySilencer  = new Object();
 
         var MySocrataModel = new SocrataModel("https://data.cityofchicago.org", "ijzp-q8t2", "DylLLVyY2RqAMdaOKMSE0k2Bg", MyEventHandler);
 
@@ -159,6 +165,8 @@
         var MyBarChart = new BarChartVis(d3.select("#barVis"), MyEventHandler)
 
         var MyTimeline = new Timeline(d3.select("#timeline"), MyEventHandler)
+
+        var MyOvertime = new OvertimeVis(d3.select("#overtime"), MySilencer)
 
         var res = d3.select("#resolution").select("select").on("change", function(){
           var timeArgs = MySocrataModel.timeWrangle(MySocrataModel, this.value);
@@ -195,6 +203,12 @@
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
           state.ready = false;
           
+        })
+
+        $(MyEventHandler).bind("overtimeReady", function(event, event_args){
+          if(state.year == moment().year)
+            overtime.push({"date": 2015, "count":state.length})
+          MyOvertime.initData(overtime)
         })
 
         $(MyEventHandler).bind("mapVisDataReady", function(event, event_args){
