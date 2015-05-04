@@ -6,7 +6,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.initialized = false;
   this.prev_brush = [];
   // defines  tants
-  this.margin = {top: 20, right: 50, bottom: 5, left: 0},
+  this.margin = {top: 25, right: 50, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
   this.height = 350 - this.margin.top - this.margin.bottom;
 
@@ -47,6 +47,14 @@ Timeline.prototype.initVis = function() {
     this.xAxis = d3.svg.axis()
       .scale(this.x)
       
+
+    this.svg.append("text")
+        .attr("x", (that.width / 2))             
+        .attr("y", (that.margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Crime In {0} vs Time".format(state.year));
 
     // Add axes visual elements
     this.svg.append("g")

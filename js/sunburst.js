@@ -17,14 +17,14 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
     3: "location_description"
   };
 
-  this.radius = Math.min(this.width/1.1, this.height/1.1) / 10;
+  this.radius = Math.min(this.width/1.1, this.height/1.1) / 2;
   //http://bl.ocks.org/Caged/6476579
   this.tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([0,0])
     .html(function(d) {
       var txt = d.key.split(".");
-      return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(d.key, d.size);
+      return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(d.key, d.value);
     });
 }
 
@@ -67,13 +67,9 @@ Sunburst.prototype.initVis = function() {
   this.y = d3.scale.sqrt()
       .range([0, that.radius]);
 
-  //this.color = d3.scale.category20c();
-  this.color = ["#2D2DFB", "#329732", "#FC3333", "#932B93"];
-
   this.partition = d3.layout.partition()
       .value(function(d) { return d.values.size; })
       .children(function(d){return d.values;})
-      .size([2 * Math.PI, this.radius]);
 
   this.arc = d3.svg.arc()
       .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x))); })
@@ -93,8 +89,14 @@ Sunburst.prototype.initVis = function() {
       .style("stroke", "#eee")
       .style("stroke-width", ".5")
       .on("click", click)
-      .on("mouseover", this.tip.show)
-      .on("mouseout", this.tip.hide)
+      .on("mouseover", function(d){
+        d3.select(this).style("fill", "aquamarine")
+        that.tip.show(d)
+      })
+      .on("mouseout", function(d){
+        d3.select(this).style("fill", getColor(d))
+        that.tip.hide(d)
+      })
 
 
     this.path.style("fill", getColor);

@@ -4,7 +4,7 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.eventHandler = _eventHandler;
     this.displayData = [];
     // defines constants
-    this.margin = {top: 20, right: 20, bottom: 30, left: 30},
+    this.margin = {top: 25, right: 20, bottom: 30, left: 30},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
     this.height = 200- this.margin.top - this.margin.bottom;
 }
@@ -20,7 +20,8 @@ BarChartVis.prototype.setDisplayData = function(that, community_area){
   } else {
     that.displayData = that.data.map(function(d){
       var cm = community_area
-      return {"key": d.key, "values": {"arrest_ratio": d.values[cm].values.arrest_ratio}}
+      var vs = (d.values[cm]) ? d.values[cm].values.arrest_ratio : 0;
+      return {"key": d.key, "values": {"arrest_ratio": vs }}
     })
   }
 }
@@ -86,6 +87,14 @@ BarChartVis.prototype.initVis = function (){
     this.yAxis = d3.svg.axis()
       .scale(this.y)
       .orient("left");
+
+    this.svg.append("text")
+        .attr("x", (that.width / 2))             
+        .attr("y", 0 - (that.margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Arrest % vs Months");
 
     // updates axis
     this.svg.append("g")

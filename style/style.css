@@ -66,10 +66,6 @@ table th {
   text-transform: uppercase;
 }
 
-.sunChunk path:hover{
-  fill: aquamarine;
-}
-
 .communityareas-dropshadow {
   font-size: 7px;
   text-anchor: middle;
@@ -87,7 +83,8 @@ table th {
 .legend rect {
   fill:white;
   stroke:black;
-  opacity:0.8;}
+  opacity:0.8;
+}
 
 .hidden { 
   display: none; 

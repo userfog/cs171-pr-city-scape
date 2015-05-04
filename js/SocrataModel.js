@@ -238,8 +238,6 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
 }
 
 SocrataModel.prototype.timeWrangle = function(that, resolution){
-  return [];
-
   var timeDisplayData = that.filterQuery(that.data);
   var t0 = new Date().getTime();
   var yr = state.year;
