@@ -13,12 +13,8 @@ table th {
   font: 10px sans-serif;
 }
 
-.title{
-  font-size: 25pt
-}
-
-.subtitle{
-  font-size: 15pt;
+.writeup{
+  font-size: 15pt
 }
 
 .axis path,
