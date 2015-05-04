@@ -268,7 +268,7 @@
 
         function init(yr) {
           NProgress.start();
-          MySocrataModel.getMain("$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC".format(yr, yr)
+          MySocrataModel.get("$where=date>%27{0}-01-01%27and%20date<%27{1}-12-31%27&$select=date,community_area,primary_type,description,location_description,%20COUNT(primary_type)&$group=date,community_area,primary_type,description,location_description&$order=date ASC".format(yr, yr)
             , MySocrataModel.wrangleRequest
             , 0, 50000, true);
         }
