@@ -3,7 +3,7 @@ OvertimeVis = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.initialized = false;
   this.prev_brush = [];
   // defines  tants
-  this.margin = {top: 25, right: 50, bottom: 25, left: 50},
+  this.margin = {top: 50, right: 50, bottom: 0, left: 50},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 225 - this.margin.top - this.margin.bottom;
 
@@ -31,7 +31,7 @@ OvertimeVis.prototype.initVis = function() {
       .range([0, this.width]);
 
     this.y = d3.scale.linear()
-      .range([this.height/2,this.margin.top]);
+      .range([this.height/1.25,this.margin.top]);
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
@@ -84,7 +84,7 @@ OvertimeVis.prototype.updateVis = function() {
   // updates axis
   this.svg.select(".x.axis")
       .transition().duration(750)
-      .attr("transform", "translate(0," + this.height/2 + ")")
+      .attr("transform", "translate(0," + this.height/1.25 + ")")
       .call(this.xAxis)
       .selectAll("text")
       .style("text-anchor", "end")
