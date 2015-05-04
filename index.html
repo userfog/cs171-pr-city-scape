@@ -202,7 +202,7 @@
         });
 
         $(MyEventHandler).bind("sunburstDataReady", function(event, event_args){
-          MySunburst.initData(event_args, MyMapVis.colorRange);
+          MySunburst.initData(event_args);
         });
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
