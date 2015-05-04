@@ -30,12 +30,14 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
 
 Sunburst.prototype.initData = function (_data){
   this.data = _data;
+
   this.initVis();
+
 }
 
 Sunburst.prototype.initVis = function() {
   var that = this;
-  var sunburst_colors = d3.scale.category20().domain(that.data.values.map(function(d){return d.key}).sort());
+
 
   var getDepth = function (d, height) {
       var top = d;
@@ -47,7 +49,7 @@ Sunburst.prototype.initVis = function() {
 
   var getColor = function (d){
     var top = getDepth(d, 1);
-    return (top.key != "Total") ? sunburst_colors(top.key) : "#FFCC44";
+    return (top.key != "Total") ? that.sunburst_colors(top.key) : "#FFCC44";
   }
 
   this.parentElement.selectAll("*").remove();
@@ -81,8 +83,15 @@ Sunburst.prototype.initVis = function() {
           return Math.max(0, that.y(d.y + d.dy)); 
       });
 
+  var par = that.partition.nodes(this.data)
+
+  if(!this.sunburst_colors){
+      var tmp = par[0].values.sort(function(a,b){a.value - b.value});
+      this.sunburst_colors = d3.scale.category20().domain(tmp.map(function(d){return d.key}));
+  }
+
   this.path = that.svg.selectAll("path")
-      .data(that.partition.nodes(this.data))
+      .data(par)
       .enter().append("path")
       .attr("class", "sun-path")
       .attr("d", that.arc)
