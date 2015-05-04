@@ -6,7 +6,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.initialized = false;
   this.prev_brush = [];
   // defines  tants
-  this.margin = {top: 20, right: 0, bottom: 5, left: 0},
+  this.margin = {top: 20, right: 50, bottom: 5, left: 0},
   this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
   this.height = 350 - this.margin.top - this.margin.bottom;
 

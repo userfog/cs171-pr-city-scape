@@ -4,9 +4,9 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.eventHandler = _eventHandler;
     this.displayData = [];
     // defines constants
-    this.margin = {top: 20, right: 50, bottom: 30, left: 50},
+    this.margin = {top: 20, right: 20, bottom: 30, left: 120},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-    this.height = 400 - this.margin.top - this.margin.bottom;
+    this.height = 200- this.margin.top - this.margin.bottom;
 }
 
 
@@ -20,7 +20,7 @@ BarChartVis.prototype.setDisplayData = function(that, community_area){
   } else {
     that.displayData = that.data.map(function(d){
       var cm = community_area
-      return {"key": d.key, "values": {"arrest_ratio": d.values.values[cm]}}
+      return {"key": d.key, "values": {"arrest_ratio": d.values[cm].values.arrest_ratio}}
     })
   }
 }
@@ -32,6 +32,8 @@ BarChartVis.prototype.initData = function (_data, community_area, color){
 
   this.color = color;
   this.community_area = community_area;
+
+  this.setDisplayData(this,community_area);
 
   this.grandAvg = d3.mean(this.data, function(d){
       return d3.mean(d.values, function(d){
@@ -45,11 +47,12 @@ BarChartVis.prototype.initData = function (_data, community_area, color){
 
   // // 
   // that.displayData = that.data.filter(function(d){return d.values.arrest_ratio != -1});
- this.setDisplayData(this,community_area);
  this.initVis();
 }
 
 BarChartVis.prototype.updateDisplay = function(that, community_area, color){
+  this.color = color;
+  this.community_area = community_area;
   that.setDisplayData(that, community_area);
   that.updateVis();
 }
@@ -116,6 +119,14 @@ BarChartVis.prototype.initVis = function (){
       return that.y(that.grandAvg); 
     }); 
 
+    this.tip = d3.tip()
+      .attr('class', 'd3-tip')
+      .offset([-10, 0])
+      .html(function(d) {
+        var formatPercent = d3.format(".2%");
+        return "<strong>Arrest Percentage:</strong> <span style='color:red'>" + formatPercent(+d.values.arrest_ratio) + "</span>";
+      });
+
     // call the update method
     this.updateVis();
 }
@@ -125,24 +136,18 @@ BarChartVis.prototype.initVis = function (){
  * the drawing function - should use the D3 selection, enter, exit
  */
 BarChartVis.prototype.updateVis = function(){
-    delete this.displayData["undefined"];
+    d3.select("#barVis").selectAll("rect").remove()
+    d3.select("#barVis").selectAll("line").remove()
+
     var that = this;
+
+    this.svg.call(that.tip);
 
     that.avg = d3.mean(that.displayData, function(d){
       return d3.mean(d.values, function(d){
         return d.values.arrest_ratio;
       });
     })
-
-    var tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .offset([-10, 0])
-    .html(function(d) {
-      var formatPercent = d3.format(".2%");
-      return "<strong>Arrest Percentage:</strong> <span style='color:red'>" + formatPercent(+d.values.arrest_ratio) + "</span>";
-    });
-
-    this.svg.call(tip);
 
     // updates graph
     var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
@@ -164,25 +169,14 @@ BarChartVis.prototype.updateVis = function(){
     .attr("x", -10)
     .attr("data-legend", "Hello")
 
-    // Data join
-    var bar = this.svg.selectAll(".bar")
-      .data(this.displayData);
+    var bar = this.svg.selectAll("rect")
+        .data(this.displayData)
 
-    // Append new bar groups, if required
-    var bar_enter = bar.enter().append("g");
+    bar.exit().remove();
 
-    // Append a rect and a text only for the Enter set (new g)
-    bar_enter.append("rect")
-    .on('mouseover', tip.show)
-    .on('mouseout', tip.hide);
-
-    // Remove the extra bars
-    bar.exit()
-      .remove();
-
-    // Update all inner rects and texts (both update and enter sets)
-
-    bar.selectAll("rect")
+    bar.enter()
+    .append("rect")
+      .attr("class", "bar")
       .attr("x", function(d){
         return that.x(parseInt(d.key));})
       .attr("y", function(d) { 
@@ -191,12 +185,10 @@ BarChartVis.prototype.updateVis = function(){
         return that.height - that.y(d.values.arrest_ratio);})
       .style("fill", this.color)
       .transition()
-      .attr("width", that.x.rangeBand());
+      .attr("width", that.x.rangeBand())
 
-    // Add attributes (position) to all bars
-    bar.attr("class", function(d){
-        return "bar ";
-    }).transition();
+    bar.on('mouseover', that.tip.show)
+      .on('mouseout', that.tip.hide);
 
   this.svg.append("path")
       .datum(that.displayData)
@@ -220,6 +212,7 @@ BarChartVis.prototype.updateVis = function(){
     .attr("transform","translate(50,30)")
     .style("font-size","12px")
     .call(d3.legend)
+
 
 //   var ls_w = 20, ls_h = 120;
 //   var legend = this.svg.append("g")

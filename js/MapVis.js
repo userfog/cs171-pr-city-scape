@@ -50,7 +50,7 @@ this.depth_to_color = {
 ];
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
-  this.width = 50+getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
+  this.width = 500 - this.margin.left - this.margin.right,
   this.height = 750 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
@@ -144,8 +144,9 @@ MapVis.prototype.initVis = function() {
         that.income_table(d.properties.name, table_income);
 
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
-        if(state.ready)
-          $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]]);
+        if(state.ready){
+                  $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
+        };
 
     }).on("mouseout", function(){
 
@@ -349,6 +350,9 @@ MapVis.prototype.choropleth = function(mapping, color){
 
 
 MapVis.prototype.table = function (name, table_demographics){
+  // if(tableDemographics == undefined || tableDemographics == null){
+  //   return
+  // }
   function aggregate(){
     return d3.nest()
     .key(function (d) { return d.year })

@@ -24,7 +24,7 @@ var areasMap = {
 "humboldt park": 23,
 "west town": 24,
 "austin": 25,
-"west garfield park": 26,
+"garfield park": 26,
 "east garfield park": 27,
 "near west side": 28,
 "north lawndale": 29,

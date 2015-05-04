@@ -111,6 +111,10 @@ div.map_tooltip {
   margin-right: 5px;
 }
 
+.col-md-4 {
+  padding-right: 0;
+}
+
 #rcorners {
     border-radius: 25px;
     border: 2px solid #000;
