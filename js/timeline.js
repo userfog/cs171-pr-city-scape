@@ -29,7 +29,7 @@ Timeline.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(50,0)");
+    .attr("transform", "translate(75,0)");
 
     /*this.x = d3.scale.ordinal()
       .rangeRoundBands([0, this.width/1.25],1.015);*/
@@ -135,6 +135,14 @@ Timeline.prototype.updateVis = function() {
   // exit
   trendline.exit().remove()
    
+  var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([0,0])
+  .html(function(d) {
+    return String(d.date).slice(0,16) + ": " + d.count;
+  })
+
+    this.svg.call(tip);
   /* // updates graph
   var path = this.svg.selectAll(".area")
       .data([that.data])
@@ -168,6 +176,9 @@ Timeline.prototype.updateVis = function() {
   points.transition().duration(750)
       .attr("cx", function(d){return that.x(d.date)})
       .attr("cy", function(d){return that.y(d.count)})
+  points.on("mouseover", tip.show)
+    .on("mouseout", tip.hide)
+
   points.exit().remove()
 
 
