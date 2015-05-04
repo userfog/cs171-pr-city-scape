@@ -17,6 +17,15 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
     3: "location_description"
   };
 
+  this.radius = Math.min(this.width/1.1, this.height/1.1) / 10;
+  //http://bl.ocks.org/Caged/6476579
+  this.tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([0,0])
+    .html(function(d) {
+      var txt = d.key.split(".");
+      return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(d.key, d.size);
+    });
 }
 
 Sunburst.prototype.initData = function (_data){
@@ -49,18 +58,8 @@ Sunburst.prototype.initVis = function() {
     .append("g")
     .attr("transform", "translate(225,130)");
 
-  //http://bl.ocks.org/Caged/6476579
-  var tip = d3.tip()
-    .attr('class', 'd3-tip')
-    .offset([0,0])
-    .html(function(d) {
-      var txt = d.key.split(".");
-      return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(txt.join(","), d.size);
-    });
+  this.svg.call(this.tip);
 
-  this.svg.call(tip);
-
-  this.radius = Math.min(this.width, this.height) / 2.5;
 
   this.x = d3.scale.linear()
       .range([0, 2 * Math.PI]);
@@ -77,11 +76,14 @@ Sunburst.prototype.initVis = function() {
       .size([2 * Math.PI, this.radius]);
 
   this.arc = d3.svg.arc()
-    .startAngle(function(d) { return d.x; })
-    .endAngle(function(d) { return d.x + d.dx - .01 / (d.depth + .5); })
-    .innerRadius(function(d) { return that.radius / 3 * d.depth; })
-    .outerRadius(function(d) { return that.radius / 3 * (d.depth + 1) - 1; });
-
+      .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x))); })
+      .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x + d.dx))); })
+      .innerRadius(function(d) { 
+          return Math.max(0, that.y(d.y)); 
+        })
+      .outerRadius(function(d) { 
+          return Math.max(0, that.y(d.y + d.dy)); 
+      });
 
   this.path = that.svg.selectAll("path")
       .data(that.partition.nodes(this.data))
@@ -91,8 +93,8 @@ Sunburst.prototype.initVis = function() {
       .style("stroke", "#eee")
       .style("stroke-width", ".5")
       .on("click", click)
-      .on("mouseover", tip.show)
-      .on("mouseout", tip.hide)
+      .on("mouseover", this.tip.show)
+      .on("mouseout", this.tip.hide)
 
 
     this.path.style("fill", getColor);
