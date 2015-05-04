@@ -28,7 +28,7 @@ OvertimeVis.prototype.initVis = function() {
 
 
     this.x = d3.time.scale()
-      .range([0, this.width]);
+      .range([0, this.width/1.5]);
 
     this.y = d3.scale.linear()
       .range([this.height/1.25,this.margin.top]);

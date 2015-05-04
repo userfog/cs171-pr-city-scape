@@ -38,22 +38,22 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
 }
 
 
-SocrataModel.prototype.getMain = function (str, callback, offset, limit, clear){
-    var that = this;
-    if(clear)
-      that.data = [];
+// SocrataModel.prototype.getMain = function (str, callback, offset, limit, clear){
+//     var that = this;
+//     if(clear)
+//       that.data = [];
 
-    if(state.year < 2015){
-      queue().defer(d3.json, "data/socrata_{0}.json".format(state.year))
-        .await(ready);
-      function ready(error, data){
-        that.data = data;
-        safe_callback(callback, that);
-      }
-    } else {
-      this.get(str, callback, offset, limit, clear);
-    }
-}
+//     if(state.year < 2015){
+//       queue().defer(d3.json, "data/socrata_{0}.json".format(state.year))
+//         .await(ready);
+//       function ready(error, data){
+//         that.data = data;
+//         safe_callback(callback, that);
+//       }
+//     } else {
+//       this.get(str, callback, offset, limit, clear);
+//     }
+// }
 
 SocrataModel.prototype.filterQuery = function(){
   if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
@@ -245,7 +245,7 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
   var zeroed_data;
   if(resolution == "getDay"){
     if(yr == 2004 || yr == 2008 || yr == 2012 || yr == 2016){
-      zeroed_data = new Array(367);chrom
+      zeroed_data = new Array(367);
     } else {
       zeroed_data = new Array(366);
     }

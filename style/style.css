@@ -1,3 +1,11 @@
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 300;
+  background-color: #fdfdfd;
+}
+
 table td {
     padding-left: 10px;
     padding-right:10px;
@@ -111,4 +119,39 @@ div.map_tooltip {
 #rcorners {
     border-radius: 25px;
     border: 2px solid #000;
+}
+
+.site-footer {
+  border-top: 1px solid #e8e8e8;
+  padding: 30px 0;
+}
+
+.wrap {
+  max-width: 800px;
+  padding: 0 30px;
+  margin: 0 auto;
+  zoom: 1;
+}
+
+.footer-heading {
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: -.5px;
+  margin-bottom: 15px;
+}
+.site-footer .column {
+  float: left;
+  margin-bottom: 15px;
+}
+
+.site-footer ul {
+  list-style: none;
+}
+
+.github-icon-svg, .twitter-icon-svg {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  top: 3px;
 }
