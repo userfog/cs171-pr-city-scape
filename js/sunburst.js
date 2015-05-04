@@ -51,38 +51,37 @@ Sunburst.prototype.initVis = function() {
 
   //http://bl.ocks.org/Caged/6476579
   var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([0,0])
-  .html(function(d) {
-    return d.key + ": " + d.value;
-  })
+    .attr('class', 'd3-tip')
+    .offset([0,0])
+    .html(function(d) {
+      var txt = d.key.split(".");
+      return "<div><strong>{0}</strong><br>Quantity: {1}</di>".format(txt.join(","), d.size);
+    });
 
   this.svg.call(tip);
 
-  radius = Math.min(this.width/1.1, this.height/1.1) / 2;
+  this.radius = Math.min(this.width, this.height) / 2.5;
 
   this.x = d3.scale.linear()
       .range([0, 2 * Math.PI]);
 
   this.y = d3.scale.sqrt()
-      .range([0, radius]);
+      .range([0, that.radius]);
 
   //this.color = d3.scale.category20c();
   this.color = ["#2D2DFB", "#329732", "#FC3333", "#932B93"];
 
   this.partition = d3.layout.partition()
-      .value(function(d) { 
-        return d.values.size; });
+      .value(function(d) { return d.values.size; })
+      .children(function(d){return d.values;})
+      .size([2 * Math.PI, this.radius]);
 
   this.arc = d3.svg.arc()
-      .startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x))); })
-      .endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, that.x(d.x + d.dx))); })
-      .innerRadius(function(d) { 
-          return Math.max(0, that.y(d.y)); 
-        })
-      .outerRadius(function(d) { 
-          return Math.max(0, that.y(d.y + d.dy)); 
-      });
+    .startAngle(function(d) { return d.x; })
+    .endAngle(function(d) { return d.x + d.dx - .01 / (d.depth + .5); })
+    .innerRadius(function(d) { return that.radius / 3 * d.depth; })
+    .outerRadius(function(d) { return that.radius / 3 * (d.depth + 1) - 1; });
+
 
   this.path = that.svg.selectAll("path")
       .data(that.partition.nodes(this.data))
@@ -123,7 +122,7 @@ Sunburst.prototype.arcTween = function(d) {
   that = this;
   var xd = d3.interpolate(that.x.domain(), [d.x, d.x + d.dx]),
   yd = d3.interpolate(that.y.domain(), [d.y, 1]),
-  yr = d3.interpolate(that.y.range(), [d.y ? 20 : 0, radius]);
+  yr = d3.interpolate(that.y.range(), [d.y ? 20 : 0, that.radius]);
   return function(d, i) {
     return i
         ? function(t) { return that.arc(d); }
