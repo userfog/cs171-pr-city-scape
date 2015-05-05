@@ -29,7 +29,7 @@ Timeline.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(75,0)");
+    .attr("transform", "translate(75,0)")
 
     /*this.x = d3.scale.ordinal()
       .rangeRoundBands([0, this.width/1.25],1.015);*/
