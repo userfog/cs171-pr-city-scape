@@ -8,7 +8,7 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   // defines constants
   this.margin = {top: 30, right: 25, bottom: 10, left: 50},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 400 - this.margin.bottom;
+  this.height = 350 - this.margin.bottom;
 
   this.depth_to_field = {
     0: "none",

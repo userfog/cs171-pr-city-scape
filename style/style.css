@@ -105,10 +105,12 @@ div.map_tooltip {
 }
 
 #tableIncome {
+  margin-top:30px;
   padding-left:0;
   margin-left: -75px;
 }
 #tableDemographics {
+  margin-top:30px;
   padding-right:0;
   margin-left: -50px;
 }

@@ -49,12 +49,11 @@ this.depth_to_color = {
   {label: "hyde park", d:"M 583 525 L 623 525 L 623 490"}
 ];
     // defines constants
-  this.margin = {top: 50, right: 0, bottom: 0, left: 0},
+  this.margin = {top: 20, right: 0, bottom: 0, left: 0},
   this.width = 450 - this.margin.left - this.margin.right,
   this.height = 850 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
-
   this.initVis();
 }
 
@@ -65,7 +64,7 @@ MapVis.prototype.initVis = function() {
   this.projection = d3.geo.albers()
     .rotate([87.73, 0])
     .center([0, 42.0433])
-    .scale(82000)
+    .scale(85000)
     .translate([this.width / 2, 0]);
 
   this.path = d3.geo.path()
@@ -76,7 +75,7 @@ MapVis.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
   .append("g")
-    .attr("transform", "translate(10,0)");
+    .attr("transform", "translate(10,"+that.margin.top+")");
 
   var blocksById = {},
       blockGroups = topojson.feature(this.data, this.data.objects.blockGroups),
@@ -310,12 +309,11 @@ MapVis.prototype.choropleth = function(mapping, color){
   var ls_w = 20, ls_h = 120;
   var legend = this.svg.append("g")
     .attr("id", "myLegend")
-    .attr("transform", "translate(" + 20 + "," + 0 + ")");
-
+    .attr("transform", "translate(" + 0 + "," + 5 + ")");
 
 
   legend.append("text")
-  .attr("x", 20)
+  .attr("x", 10)
   .attr("y", that.height/2.2 - (ls_h+10))
   .text("Quantity Of Crimes");
 
@@ -350,7 +348,7 @@ MapVis.prototype.choropleth = function(mapping, color){
     .append("text")
     .attr("x", 50)
     .attr("y", function(d, i){ 
-      return (!i) ? 390 : 260
+      return (!i) ? 400 : 270
     })
     .text(function(d, i){  
       return d;
