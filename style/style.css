@@ -25,6 +25,10 @@ table th {
   font-size: 15pt
 }
 
+#year{
+  margin-left: 15px
+}
+
 .axis path,
 .axis line {
   fill: none;
