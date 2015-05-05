@@ -144,9 +144,7 @@ MapVis.prototype.initVis = function() {
         that.income_table(d.properties.name, table_income);
 
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
-        if(state.ready){
-                  $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
-        };
+        $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
 
     }).on("mouseout", function(){
 
@@ -155,8 +153,7 @@ MapVis.prototype.initVis = function() {
 
       d3.select(this).style("stroke-width", 0.1)
 
-      if(state.ready)
-        $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
+      $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       
     });
 
@@ -166,15 +163,12 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
-        if(state.ready){
-          $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
-        };
+        $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
         // d3.select("._"+getId(d)).style("stroke", "black").style("stroke-width", 1.2);
     }).on("mouseout", function(){
       that.table("Total", that.demographicData);
       
-      if(state.ready)
-        $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
+      $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
 

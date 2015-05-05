@@ -284,11 +284,11 @@
         });
 
         $(MyEventHandler).bind("communityAreaChanged", function(event, event_args){
-          MyBarChart.updateDisplay(MyBarChart, event_args[0], event_args[1]);
+          MyBarChart.initData(MyBarChart, MyBarChart.data,event_args[0], event_args[1]);
         });
 
         $(MyEventHandler).bind("barChartDataReady", function(event, event_args){
-          MyBarChart.initData(event_args, "Total", MyMapVis.colorRange || "#FFCC44");
+          MyBarChart.initData(MyBarChart, event_args, "Total", MyMapVis.colorRange || "#FFCC44");
         });
 
         $(MyEventHandler).bind("timeDataReady", function(event, event_args){

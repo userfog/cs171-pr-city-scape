@@ -26,7 +26,7 @@ BarChartVis.prototype.setDisplayData = function(that, community_area){
   }
 }
 
-BarChartVis.prototype.initData = function (_data, community_area, color){
+BarChartVis.prototype.initData = function (that, _data, community_area, color){
   delete _data["undefined"];
 
   this.data = _data;
@@ -42,22 +42,12 @@ BarChartVis.prototype.initData = function (_data, community_area, color){
       });
     })
 
-  this.localAvg = d3.mean(this.displayData, function(d){
-    return d.values.arrest_ratio;
-  })
-
-  // // 
   // that.displayData = that.data.filter(function(d){return d.values.arrest_ratio != -1});
- this.initVis();
+  if(community_area == "Total")
+    this.initVis();
+  else
+    that.updateVis();
 }
-
-BarChartVis.prototype.updateDisplay = function(that, community_area, color){
-  this.color = color;
-  this.community_area = community_area;
-  that.setDisplayData(that, community_area);
-  that.updateVis();
-}
-
 
 BarChartVis.prototype.initVis = function (){
     this.parentElement.selectAll("*").remove();
