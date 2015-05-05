@@ -87,12 +87,12 @@ Timeline.prototype.initVis = function() {
         if(state.crime_filters.length > 0){
           that.brush.extent(that.prev_brush);
           that.svg.select('.brush').call(that.brush);
-          d3.select("#timeline").selectAll("svg").style("opacity", 0.5)
-          d3.selectAll(".warning").remove()
-          d3.select("#timeline").append("text").text("You must be at the root node (all crimes) to brush.").attr("class", "warning")
+          //d3.select("#timeline").selectAll("svg").style("opacity", 0.5)
+          //d3.selectAll(".warning").remove()
+          //d3.select("#timeline").append("text").text("You must be at the root node (all crimes) to brush.").attr("class", "warning")
         } else {
         d3.selectAll(".warning").remove()
-        d3.select("#timeline").selectAll("svg").style("opacity", 1)
+        //d3.select("#timeline").selectAll("svg").style("opacity", 1)
         that.prev_brush = ex;
         $(that.eventHandler).trigger("timeChange"); }
       })

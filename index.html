@@ -51,7 +51,7 @@
     <h2>Overview and Motivation</h2>
       <p> Over the last decade, the number of crimes in Chicago has declined (see graph at left).  For our project, we wanted to delve deeper into this statistic, aiming to answer the following questions:</p> <p><strong>What types of crime occur in Chicago</strong>, and where? How do these types of crime sort differentially among neighborhoods in the city? <strong>How have rates of these crimes changed with time </strong>? Do we notice <strong> differences in arrest rate </strong> by time or neighborhood? </p> <p> See text and video below to learn how to use our interactive visualization. </p></div>
   </div>
-  <div id="project-info" style="height:600px">
+  <div id="project-info" style="height:700px">
     <div id="video" class="col-md-6" style="text-align: center">
       <iframe width="420" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0" frameborder="0" allowfullscreen></iframe>
     </div>
@@ -299,7 +299,9 @@
           NProgress.start();
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);
           state.ready = false;
-          console.log(state.crime_filters.length)
+          if (state.crime_filters.length > 0){
+            d3.select("#timeline").selectAll("svg").style("opacity", 0.5)}
+          else {d3.select("#timeline").selectAll("svg").style("opacity", 1)}
         })
 
         $(MyEventHandler).bind("overtimeReady", function(event, event_args){
