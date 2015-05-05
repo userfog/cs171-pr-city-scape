@@ -10,45 +10,25 @@ MapVis = function(_parentElement, _data, _demographicData, _income, _socrataMode
   this.displayData = d3.map();
 
   this.customLabels = {
-  "ARMOUR SQUARE": {offset: [0,-10]},
-  "AUSTIN": {offset: [8,0]},
-  "BEVERLY": {offset: [0, 10]},
-  "BRIDGEPORT": {offset: [0, -5]},
-  "BURNSIDE": {hide: 1},
-  "EAST GARFIELD PARK": {hide: 1},
-  "ENGLEWOOD": {offset: [-20,0]},
-  "FULLER PARK": {hide: 1},
-  "GARFIELD RIDGE": {offset: [0, 10]},
-  "HEGEWISCH": {offset: [-10, 20]},
-  "KENWOOD": {hide: 1},
-  "OHARE": {offset: [-25,-10]},
-  "PULLMAN": {hide: 1},
-  "WEST ENGLEWOOD": {hide: 1},
-  "WEST GARFIELD PARK": {offset: [20,0], name: "GARFIELD PARK"},
-  "WEST PULLMAN": {offset: [0,-5]}
-};
+    "ARMOUR SQUARE": {offset: [0,-10]},
+    "AUSTIN": {offset: [8,0]},
+    "BEVERLY": {offset: [0, 10]},
+    "BRIDGEPORT": {offset: [0, -5]},
+    "BURNSIDE": {hide: 1},
+    "EAST GARFIELD PARK": {hide: 1},
+    "ENGLEWOOD": {offset: [-20,0]},
+    "FULLER PARK": {hide: 1},
+    "GARFIELD RIDGE": {offset: [0, 10]},
+    "HEGEWISCH": {offset: [-10, 20]},
+    "KENWOOD": {hide: 1},
+    "OHARE": {offset: [-25,-10]},
+    "PULLMAN": {hide: 1},
+    "WEST ENGLEWOOD": {hide: 1},
+    "WEST GARFIELD PARK": {offset: [20,0], name: "GARFIELD PARK"},
+    "WEST PULLMAN": {offset: [0,-5]}
+  };
 
- this.specials = {
-  "AUSTIN": 1,
-  "GREATER GRAND CROSSING": 1,
-  "HYDE PARK": 1,
-  "LINCOLN PARK": 1
-};
-
-this.depth_to_color = {
-  0: ["#eee", "blue"],
-  1: ["#eee", "green"],
-  2: ["#eee", "red"],
-  3: ["#eee", "purple"]
-}
-
- this.leaderLines = [
-  {label: "austin", d:"M 248 314 L 280 314"},
-  {label: "lincoln", d:"M 504 254 L 554 254"},
-  {label: "grand crossing", d:"M 286 610 L 490 610"},
-  {label: "hyde park", d:"M 583 525 L 623 525 L 623 490"}
-];
-    // defines constants
+  // defines constants
   this.margin = {top: 20, right: 0, bottom: 0, left: 0},
   this.width = 450 - this.margin.left - this.margin.right,
   this.height = 850 - this.margin.top - this.margin.bottom;

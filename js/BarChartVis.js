@@ -1,3 +1,4 @@
+// Based on code from http://bl.ocks.org/Caged/6476579
 BarChartVis = function (_parentElement, _eventHandler, _data){
     this.parentElement = _parentElement;
     this.data = _data;

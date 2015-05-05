@@ -1,4 +1,4 @@
-// view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
+// Based on http://bl.ocks.org/mbostock/3883245
 Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
   this._socrataModel = _socrataModel;

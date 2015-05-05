@@ -1,3 +1,4 @@
+// Based on http://bl.ocks.org/mbostock/3883245
 OvertimeVis = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
   this.initialized = false;
