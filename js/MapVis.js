@@ -51,7 +51,7 @@ this.depth_to_color = {
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
   this.width = 500 - this.margin.left - this.margin.right,
-  this.height = 750 - this.margin.top - this.margin.bottom;
+  this.height = 850 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
 
@@ -65,7 +65,7 @@ MapVis.prototype.initVis = function() {
   this.projection = d3.geo.albers()
     .rotate([87.73, 0])
     .center([0, 42.0433])
-    .scale(80000)
+    .scale(85000)
     .translate([this.width / 2, 0]);
 
   this.path = d3.geo.path()
@@ -307,7 +307,7 @@ MapVis.prototype.choropleth = function(mapping, color){
 
   legend.append("text")
   .attr("x", 20)
-  .attr("y", that.height/1.8 - (ls_h+10))
+  .attr("y", that.height/1.5 - (ls_h+10))
   .text("Quantity Of Crimes");
 
   var gradient = legend.append("svg:linearGradient")

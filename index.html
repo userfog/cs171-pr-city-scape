@@ -89,7 +89,9 @@
   </div>
   <div class="row">
     <div class="col-md-4">
-      <div id="sunburst" style="height=350px">
+      <div id="timeline">
+      </div>
+      <div id="sunburst" style="height=450px">
       </div>
       <!--<div id = "resolution">
         Resolution:
@@ -99,8 +101,6 @@
           <option value="getYear">Year</option>
         </select>
       </div> -->
-      <div id="timeline">
-      </div>
     </div>
     <div class="col-md-8" >
       <div class="row">
@@ -154,7 +154,6 @@
   </div>
 </footer>
 <script type="text/javascript">
-
   var state = {
     "ready": false,
     "crime_filters" : [],
@@ -200,13 +199,11 @@
       }
     }
   }
-
   queue().defer(d3.json, "map/chicago.json")
         .defer(d3.json, "data/2000_2010.json")
         .defer(d3.json, "data/income_2006_2010.json")
         .defer(d3.json, "data/overtime.json")
         .await(ready);
-
   function ready(error, chicago, _2000_2010, _income, overtime){
 
         var MyEventHandler = new Object();
