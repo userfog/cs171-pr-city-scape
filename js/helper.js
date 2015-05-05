@@ -118,7 +118,7 @@ function isSame (array1, array2, name){
       return false;
     }
     return element.getTime() == array2[index].getTime();
-  }
+  }  
 
   if(name == "time"){
     f = compareTimeFilters;
@@ -142,6 +142,13 @@ function safe_callback(callback, args){
     }else{
       console.log(args);
     }
+}
+
+
+function calendarCompare(d1, d2){
+  var m1 = moment(d1)
+  var m2 = moment(d2)
+  return m1.calendar() == m2.calendar(); 
 }
 
 

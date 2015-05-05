@@ -172,6 +172,7 @@ MapVis.prototype.initVis = function() {
         // d3.select("._"+getId(d)).style("stroke", "black").style("stroke-width", 1.2);
     }).on("mouseout", function(){
       that.table("Total", that.demographicData);
+      
       if(state.ready)
         $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       // d3.select("._"+getId(d)).style("stroke-width", 0.1)

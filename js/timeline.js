@@ -79,10 +79,7 @@ Timeline.prototype.initVis = function() {
 
         var ex = that.brush.extent();
 
-        if(ex[0] == "undefined" || ex[1] == "undefined" || ex[0].getTime() == ex[1].getTime())
-          state.set_time([]);
-        else
-          state.set_time(ex);
+        state.set_time(ex);
 
         $(that.eventHandler).trigger("timeChange"); 
       })
