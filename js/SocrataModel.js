@@ -19,7 +19,7 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     if(clear)
       that.data = [];
 
-    var request = str + "&$offset={0}&$limit={1}".format(offset, limit);
+    var request = str + "&$offset={0}&$limit={1}".format(1000, limit);
     $.getJSON(this.fullUrl
         + request 
         + "&$$app_token=" + this.apiKey,
@@ -37,23 +37,6 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     });
 }
 
-
-// SocrataModel.prototype.getMain = function (str, callback, offset, limit, clear){
-//     var that = this;
-//     if(clear)
-//       that.data = [];
-
-//     if(state.year < 2015){
-//       queue().defer(d3.json, "data/socrata_{0}.json".format(state.year))
-//         .await(ready);
-//       function ready(error, data){
-//         that.data = data;
-//         safe_callback(callback, that);
-//       }
-//     } else {
-//       this.get(str, callback, offset, limit, clear);
-//     }
-// }
 
 SocrataModel.prototype.filterQuery = function(){
   if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
@@ -184,7 +167,7 @@ SocrataModel.prototype.wrangleTimeChange = function(that){
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   NProgress.inc()
-  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  $(that.eventHandler).trigger("barChartInit", ["Total"])
   NProgress.done()
   state.changed = false;
 }

@@ -18,8 +18,6 @@
   <meta name="msapplication-TileColor" content="#ffffff">
   <meta name="msapplication-TileImage" content="images/fav.ico/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-  <link href='https://fonts.googleapis.com/css?family=PT+Sans:400,700' rel='stylesheet' type='text/css'>
   <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
   <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/d3.v3.min.js"></script>
@@ -36,6 +34,8 @@
   <script type="text/javascript" src="js/BarChartVis.js"></script>
   <script type="text/javascript" src="js/timeline.js"></script>
   <script type="text/javascript" src="js/OvertimeVis.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
+  <link rel='stylesheet' type="text/css" href='https://fonts.googleapis.com/css?family=PT+Sans:400,700'/>
   <link rel="stylesheet" type="text/css" href="style/nprogress.css"/>
   <link rel="stylesheet" type="text/css" href="style/style.css"/>
 </head>
@@ -161,10 +161,17 @@
     "year" : 2015,
     "changed" : true,
     "set_time" : function (ex){
-      var next = (ex[0].getTime() == ex[1].getTime()) ? [] : ex;
-      if(!isSame(next, this.time_filters, "time")){
+      if(!ex 
+        || ex.length == 0 
+        || ex[0] == "undefined"
+        || ex[1] == "undefined"
+        || calendarCompare(ex[0], ex[1])){
+          this.changed = true;
+          this.time_filters = [];
+      }
+      if(!isSame(ex, this.time_filters, "time")){
         this.changed = true;
-        this.time_filters = next;
+        this.time_filters = ex;
       }
     },
     "set_crime" : function (filters){
@@ -179,7 +186,7 @@
       if(this.time_filters.length > 0 
         && state.time_filters[0] != undefined
         && state.time_filters[1] != undefined
-        && this.time_filters[0].getTime() != this.time_filters[1].getTime()){
+        && !calendarCompare(state.time_filters[0], state.time_filters[1])){
         timeQ = "date>%27{0}%27%20and%20date<%27{1}%27".format(getReadableDate(state.time_filters[0])
           , getReadableDate(state.time_filters[1]));
       } else{
@@ -234,8 +241,9 @@
           init(state.year);
         })
 
-        var currentSelection = d3.select("#currentSelection")
-          .html(convertFiltersToTitle);
+        var currentSelection = d3.select("#currentSelection");
+
+        currentSelection.html(convertFiltersToTitle());
 
         $(MyEventHandler).bind("barChartInit", function(event, event_args){
           NProgress.start();
@@ -251,8 +259,8 @@
         });
        
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
+          currentSelection.html(convertFiltersToTitle());
           if(!state.changed) return;
-          currentSelection.html(convertFiltersToTitle);
           //var resolution = d3.select("#resolution").selectAll("select").property("value");
           resolution = "getDay";
           NProgress.start();
@@ -331,7 +339,8 @@ var  convertFiltersToTitle = function() {
   if(typeof state.time_filters == "undefined"
       || typeof state.time_filters[0] == "undefined"
       || typeof state.time_filters[1] == "undefined"
-      || state.time_filters.length == 0){
+      || state.time_filters.length < 2
+      || calendarCompare(state.time_filters[0], state.time_filters[1])){
         time = "";
   } else{
       time = " <small>between</small> {0} <small>and</small> {1}".format(

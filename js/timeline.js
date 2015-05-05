@@ -78,10 +78,7 @@ Timeline.prototype.initVis = function() {
       .on("brush", function (d){
         var ex = that.brush.extent();
 
-        if(ex[0] == "undefined" || ex[1] == "undefined" || ex[0].getTime() == ex[1].getTime())
-          state.set_time([]);
-        else
-          state.set_time(ex);
+        state.set_time(ex);
 
         if (state.crime_filters.length > 0){
           that.brush.extent(that.prev_brush);
