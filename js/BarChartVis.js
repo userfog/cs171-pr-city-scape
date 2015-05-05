@@ -4,9 +4,9 @@ BarChartVis = function (_parentElement, _eventHandler, _data){
     this.eventHandler = _eventHandler;
     this.displayData = [];
     // defines constants
-    this.margin = {top: 25, right: 20, bottom: 30, left: 30},
+    this.margin = {top: 25, right: 0, bottom: 30, left: 35},
     this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-    this.height = 200- this.margin.top - this.margin.bottom;
+    this.height = 300 - this.margin.top - this.margin.bottom;
 }
 
 
@@ -54,7 +54,7 @@ BarChartVis.prototype.initVis = function (){
     var that = this;
     // constructs SVG layout
     this.svg = this.parentElement.append("svg")
-        .attr("width", this.width + this.margin.left + this.margin.right)
+        .attr("width", this.width + this.margin.left)
         .attr("height", this.height + this.margin.top + this.margin.bottom)
       .append("g")
         .attr("transform", "translate(" + that.margin.left + "," + this.margin.top + ")");
@@ -76,7 +76,8 @@ BarChartVis.prototype.initVis = function (){
 
     this.yAxis = d3.svg.axis()
       .scale(this.y)
-      .orient("left");
+      .orient("left")
+      .tickFormat(d3.format(".0%"));;
 
     this.svg.append("text")
         .attr("x", (that.width / 2))             

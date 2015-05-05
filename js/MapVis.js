@@ -50,7 +50,7 @@ this.depth_to_color = {
 ];
     // defines constants
   this.margin = {top: 50, right: 0, bottom: 0, left: 0},
-  this.width = 500 - this.margin.left - this.margin.right,
+  this.width = 450 - this.margin.left - this.margin.right,
   this.height = 850 - this.margin.top - this.margin.bottom;
   this.color = d3.scale.linear()
     .range(["#eee", "blue"]);
@@ -65,7 +65,7 @@ MapVis.prototype.initVis = function() {
   this.projection = d3.geo.albers()
     .rotate([87.73, 0])
     .center([0, 42.0433])
-    .scale(85000)
+    .scale(82000)
     .translate([this.width / 2, 0]);
 
   this.path = d3.geo.path()
@@ -76,7 +76,7 @@ MapVis.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
   .append("g")
-    .attr("transform", "translate(-25,0)");
+    .attr("transform", "translate(10,0)");
 
   var blocksById = {},
       blockGroups = topojson.feature(this.data, this.data.objects.blockGroups),
@@ -138,7 +138,7 @@ MapVis.prototype.initVis = function() {
 
 
         d3.select("#quantity")
-        .text("Quantity : " + that.displayData.get(getId(d)));
+        .html("<br><br><strong>Quantity</strong>" + "<br>" +that.displayData.get(getId(d)));
 
         that.table(d.properties.name, table_demographics);
         that.income_table(d.properties.name, table_income);
@@ -152,6 +152,13 @@ MapVis.prototype.initVis = function() {
       that.income_table("Total", that.incomeData);
 
       d3.select(this).style("stroke-width", 0.1)
+
+      var mean = d3.sum(d3.range(1,78), function(d){
+        return that.displayData.get(d)
+      })/77;
+
+      d3.select("#quantity")
+        .html("<br><br><strong>Quantity</strong>" + "<br>" + d3.format(".02f")(mean))
 
       $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       
@@ -221,7 +228,7 @@ MapVis.prototype.income_table = function (name, table_income){
   var cap = this.incomeTable.select("caption");
   if(!cap[0][0]){
     this.incomeTable.append("caption")
-    .html("Med. Household Income")
+    .html("Household Income")
     .style("text-align", "right");
   } 
 
@@ -352,9 +359,7 @@ MapVis.prototype.choropleth = function(mapping, color){
 
 
 MapVis.prototype.table = function (name, table_demographics){
-  // if(tableDemographics == undefined || tableDemographics == null){
-  //   return
-  // }
+
   function aggregate(){
     return d3.nest()
     .key(function (d) { return d.year })

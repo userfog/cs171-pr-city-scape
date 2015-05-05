@@ -6,9 +6,9 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.eventHandler = _eventHandler;
 
   // defines constants
-  this.margin = {top: 10, right: 10, bottom: 10, left: 50},
+  this.margin = {top: 30, right: 25, bottom: 10, left: 50},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
-  this.height = 400 - this.margin.top - this.margin.bottom;
+  this.height = 400 - this.margin.bottom;
 
   this.depth_to_field = {
     0: "none",
@@ -56,6 +56,18 @@ Sunburst.prototype.initVis = function() {
   }
 
   this.parentElement.selectAll("*").remove();
+
+  this.parentElement.append("svg")
+    .attr("width", this.width-10)
+    .attr("height", this.margin.top+5)
+    .append("text")   
+      .attr("transform", "translate("+ this.width/2 + ","+ 0 + ")")      
+      .attr("x", 0)
+      .attr("y", this.margin.top)
+      .attr("text-anchor", "middle")  
+      .style("font-size", "16px") 
+      .style("text-decoration", "underline")  
+      .text("Crime Categories");
 
   this.svg = this.parentElement.append("svg")
     .attr("width", this.width)

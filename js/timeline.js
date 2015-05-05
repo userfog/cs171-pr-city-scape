@@ -7,7 +7,7 @@ Timeline = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.prev_brush = [];
   // defines  tants
   this.margin = {top: 25, right: 50, bottom: 65, left: 0},
-  this.width = getInnerWidth(this.parentElement)- this.margin.left - this.margin.right,
+  this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 300 - this.margin.top - this.margin.bottom;
 
 }
@@ -25,39 +25,43 @@ Timeline.prototype.initVis = function() {
     return;
   }
 
+  this.parentElement.append("svg")
+    .attr("width", this.width-10)
+    .attr("height", this.margin.top+5)
+  .append("text")
+    .attr("transform", "translate("+ this.width/2 + ","+ 0 + ")")      
+      .attr("x", 0)
+      .attr("y", this.margin.top)
+      .attr("text-anchor", "middle")  
+      .style("font-size", "16px") 
+      .style("text-decoration", "underline")
+      .text("Crime per Day");  
+
   this.svg = this.parentElement.append("svg")
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate(75,0)")
+    .attr("transform", "translate("+that.margin.right+",0)")
 
-    /*this.x = d3.scale.ordinal()
-      .rangeRoundBands([0, this.width/1.25],1.015);*/
+  /*this.x = d3.scale.ordinal()
+    .rangeRoundBands([0, this.width/1.25],1.015);*/
 
-    this.x = d3.time.scale()
-      .range([0, this.width/1.25]);
+  this.x = d3.time.scale()
+    .range([0, this.width/1.25]);
 
-    this.y = d3.scale.linear()
-      .range([this.height/1.45,this.margin.top]);
+  this.y = d3.scale.linear()
+    .range([this.height/1.45,this.margin.top]);
 
-    this.yAxis = d3.svg.axis()
-      .scale(this.y)
-      .orient("left");
+  this.yAxis = d3.svg.axis()
+    .scale(this.y)
+    .orient("left");
 
-    this.xAxis = d3.svg.axis()
-      .scale(this.x)
+  this.xAxis = d3.svg.axis()
+    .scale(this.x)
       
-
-    this.svg.append("text")
-        .attr("x", (that.width / 2))             
-        .attr("y", (that.margin.top / 2))
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px")  
-        .text("Crime Counts with Time");
-
-    // Add axes visual elements
-    this.svg.append("g")
-        .attr("class", "y axis")
+  // Add axes visual elements
+  this.svg.append("g")
+      .attr("class", "y axis")
 
   this.svg.append("g")
         .attr("class", "x axis")

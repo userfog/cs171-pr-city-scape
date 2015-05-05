@@ -41,28 +41,62 @@
 </head>
 <body>
   <div class = "header">
-  <img src="images/header.jpg" alt="Chicago Skyline" style="width:100%;height:20%">
+  <img src="images/header.jpg" alt="Chicago Skyline" style="width:100%;max-height:300px;">
   </div>
   </br>
   <div class="row">
     <div id="overtime" class="col-md-6">
     </div>
     <div id="writeup" class="col-md-6">
-    <p> Over the last decade, crime rates have gone down in the city of Chicago (see graph at left).  For our project, we wanted to delve deeper into this statistic, aiming to answer the following questions:</p> <p><strong>What types of crime occur in Chicago</strong>, and where? How do these types of crime sort differentially among neighborhoods in the city? <strong>How have rates of these crimes changed with time </strong>? Do we notice <strong> differences in arrest rate </strong> by time or neighborhood? </p> <p> See text and video below to learn how to use our interactive visualization. </p></div>
-  </div> </br> </br>
-  <div id="project-info" style="height:400px">
+    <h2>Overview and Motivation</h2>
+      <p> Over the last decade, the number of crimes in Chicago has declined (see graph at left).  For our project, we wanted to delve deeper into this statistic, aiming to answer the following questions:</p> <p><strong>What types of crime occur in Chicago</strong>, and where? How do these types of crime sort differentially among neighborhoods in the city? <strong>How have rates of these crimes changed with time </strong>? Do we notice <strong> differences in arrest rate </strong> by time or neighborhood? </p> <p> See text and video below to learn how to use our interactive visualization. </p></div>
+  </div>
+  <div id="project-info" style="height:600px">
     <div id="video" class="col-md-6" style="text-align: center">
       <iframe width="420" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0" frameborder="0" allowfullscreen></iframe>
     </div>
     <div id="data-etc" class="col-md-6" style="height: 350px">
-      <h4> How to use our visualization: </h4>
-      <p> Use the sunburst to select the year of interest and browse the crime hierarchy, which follows a PRIMARY TYPE > DESCRIPTION > LOCATION paradigm. Click on a crime type or location to update the map and timeline to display that item alone. </p>
-      <p> At the top level (all crime types) the timeline can be brushed to update the sunburst and map with crimes for the selected portion of the year. </p>
-      <p> Finally, hover over neighborhoods on the map to view demographics, income data, and month-by-month arrest statistics. </p>
-    </br>
-      <p> The main data for this project came from the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">City of Chicago Data Portal</a>.
-      Additional data on demographic information came from <a href="http://www.robparal.com/ChicagoCommunityAreaData.html"> robparal.com. </a></p>
-      <p>View our <a href="https://github.com/userfog/cs171-pr-city-scape"> GitHub repository for this project. </a> View our <a href="https://github.com/userfog/cs171-pr-city-scape/blob/master/City%20Scape%20Project%20Book.pdf"> Process Book. </a></p>
+      <h2> How to use our visualization: </h2>
+      <ol>
+        <li>
+          <span>
+          <strong>Time: </strong>Filter by a time period by brushing the timeline showing Crimes per Day
+          </span>
+        </li>
+        <li>
+          <span>
+          <strong>Crime: </strong>Use the sunburst to select the year of interest and browse the crime hierarchy, which follows a PRIMARY TYPE > DESCRIPTION > LOCATION paradigm. Click on a crime type or location to update the map and timeline to display that item alone.
+          </span>
+        </li>
+        <li>
+          <span>
+            <strong>Community Area: </strong>Hover over neighborhoods on the map of Chicago to view demographics, income data, and the month-by-month arrest ratio.
+          </span>
+        </li>
+      </ol>
+      <div>
+        <h2>Related Work</h2>
+          <h4>Data</h4>
+          <p> The data for this project came from the <a href="https://data.cityofchicago.org/Public-Safety/Crimes-2001-to-present/ijzp-q8t2">City of Chicago Data Portal</a>. and
+          Additional data on demographics and income came from <a href="http://www.robparal.com/ChicagoCommunityAreaData.html"> robparal.com. </a></p>
+          <h4>Inspiring Visualizations</h4>
+          <p>
+            This project is implenented in D3 and so we are incredibly indebted to all of the examples and support provided by the D3 community. Especially Mike Bostock who produced <a href="http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0">a map of murders in Chicago</a> for the New York Times, which we modified.
+          </p>
+          <p> 
+            Another visualization we found striking was the <a href="http://fivethirtyeight.com/interactives/uk-general-election-predictions/">U.K. General Election Predictions map</a> which inspired our use of hover to reveal additional information.
+          </p>
+      </div>
+      <div>
+        <h2>Additional Information</h2>
+          <ul>
+            <li>
+              <a href="https://github.com/userfog/cs171-pr-city-scape">Source</a></li>
+            <li>
+              <a href="https://github.com/userfog/cs171-pr-city-scape/blob/master/City%20Scape%20Project%20Book.pdf">Process Book</a>
+            </li>
+          </ul>
+      </div>
     </div>
   </div>
   </br>
@@ -88,45 +122,43 @@
     </select>
   </div>
   <div class="row">
-    <div class="col-md-4">
-      <div id="timeline">
+      <div class="col-md-4" style="padding:0px">
+        <div id="timeline">
+        </div>
+        <div id="sunburst" style="height=450px">
+        </div>
+        <!--<div id = "resolution">
+          Resolution:
+          <select>
+            <option value="getDay" selected>Day</option>
+            <option value="getMonth">Month</option>
+            <option value="getYear">Year</option>
+          </select>
+        </div> -->
       </div>
-      <div id="sunburst" style="height=450px">
-      </div>
-      <!--<div id = "resolution">
-        Resolution:
-        <select>
-          <option value="getDay" selected>Day</option>
-          <option value="getMonth">Month</option>
-          <option value="getYear">Year</option>
-        </select>
-      </div> -->
-    </div>
-    <div class="col-md-8" >
-      <div class="row">
-        <span class="pull-left">
-          <div class="col-md-6" id="mapvis">
+      <div class="col-md-8"  style="padding:0px">
+        <div class="row">
+          <div class="col-md-7" id="mapvis">
           </div>
-        </span>
-        <div class="col-md-4" id="maphover">
-          <div class="row">
-            <span class="pull-left">
-              <div class="col-md-4" id="tableDemographics">
+          <div class="col-md-5" id="maphover">
+            <div class="row">
+              <div class="col-md-8" id="tableDemographics">
               </div>
-            </span>
-            <div class="col-md-2" id="tableIncome">
+              <div class="col-md-4" id="tableIncome">
+              </div>
             </div>
-          </div>
-          <div class="row">
-            <p id="quantity" class="row"></p>
-            <div id="barVis">
+            <div class="row" style="margin-left: -50px;margin-top:50px">
+                <div class="col-md-8" id="barVis">
+                </div>
+                 <div class="col-md-4" style="margin-left:-25px;">
+                  <p id="quantity"></p>
+                </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
- <footer class="site-footer">
+</div>
+<footer class="site-footer">
   <div class="wrap" style="text-align: center">
     <h2 class="footer-heading">Made for CS171 <strong> &middot; </strong> <a href="http://cs171.org">  cs171.org  </a> <strong> &middot; </strong>  Harvard University </h2>
     <div>
