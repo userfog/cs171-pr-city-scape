@@ -38,23 +38,6 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
 }
 
 
-// SocrataModel.prototype.getMain = function (str, callback, offset, limit, clear){
-//     var that = this;
-//     if(clear)
-//       that.data = [];
-
-//     if(state.year < 2015){
-//       queue().defer(d3.json, "data/socrata_{0}.json".format(state.year))
-//         .await(ready);
-//       function ready(error, data){
-//         that.data = data;
-//         safe_callback(callback, that);
-//       }
-//     } else {
-//       this.get(str, callback, offset, limit, clear);
-//     }
-// }
-
 SocrataModel.prototype.filterQuery = function(){
   if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
     return this.data;
@@ -153,13 +136,21 @@ SocrataModel.prototype.wrangleRequest = function (that){
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
   var mapArgs = that.mapWrangle("#FFCC44");
-  var timeArgs = that.timeWrangle(that, "getDay");
-  $(that.eventHandler).trigger("overtimeReady", [])
-  $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
-  $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
-  $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
   NProgress.inc()
-  $(that.eventHandler).trigger("barChartInit", ["Total"])
+  var timeArgs = that.timeWrangle(that, "getDay");
+  var barData = that.barChartWrangler(that);
+  NProgress.inc()
+  $(that.eventHandler).trigger("barChartDataReady", [barData]);
+  NProgress.inc()  
+  $(that.eventHandler).trigger("overtimeReady", [])
+  NProgress.inc()
+  $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
+  NProgress.inc()
+  $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  NProgress.inc()
+  $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
+  $(that.eventHandler).trigger("loadingDone");
+  // $(that.eventHandler).trigger("barChartInit", ["Total"])
   state.changed = false;
   
 }
@@ -168,12 +159,14 @@ SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution
   that.getDisplayData();
   var mapArgs = that.mapWrangle(color);
   var timeArgs = that.timeWrangle(that, resolution);
+  var barData = that.barChartWrangler(that);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
   $(that.eventHandler).trigger("timeUpdate", [timeArgs]);
-  NProgress.inc()
-  // $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
-  $(that.eventHandler).trigger("barChartInit", ["Total"])
+  $(that.eventHandler).trigger("barChartDataReady", [barData]);
+  $(that.eventHandler).trigger("loadingDone");
   state.changed = false;
+  // $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
+  // $(that.eventHandler).trigger("barChartInit", ["Total"])
 }
 
 SocrataModel.prototype.wrangleTimeChange = function(that){
@@ -181,11 +174,12 @@ SocrataModel.prototype.wrangleTimeChange = function(that){
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
   var mapArgs = that.mapWrangle();
+  var barData = that.barChartWrangler(that);
+  NProgress.inc()
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
-  NProgress.inc()
-  $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
-  NProgress.done()
+  $(that.eventHandler).trigger("barChartDataReady", [barData]);
+  $(that.eventHandler).trigger("loadingDone");
   state.changed = false;
 }
 
@@ -199,7 +193,7 @@ SocrataModel.prototype.sunburstWrangle = function(){
     .key(function(d){return d.description;})
     .key(function(d){return d.location_description;})
     .rollup(function(leaves){
-      return {"size": d3.sum(leaves, function(d){ return +d.count_primary_type; })}
+      return {"size": leaves.length}
     }).entries(sunburstDisp);
 
   nested = {"key": "Total", "values": nested};
@@ -214,8 +208,8 @@ SocrataModel.prototype.mapWrangle = function(color){
   var that = this;
   var mapping = d3.map();
   that.displayData.forEach(function(d){
-    var val = mapping.get(+d.community_area) || 0;
-    mapping.set(+d.community_area, val+parseInt(d.count_primary_type))})
+    var val = mapping.get(parseInt(d.community_area)) || 0;
+    mapping.set(parseInt(d.community_area), val+1)})
   var t1 = new Date().getTime();
   console.log("mapWrangle: " + (t1-t0));
   return [mapping, color]
@@ -225,7 +219,7 @@ SocrataModel.prototype.mapWrangle = function(color){
 SocrataModel.prototype.barChartWrangler = function(that, community_area, resolution){
   var nested = d3.nest()
         .key(function(d){
-            return moment(d.date).month();})
+            return moment(d.date).zone("-6:00").month();})
         .key(function(d){
             return d.community_area;})
         .rollup(function(leaves){
@@ -234,7 +228,7 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
           else
             return {"arrest_ratio": -1};
         })
-        .entries(that.data);
+        .entries(that.displayData);
   return nested;
 }
 
@@ -243,6 +237,7 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
   var t0 = new Date().getTime();
   var yr = state.year;
   var zeroed_data;
+
   if(resolution == "getDay"){
     if(yr == 2004 || yr == 2008 || yr == 2012 || yr == 2016){
       zeroed_data = new Array(367);
@@ -265,9 +260,9 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
   }
 
   for(var i = 0; i < timeDisplayData.length; i++){
-    var info = moment(timeDisplayData[i].date);
+    var info = moment(timeDisplayData[i].date).zone("-6:00");
     var index = (resolution == "getDay") ? info.dayOfYear() : info.month();
-    zeroed_data[index].count += parseInt(timeDisplayData[i].count_primary_type);
+    zeroed_data[index].count++;
   }
 
   var t1 = new Date().getTime();

@@ -144,17 +144,16 @@ MapVis.prototype.initVis = function() {
         that.income_table(d.properties.name, table_income);
 
         d3.select(this).style("stroke", "black").style("stroke-width", 1.2)
-        if(state.ready){
-                  $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
-        };
+        $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
 
     }).on("mouseout", function(){
 
       that.table("Total", that.demographicData);
       that.income_table("Total", that.incomeData);
+
       d3.select(this).style("stroke-width", 0.1)
-      if(state.ready)
-        $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
+
+      $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       
     });
 
@@ -164,9 +163,12 @@ MapVis.prototype.initVis = function() {
           return getId(d) == e.community_area;
         });
         that.table(d.properties.name, table_demographics);
+        $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
         // d3.select("._"+getId(d)).style("stroke", "black").style("stroke-width", 1.2);
     }).on("mouseout", function(){
       that.table("Total", that.demographicData);
+      
+      $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
       // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
 
@@ -307,7 +309,7 @@ MapVis.prototype.choropleth = function(mapping, color){
 
   legend.append("text")
   .attr("x", 20)
-  .attr("y", that.height/1.8 - (ls_h+10))
+  .attr("y", that.height/2.2 - (ls_h+10))
   .text("Quantity Of Crimes");
 
   var gradient = legend.append("svg:linearGradient")
@@ -330,7 +332,7 @@ MapVis.prototype.choropleth = function(mapping, color){
 
   legend.append("rect")
     .attr("x", 20)
-    .attr("y", that.height/1.8-ls_h)
+    .attr("y", that.height/2.2-ls_h)
     .attr("width", ls_w)
     .attr("height", ls_h+30)
     .style("fill", "url(#gradient)")
@@ -341,7 +343,7 @@ MapVis.prototype.choropleth = function(mapping, color){
     .append("text")
     .attr("x", 50)
     .attr("y", function(d, i){ 
-      return (!i) ? 410 : 290
+      return (!i) ? 390 : 260
     })
     .text(function(d, i){  
       return d;
