@@ -307,7 +307,7 @@ MapVis.prototype.choropleth = function(mapping, color){
 
   legend.append("text")
   .attr("x", 20)
-  .attr("y", that.height/1.8 - (ls_h+10))
+  .attr("y", that.height/1.5 - (ls_h+10))
   .text("Quantity Of Crimes");
 
   var gradient = legend.append("svg:linearGradient")

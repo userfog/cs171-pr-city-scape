@@ -79,10 +79,11 @@ Timeline.prototype.initVis = function() {
 
         var ex = that.brush.extent();
 
-        if(ex[0] == "undefined" || ex[1] == "undefined")
+        if(ex[0] == "undefined" || ex[1] == "undefined" || ex[0].getTime() == ex[1].getTime())
           state.set_time([]);
         else
           state.set_time(ex);
+
         $(that.eventHandler).trigger("timeChange"); 
       })
 
@@ -165,7 +166,7 @@ Timeline.prototype.updateVis = function() {
     this.svg.select(".brush")
         .call(this.brush)
       .selectAll("rect")
-        .attr("height", this.height/2-this.margin.top)
+        .attr("height", this.height/1.45-this.margin.top+1)
         .attr("y", this.margin.top)
         .style("fill", "lightgrey")
         .attr("opacity", .75)
