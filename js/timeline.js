@@ -76,7 +76,6 @@ Timeline.prototype.initVis = function() {
 
     this.brush = d3.svg.brush()
       .on("brush", function (d){
-
         var ex = that.brush.extent();
 
         if(ex[0] == "undefined" || ex[1] == "undefined" || ex[0].getTime() == ex[1].getTime())
@@ -84,7 +83,13 @@ Timeline.prototype.initVis = function() {
         else
           state.set_time(ex);
 
-        $(that.eventHandler).trigger("timeChange"); 
+        if (state.crime_filters.length > 0){
+          that.brush.extent(that.prev_brush);
+          that.svg.select('.brush').call(that.brush);
+        }
+        else {
+        that.prev_brush = ex;
+        $(that.eventHandler).trigger("timeChange"); }
       })
 
 
