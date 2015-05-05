@@ -146,8 +146,8 @@ function safe_callback(callback, args){
 
 
 function calendarCompare(d1, d2){
-  var m1 = moment(d1).zone("-6:00")
-  var m2 = moment(d2).zone("-6:00")
+  var m1 = moment(d1).utcOffset("-6:00")
+  var m2 = moment(d2).utcOffset("-6:00")
   return m1.calendar() == m2.calendar(); 
 }
 

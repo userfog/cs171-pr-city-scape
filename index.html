@@ -236,8 +236,8 @@
         }); */
 
         var yearSelector = d3.select("#year").select("select").on("change", function(){
+          MySocrataModel.prev_year = state.year;
           state.set_year(this.value);
-          if(!state.changed) return;
           init(state.year);
         })
 
@@ -261,7 +261,6 @@
         $(MyEventHandler).bind("selectionChanged", function(event, event_args){
           currentSelection.html(convertFiltersToTitle());
           if(!state.changed) return;
-          //var resolution = d3.select("#resolution").selectAll("select").property("value");
           resolution = "getDay";
           NProgress.start();
           MySocrataModel.wrangleSelectSunburst(MySocrataModel, event_args, resolution);

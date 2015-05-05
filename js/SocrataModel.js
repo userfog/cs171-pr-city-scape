@@ -7,18 +7,19 @@ var SocrataModel = function(_baseUrl, _resource, _apiKey, _eventHandler, _respon
   this.fullUrl = "{0}/resource/{1}.{2}?".format(this.baseUrl, this.resource, this.responseType);
   // Local variable
   this.eventHandler = _eventHandler;
-  this.years = [2004];
+  this.prev_year = 2015
   this.grouping = "getMonth"
   this.data = [];
-  this.displayData = null;
+  this.barNoFilter;
+  this.timeNoFilter;
+  this.sunNoFilter;
+  this.mapNoFilter;
 }
-
 
 SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     var that = this;
     if(clear)
       that.data = [];
-
     var request = str + "&$offset={0}&$limit={1}".format(offset, limit);
     $.getJSON(this.fullUrl
         + request 
@@ -38,34 +39,21 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
 }
 
 
-SocrataModel.prototype.filterQuery = function(){
-  if(typeof state.crime_filters == "undefined" || state.crime_filters.length == 0)
-    return this.data;
-
-  var filtered = this.data;
-  state.crime_filters.map(function(d,i){
-    filtered = filtered.filter(function(e,j){
-      return e[d.key] == d.value;
-    })
-  });
-  return filtered;
-}
-
 SocrataModel.prototype.filterTime = function(){
   if(state.time_filters == undefined
     || state.time_filters.length == 0 
     || state.time_filters[0] == undefined
     || state.time_filters[1] == undefined
-    || state.time_filters[0].getTime() == state.time_filters[1].getTime()) 
+    || calendarCompare(state.time_filters[0], state.time_filters[1])) 
     return [-1,-1];
 
   var filters = state.time_filters[0].getTime() < state.time_filters[1].getTime() ? [state.time_filters[0], state.time_filters[1]] : [state.time_filters[1], state.time_filters[0]];
 
   var compare_function = function(el, b){
-    var target = new Date(el.getFullYear(), el.getMonth(), el.getDate());
-    var tmp = d3.time.format.utc("%Y-%m-%dT%H:%M:%S").parse(b.date);
-    var day = new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate());
-    return target.getTime() - day.getTime()
+    var tmp = moment(b.date).utcOffset("-6:00");
+    if(moment(el).calendar() == tmp.calendar())
+      return 0
+    return moment(el).toDate().getTime() - tmp.toDate().getTime()
   }
 
   var start_index = binarySearch(this.data, filters[0], compare_function);
@@ -81,64 +69,73 @@ SocrataModel.prototype.timeOnlyFilter  = function (){
   return this.data.slice(indexes[0], indexes[1])
 }
 
+SocrataModel.prototype.categoryFilter = function(data){
+    if(typeof state.crime_filters == "undefined")
+      return data
+
+    switch(state.crime_filters.length){
+      case 0:{
+        return data;
+      }
+      case 1:{
+        return data.filter(function(d){
+            return d[state.crime_filters[0].key] == state.crime_filters[0].value;
+          });
+        break;
+      }
+      case 2:{
+        return data.filter(function(d){
+            return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
+            && (d[state.crime_filters[1].key] == state.crime_filters[1].value);
+        })
+        break;
+      }
+      case 3:{
+        return data.filter(function(d){
+          return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
+          && (d[state.crime_filters[1].key] == state.crime_filters[1].value)
+          && (d[state.crime_filters[2].key] == state.crime_filters[2].value);
+        });
+        break;
+      }
+  }
+}
+
 
 SocrataModel.prototype.getDisplayData = function(){
   var t0 = new Date().getTime();
   var indexes = this.filterTime();
 
-  if(indexes[0] == -1 || indexes[1] == -1){
+  if(indexes[0] == -1 && indexes[1] == -1){
     this.displayData = this.data;
-    if(state.time_filters.length > 0){
+    if(state.time_filters.length > 0 && !calendarCompare(state.time_filters[0], state.time_filters[1])){
         console.log("Times not found");
     }
-  }else{
+  } else if(indexes[0] == -1 && indexes[1] != -1){
+    this.displayData = this.data.slice(0, indexes[1])
+  } else if(indexes[0] != -1 && indexes[1] == -1){
+    this.displayData = this.data.slice(indexes[0], this.data.length-1)
+  } else{
     this.displayData = this.data.slice(indexes[0], indexes[1]);
   }
 
-  switch(state.crime_filters.length){
-    case 0:{
-      break;
-    }
-    case 1:{
-      this.displayData = this.displayData.filter(function(d){
-          return d[state.crime_filters[0].key] == state.crime_filters[0].value;
-        });
-      break;
-    }
-    case 2:{
-      this.displayData = this.displayData.filter(function(d){
-          return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
-          && (d[state.crime_filters[1].key] == state.crime_filters[1].value);
-      })
-      break;
-    }
-    case 3:{
-      this.displayData = this.displayData.filter(function(d){
-        return (d[state.crime_filters[0].key] == state.crime_filters[0].value) 
-        && (d[state.crime_filters[1].key] == state.crime_filters[1].value)
-        && (d[state.crime_filters[2].key] == state.crime_filters[2].value);
-      });
-      break;
-    }
-  }
+  this.displayData = this.categoryFilter(this.displayData);
+
   var t1 = new Date().getTime();
   console.log("getDisplayData: " + (t1-t0));
-}
-
-SocrataModel.prototype.wrangleBarChartRequest = function (that){
-  var barData = that.barChartWrangler(that);
-  $(that.eventHandler).trigger("barChartDataReady", [barData]);
-  $(that.eventHandler).trigger("loadingDone");
-  state.changed = false;
 }
 
 SocrataModel.prototype.wrangleRequest = function (that){
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
+  that.sunNoFilter = $.extend(true, {},sunArgs);
   var mapArgs = that.mapWrangle("#FFCC44");
+  that.mapNoFilter = $.extend(true, {}, mapArgs);
   NProgress.inc()
   var timeArgs = that.timeWrangle(that, "getDay");
+  that.timeNoFilter = $.extend(true, [], timeArgs);
   var barData = that.barChartWrangler(that);
+  that.barNoFilter = $.extend(true, [],barData);
   NProgress.inc()
   $(that.eventHandler).trigger("barChartDataReady", [barData]);
   NProgress.inc()  
@@ -150,40 +147,53 @@ SocrataModel.prototype.wrangleRequest = function (that){
   NProgress.inc()
   $(that.eventHandler).trigger("timeDataReady", [timeArgs]);
   $(that.eventHandler).trigger("loadingDone");
-  // $(that.eventHandler).trigger("barChartInit", ["Total"])
+  that.prev_year = state.year;
   state.changed = false;
   
 }
 
 SocrataModel.prototype.wrangleSelectSunburst = function (that, color, resolution){
+  NProgress.start()
   that.getDisplayData();
   var mapArgs = that.mapWrangle(color);
+  NProgress.inc()
   var timeArgs = that.timeWrangle(that, resolution);
   var barData = that.barChartWrangler(that);
+  NProgress.inc()
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  NProgress.inc()
   $(that.eventHandler).trigger("timeUpdate", [timeArgs]);
+  NProgress.inc()
   $(that.eventHandler).trigger("barChartDataReady", [barData]);
+  NProgress.inc()
   $(that.eventHandler).trigger("loadingDone");
   state.changed = false;
-  // $(that.eventHandler).trigger("communityAreaChanged", ["Total"])
-  // $(that.eventHandler).trigger("barChartInit", ["Total"])
 }
 
 SocrataModel.prototype.wrangleTimeChange = function(that){
-
+  NProgress.start()
   that.getDisplayData();
   var sunArgs = that.sunburstWrangle();
+  NProgress.inc()
   var mapArgs = that.mapWrangle();
   var barData = that.barChartWrangler(that);
   NProgress.inc()
   $(that.eventHandler).trigger("sunburstDataReady", [sunArgs]);
+  NProgress.inc()
   $(that.eventHandler).trigger("mapVisDataReady", [mapArgs]);
+  NProgress.inc()
   $(that.eventHandler).trigger("barChartDataReady", [barData]);
+  NProgress.inc()
   $(that.eventHandler).trigger("loadingDone");
   state.changed = false;
 }
 
 SocrataModel.prototype.sunburstWrangle = function(){
+  if(this.sunNoFilter 
+    && (!state.time_filters || state.time_filters.length==0 || calendarCompare(state.time_filters[0], state.time_filters[1]))
+    && this.prev_year == state.year)
+    return this.sunNoFilter;
+
   var t0 = new Date().getTime();
   var that = this;
   var sunburstDisp = that.timeOnlyFilter(that.data);
@@ -204,6 +214,12 @@ SocrataModel.prototype.sunburstWrangle = function(){
 }
 
 SocrataModel.prototype.mapWrangle = function(color){
+  if(this.mapNoFilter 
+    && (!state.crime_filters || state.crime_filters.length==0)
+    && (!state.time_filters || state.time_filters.length==0)
+    && this.prev_year == state.year)
+    return this.mapNoFilter;
+
   var t0 = new Date().getTime();
   var that = this;
   var mapping = d3.map();
@@ -217,9 +233,15 @@ SocrataModel.prototype.mapWrangle = function(color){
 }
 
 SocrataModel.prototype.barChartWrangler = function(that, community_area, resolution){
+  if(this.barNoFilter 
+    && (!state.crime_filters || state.crime_filters.length==0)
+    && (!state.time_filters || state.time_filters.length==0)
+    && this.prev_year == state.year)
+    return this.barNoFilter;
+
   var nested = d3.nest()
         .key(function(d){
-            return moment(d.date).zone("-6:00").month();})
+            return moment(d.date).utcOffset("-6:00").month();})
         .key(function(d){
             return d.community_area;})
         .rollup(function(leaves){
@@ -233,7 +255,12 @@ SocrataModel.prototype.barChartWrangler = function(that, community_area, resolut
 }
 
 SocrataModel.prototype.timeWrangle = function(that, resolution){
-  var timeDisplayData = that.filterQuery(that.data);
+  if(this.timeNoFilter 
+    && (!state.crime_filters || state.crime_filters.length==0)
+    && this.prev_year == state.year)
+    return this.timeNoFilter
+
+  var timeDisplayData = that.categoryFilter(that.data);
   var t0 = new Date().getTime();
   var yr = state.year;
   var zeroed_data;
@@ -250,23 +277,17 @@ SocrataModel.prototype.timeWrangle = function(that, resolution){
     zeroed_data = new Array(1);
   }
 
-  function dateFromDay(year, day){
-     var date = new Date(year, 0);
-     return new Date(date.setDate(day));
-   }
-
   for(var i = 0; i < zeroed_data.length; i++){
-      zeroed_data[i] = {"date": dateFromDay(yr, i), "count": 0};
+      zeroed_data[i] = {"date": moment({"year": state.year}).utcOffset("-6:00").add(i, "d").toDate(), "count": 0};
   }
 
   for(var i = 0; i < timeDisplayData.length; i++){
-    var info = moment(timeDisplayData[i].date).zone("-6:00");
+    var info = moment(timeDisplayData[i].date).utcOffset("-6:00");
     var index = (resolution == "getDay") ? info.dayOfYear() : info.month();
     zeroed_data[index].count++;
   }
 
   var t1 = new Date().getTime();
   console.log("timeWrangle: " + (t1-t0));
-
   return zeroed_data;  
 }

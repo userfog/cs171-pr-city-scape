@@ -67,7 +67,7 @@ OvertimeVis.prototype.initVis = function() {
 
   this.line = d3.svg.line()
     .x(function(d) { 
-      return that.x(moment({"year": d.date}).zone("-6:00")); })
+      return that.x(moment({"year": d.date}).utcOffset("-6:00")); })
     .y(function(d) { 
       return that.y(d.count); });
 
@@ -128,7 +128,7 @@ OvertimeVis.prototype.updateVis = function() {
       .attr("class", "dot")
       .attr("r", 2)
   points.transition().duration(750)
-      .attr("cx", function(d){return that.x(moment({"year": d.date}).zone("-6:00"))})
+      .attr("cx", function(d){return that.x(moment({"year": d.date}).utcOffset("-6:00"))})
       .attr("cy", function(d){return that.y(d.count)})
   points.on("mouseover", tip.show)
     .on("mouseout", tip.hide)
