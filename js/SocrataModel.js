@@ -26,7 +26,7 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
       function(data, status) {
         that.data.push.apply(that.data, data);
         state.length = state.length + data.length  || data.length
-        if(data.length < limit){
+        if(data.length < limit || true){
           safe_callback(callback, that);
         } else{
           that.get(str, callback, offset+limit, limit, false);
