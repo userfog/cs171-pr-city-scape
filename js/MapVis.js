@@ -65,7 +65,7 @@ MapVis.prototype.initVis = function() {
     .data(topojson.feature(this.data, this.data.objects.communityAreas).features)
     .enter().append("path")
     .attr("class", function(d){
-      return "communityareas " + areasMap[d.properties.name.toLowerCase()];
+      return "communityareas _" + areasMap[d.properties.name.toLowerCase()];
     })
     .attr("d", this.path);
 
@@ -145,16 +145,38 @@ MapVis.prototype.initVis = function() {
 
     this.communityLabels
     .on("mouseover", function(d){
+
         var table_demographics = that.demographicData.filter(function(e){
           return getId(d) == e.community_area;
         });
+
+        var table_income = that.incomeData.filter(function(e){
+          return getId(d) == e.community_area;
+        });
+
         that.table(d.properties.name, table_demographics);
+
+        that.income_table(d.properties.name, table_income);
+
+        d3.select("#quantity")
+        .html("<br><br><strong>Quantity</strong>" + "<br>" +that.displayData.get(getId(d)));
+
         $(that.eventHandler).trigger("communityAreaChanged", [[getId(d), that.colorRange]])
+
         // d3.select("._"+getId(d)).style("stroke", "black").style("stroke-width", 1.2);
     }).on("mouseout", function(){
+
       that.table("Total", that.demographicData);
-      
+      that.income_table("Total", that.incomeData);
+
+      var mean = d3.sum(d3.range(1,78), function(d){
+        return that.displayData.get(d)
+      })/77
+
+      d3.select("#quantity")
+      .html("<br><br><strong>Quantity</strong>" + "<br>" + d3.format(".02f")(mean))
       $(that.eventHandler).trigger("communityAreaChanged", [["Total", that.colorRange]]);
+
       // d3.select("._"+getId(d)).style("stroke-width", 0.1)
     });
 
