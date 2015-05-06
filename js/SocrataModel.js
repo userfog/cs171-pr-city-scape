@@ -20,7 +20,7 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     var that = this;
     if(clear)
       that.data = [];
-    var request = str + "&$offset={0}&$limit={1}".format(offset, 5000);
+    var request = str + "&$offset={0}&$limit={1}".format(offset, limit);
     $.getJSON(this.fullUrl
         + request 
         + "&$$app_token=" + this.apiKey,
