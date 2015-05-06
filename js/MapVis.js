@@ -1,5 +1,5 @@
 
-// view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
+// view-source: code adapted from http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
 MapVis = function(_parentElement, _data, _demographicData, _income, _socrataModel, _eventHandler){
   this.parentElement = _parentElement;
   this.data = _data;
