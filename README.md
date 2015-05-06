@@ -6,4 +6,4 @@
 
 [See our project website here.](https://www.chicagocrimes.info)
 <br>
-[See our project video here.](http://www.youtube.com)
+[See our project video here.](https://www.youtube.com/watch?v=2P_vJLNJPs0)
