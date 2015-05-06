@@ -279,14 +279,6 @@
 
         currentSelection.html(convertFiltersToTitle());
 
-        $(MyEventHandler).bind("barChartInit", function(event, event_args){
-          NProgress.start();
-          state.community_area = "Total";
-          BarSocrataModel.get("$select=date,arrest,community_area&$order=date ASC%20&$where={0}".format(state.genQuery())
-              , BarSocrataModel.wrangleBarChartRequest
-              , 0, 50000, true);
-        })
-
         $(MyEventHandler).bind("loadingDone", function(){
            state.ready = true 
            NProgress.done();
@@ -305,8 +297,8 @@
         })
 
         $(MyEventHandler).bind("overtimeReady", function(event, event_args){
-          if(state.year == moment().year)
-            overtime.push({"date": 2015, "count":state.length})
+          if(state.year == moment().year())
+            overtime.push({"date":2015, "count":state.count})
           MyOvertime.initData(overtime)
         })
 
