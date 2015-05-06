@@ -75,7 +75,7 @@ Sunburst.prototype.initVis = function() {
     .attr("width", this.width)
     .attr("height", this.height)
     .append("g")
-    .attr("transform", "translate("+ (5+this.width)/2 + ","+ this.height/2 + ")");
+    .attr("transform", "translate("+ (this.width)/2 + ","+ this.height/2 + ")");
 
   this.svg.call(this.tip);
 
