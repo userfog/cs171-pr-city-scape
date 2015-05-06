@@ -4,7 +4,7 @@ OvertimeVis = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.initialized = false;
   this.prev_brush = [];
   // defines  tants
-  this.margin = {top: 50, right: 0, bottom: 0, left: 50},
+  this.margin = {top: 50, right: 0, bottom: 2, left: 50},
   this.width = getInnerWidth(this.parentElement) - this.margin.left - this.margin.right,
   this.height = 225 - this.margin.top - this.margin.bottom;
 
