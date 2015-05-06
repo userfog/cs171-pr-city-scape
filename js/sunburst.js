@@ -1,4 +1,5 @@
-// view-source:http://www.nytimes.com/interactive/2013/01/02/us/chicago-killings.html?_r=0
+// base code from http://bl.ocks.org/mbostock/4348373
+
 Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
   this._socrataModel = _socrataModel;
@@ -18,7 +19,8 @@ Sunburst = function(_parentElement, _eventHandler, _data, _socrataModel){
   };
 
   this.radius = Math.min(this.width/1.1, this.height/1.1) / 2;
-  //http://bl.ocks.org/Caged/6476579
+  
+  //adapted from http://bl.ocks.org/Caged/6476579
   this.tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([0,0])
@@ -83,6 +85,8 @@ Sunburst.prototype.initVis = function() {
 
   this.y = d3.scale.sqrt()
       .range([0, that.radius]);
+
+  // these sections adapted from zoomable sunburst example http://bl.ocks.org/mbostock/4348373
 
   this.partition = d3.layout.partition()
       .value(function(d) { return d.values.size; })
