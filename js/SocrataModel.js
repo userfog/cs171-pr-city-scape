@@ -20,14 +20,14 @@ SocrataModel.prototype.get = function (str, callback, offset, limit, clear){
     var that = this;
     if(clear)
       that.data = [];
-    var request = str + "&$offset={0}&$limit={1}".format(offset, 1000);
+    var request = str + "&$offset={0}&$limit={1}".format(offset, 5000);
     $.getJSON(this.fullUrl
         + request 
         + "&$$app_token=" + this.apiKey,
       function(data, status) {
         that.data.push.apply(that.data, data);
         state.count = state.count + data.length  || data.length
-        if(data.length < limit || true){
+        if(data.length < limit){
           safe_callback(callback, that);
         } else{
           that.get(str, callback, offset+limit, limit, false);
