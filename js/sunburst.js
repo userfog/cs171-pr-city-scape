@@ -162,7 +162,7 @@ Sunburst.prototype.arcTween = function(d) {
   };
 }
 
-
+// Based on code from http://bl.ocks.org/mbostock/5944371
 Sunburst.prototype.fill = function  (key, depth) {
   var c = d3.lab(this.sunburst_colors(key));
   c.l = this.luminance(depth);

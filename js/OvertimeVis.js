@@ -1,3 +1,4 @@
+// Based on http://bl.ocks.org/mbostock/3883245
 OvertimeVis = function(_parentElement, _eventHandler, _data, _socrataModel){
   this.parentElement = _parentElement;
   this.initialized = false;
@@ -67,7 +68,7 @@ OvertimeVis.prototype.initVis = function() {
 
   this.line = d3.svg.line()
     .x(function(d) { 
-      return that.x(moment({"year": d.date}).utcOffset("-6:00")); })
+      return that.x(moment({"year": d.date}).utcOffset("-6:00").toDate().getTime()); })
     .y(function(d) { 
       return that.y(d.count); });
 
@@ -77,7 +78,7 @@ OvertimeVis.prototype.initVis = function() {
 OvertimeVis.prototype.updateVis = function() {
   var that = this;
 
-  this.x.domain(d3.extent(this.data, function(d) { return new Date(d.date, 0, 0, 0).getTime(); }));
+  this.x.domain(d3.extent(this.data, function(d) { return moment({"year":d.date}).utcOffset("-6:00").toDate().getTime(); }));
   this.y.domain(d3.extent(this.data, function(d) { return d.count; }));
 
 
@@ -128,7 +129,7 @@ OvertimeVis.prototype.updateVis = function() {
       .attr("class", "dot")
       .attr("r", 2)
   points.transition().duration(750)
-      .attr("cx", function(d){return that.x(moment({"year": d.date}).utcOffset("-6:00"))})
+      .attr("cx", function(d){return that.x(moment({"year": d.date}).utcOffset("-6:00").toDate())})
       .attr("cy", function(d){return that.y(d.count)})
   points.on("mouseover", tip.show)
     .on("mouseout", tip.hide)
