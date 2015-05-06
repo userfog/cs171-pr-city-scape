@@ -84,7 +84,6 @@ OvertimeVis.prototype.updateVis = function() {
 
   // updates axis
   this.svg.select(".x.axis")
-      .transition().duration(750)
       .attr("transform", "translate(0," + this.height/1.25 + ")")
       .call(this.xAxis)
       .selectAll("text")
